@@ -43,11 +43,12 @@ This is what lets three people/AIs work at once without stepping on each other.
 - Because the tracks live in different folders, merge conflicts should be rare — the only shared file is `shared/types.ts`.
 - Everyone needs **write access** to `github.com/gabrielpedrosolealinscrito-spec/FBLA` (add each collaborator in repo Settings → Collaborators).
 
-## GSD workstreams
+## Planning (GSD)
 
-Each track has an isolated planning space so plans/state don't collide:
-- `/gsd:workstreams switch frontend` (or `backend` / `pitch`) sets your active track.
-- Then `/gsd:plan-phase N` plans into that track's space.
+One shared roadmap (`.planning/ROADMAP.md`, phases 1–10) is the source of truth — **not** split per track (frontend and backend co-own the same vertical phases). Plan/execute phases in flat mode:
+- `/gsd:plan-phase N` then `/gsd:execute-phase N`.
+- Phase planning writes to `.planning/NN-name/`, so different phases never collide on disk.
+- Isolation between people comes from **folder ownership + your branch**, not from separate planning spaces.
 
 ## Deploy
 
@@ -61,4 +62,4 @@ Each track has an isolated planning space so plans/state don't collide:
 
 ## How the roadmap maps to tracks
 
-Product phases (ROADMAP Phases 1–8) are vertical slices — **frontend and backend each own their part of the same phase**, meeting at the contract. Phase 1 (scaffold) comes first and sets up this structure + the initial contract; after that, frontend and backend run async. Pitch (Phases 9–10) runs in parallel the whole time.
+Product phases (ROADMAP Phases 1–8) are vertical slices — **frontend and backend each own their part of the same phase**, meeting at the contract. Phase 1 (scaffold) comes first and sets up this structure + the initial contract; after that, frontend and backend run async on their own branches. Pitch (Phases 9–10) runs in parallel the whole time on its own branch.
