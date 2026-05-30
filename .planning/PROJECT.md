@@ -83,6 +83,11 @@ This GSD project is the **full competition deliverable** for the **FBLA Collegia
 | Plus tier is the marketing upsell target | Middle tier carries the live-AI + roadmap "wow"; growth strategy aims users here. | — Pending |
 | Keep live-AI layer as demo centerpiece (hotspot) | Team can run internet via phone hotspot on stage; it's the product's magic. | — Pending |
 | Demo needs offline golden-path fallback | Insurance against hotspot/API failure mid-pitch. | — Pending |
+| Deploy as a real website on Vercel | Easiest path; static frontend + serverless `/api` proxy holds the Anthropic key. | — Pending |
+| Three parallel tracks: frontend / backend / pitch | Team works async; each owns a folder; meets at `shared/types.ts`. | — Pending |
+| Contract-first (`shared/types.ts`) | Lets frontend + backend build in parallel without collisions. | — Pending |
+| Repo split: `src/` `shared/` `api/` `pitch/` | Folder ownership = conflict-free parallel commits. See `STRUCTURE.md`. | — Pending |
+| Slide deck built in Canva | Polished + fast; raw content/sources stay in `pitch/`, demo is part of the presentation. | — Pending |
 
 ## Evolution
 

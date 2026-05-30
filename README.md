@@ -1,55 +1,29 @@
-# FBLA Project
+# Potential
 
-Welcome to the FBLA (Future Business Leaders of America) project repository!
+**See where your life could look like — somewhere else.** A freemium web product that profiles who you are, matches you to real cities (US + international), shows what your money and life would actually look like there, and hands you a step-by-step roadmap to get there — including the immigration path.
 
-## Overview
+Built for the **FBLA Collegiate Entrepreneurship Pitch Competition (2025–2026)**. Goal: place #1.
 
-This repository contains resources and code for FBLA initiatives and activities.
+## Status
 
-## Getting Started
+Early build. The first-pass prototype lives in `potential_v2.jsx` and is being rebuilt into a deployable app.
 
-To get started with this project:
+## How this repo is organized
 
-1. Clone the repository
-```bash
-git clone https://github.com/gabrielpedrosolealinscrito-spec/FBLA.git
-cd FBLA
-```
+Three parallel tracks meet at one shared contract. **Read [`STRUCTURE.md`](./STRUCTURE.md) before contributing.**
 
-2. Follow the project-specific setup instructions (see sections below)
+| Folder | What |
+|--------|------|
+| [`src/`](./src) | Frontend — React UI |
+| [`shared/`](./shared) | The contract — types + pure engine + data |
+| [`api/`](./api) | Backend — Vercel serverless functions (Anthropic proxy) |
+| [`pitch/`](./pitch) | The business case + deck the judges score |
+| [`.planning/`](./.planning) | Planning brain (project, requirements, roadmap, research) |
 
-## Project Structure
+## Stack
 
-```
-FBLA/
-├── README.md
-└── ...
-```
+Vite + React (frontend) · Vercel serverless functions (backend proxy) · Anthropic API w/ web search (live data layer) · deployed on Vercel.
 
-## Features
+## Run
 
-- TBD
-
-## Requirements
-
-- TBD
-
-## Installation
-
-- TBD
-
-## Usage
-
-- TBD
-
-## Contributing
-
-Feel free to contribute to this project by submitting pull requests or opening issues.
-
-## License
-
-- TBD
-
-## Contact
-
-For questions or support, please reach out to the project maintainers.
+_Toolchain is scaffolded in Phase 1 (`/gsd:plan-phase 1`). Setup instructions land here once it exists._
