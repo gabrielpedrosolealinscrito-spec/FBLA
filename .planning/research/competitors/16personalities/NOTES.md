@@ -1,6 +1,11 @@
 # 16Personalities pricing & packaging teardown
 
-> Reference material for Phase 9 (Pitch — Business Substance). Gabriel chose 16Personalities (NERIS Analytics) as the pricing/packaging model to mirror. Source PDFs in this folder, captured 2026-05-30 from https://www.16personalities.com. These are the closest *proven* monetization analog to Potential: a free quiz → free-but-locked results → one-time paid unlocks.
+> **Project-wide reference.** Gabriel chose 16Personalities (NERIS Analytics) as the pricing/packaging *and* product-UX model to mirror. Source PDFs in this folder, captured 2026-05-30 from https://www.16personalities.com. They are the closest *proven* monetization analog to Potential: a free quiz → free-but-locked results → one-time paid unlocks.
+>
+> **This informs the whole project, not one phase:**
+> - **Product UX** — the free-but-locked/blurred results pattern shapes the results page and the freemium tier gate (Phases 2–3 results, Phase 8 tier gate).
+> - **Business model** — pricing, credit/"runs" packaging, and conversion mechanics feed the pitch deliverables (Phase 9).
+> - **Pitch Q&A** — 16Personalities is the citable proof point that a one-time, quiz-driven report business works at scale.
 
 ## The playbook we're mirroring
 

@@ -29,6 +29,7 @@ pitch/
 The research already did a lot of this work. Don't start from scratch:
 - `.planning/research/FEATURES.md` — competitor map (Nomad List, WhereNext, **Teleport's exit to enterprise**), validated pricing analogs ($9/$29/$99 vs 16Personalities/Truity), full tier feature ladder, sources.
 - `.planning/research/SUMMARY.md` — the pitch narrative + open questions.
+- `.planning/research/competitors/16personalities/` — pricing/packaging teardown + source PDFs. The chosen monetization + free-locked-teaser analog; read `NOTES.md` first.
 - `.planning/PROJECT.md` — the locked business decisions (freemium teaser, hybrid pricing, visa concierge moat).
 
 ## Non-negotiables
