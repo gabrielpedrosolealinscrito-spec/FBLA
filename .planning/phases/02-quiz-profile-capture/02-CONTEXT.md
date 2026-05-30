@@ -29,10 +29,10 @@ The quiz must capture every field downstream phases key off, and produce a **str
 ### Immigration & citizenship capture (QUIZ-03)
 - **D-07:** **Primary market = US citizens.** Capture flips from "what restrictions are on you" (≈none for US citizens) to "what a US citizen faces moving abroad."
 - **D-08:** **Citizenship** = curated **shortlist** (US + ~10 common destination-relevant citizenships + "Other"), **defaults to US**, stored as a **structured value** (not free text). Required: Phase 6 keys `ROADMAP_TEMPLATES[citizenship][country]` and Phase 7 maps pathways off it. Unsupported combos fall back to a generic roadmap downstream.
-- **D-09:** **`immigrationStatus`** auto-sets to `"citizen"` for US citizens (question not shown). Only non-US citizens see a short status enum. Keeps the flow fast for the core market while keeping the contract populated.
+- **D-09:** **`immigrationStatus`** auto-sets to `"citizen"` for US citizens (question not shown). Only non-US citizens see a short status enum. Keeps the flow fast for the core market while keeping the contract populated. **SC3 note:** every user *declares citizenship*; status is *auto-derived* for US citizens and explicitly declared by non-US citizens — this satisfies QUIZ-03 / SC3 even though the majority path never sees a status question.
 
 ### Openness to abroad (QUIZ-02)
-- **D-10:** Slider format is **locked** (0–100, per SC2 + `types.ts`). Bottom of slider (**0) = hard-exclude international** entirely; mid/high values weight international up. (The scoring math itself defers to Phase 3.)
+- **D-10:** Slider format is **locked** (0–100, per SC2 + `types.ts`). Bottom of slider (**0) = hard-exclude international** entirely; mid/high values weight international up. (The scoring math itself defers to Phase 3.) **SC2 note:** exclusion is the strongest form of "weight down," so this satisfies SC2's "weight international up or down." Behavior is **not testable until Phase 4** introduces international cities — verifying SC2 in Phase 2 can only confirm the value is captured + passed to the engine.
 
 ### Dealbreakers (QUIZ-04)
 - **D-11:** Dealbreakers are **hard filters** that eliminate cities — satisfying QUIZ-04's "eliminate, not just soft-weight." But the tool is **advisory and must never strand the user.** Guardrails:
