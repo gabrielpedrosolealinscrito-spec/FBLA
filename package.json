@@ -1,0 +1,30 @@
+{
+  "name": "fbla",
+  "version": "1.0.0",
+  "description": "**See where your life could look like — somewhere else.** A freemium web product that profiles who you are, matches you to real cities (US + international), shows what your money and life would actually look like there, and hands you a step-by-step roadmap to get there — including the immigration path.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielpedrosolealinscrito-spec/FBLA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gabrielpedrosolealinscrito-spec/FBLA/issues"
+  },
+  "homepage": "https://github.com/gabrielpedrosolealinscrito-spec/FBLA#readme",
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.14"
+  }
+}

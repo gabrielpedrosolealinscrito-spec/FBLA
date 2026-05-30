@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables (secrets — never commit these)
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel
+
+# Editor
+.DS_Store
+*.swp
