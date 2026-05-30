@@ -35,7 +35,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
   4. Existing dark-theme visual design (Instrument Serif, Manrope, JetBrains Mono) renders without regression
 **Plans**: 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Vite scaffold, git history verify, shared/types.ts compile proof
+- [x] 01-01-PLAN.md — Vite scaffold, git history verify, shared/types.ts compile proof (2026-05-30)
 - [ ] 01-02-PLAN.md — Port prototype to src/screens/PotentialApp.jsx, stub AI sections, visual parity checkpoint, delete root file
 - [ ] 01-03-PLAN.md — Vercel deploy config, first deploy, live URL confirmed, auto-deploy on main
 **UI hint**: yes
@@ -165,7 +165,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold & Port | 0/3 | Not started | - |
+| 1. Scaffold & Port | 1/3 | In progress | - |
 | 2. Quiz & Profile Capture | 0/TBD | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
