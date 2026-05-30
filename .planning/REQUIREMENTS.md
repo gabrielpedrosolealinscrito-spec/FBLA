@@ -101,6 +101,43 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ## Traceability
 
-<!-- Filled by roadmap: maps each REQ-ID to the phase that delivers it. -->
-
-(To be populated by ROADMAP.md)
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| FOUND-01 | Phase 1: Scaffold & Port | Pending |
+| FOUND-02 | Phase 1: Scaffold & Port | Pending |
+| QUIZ-01 | Phase 2: Quiz & Profile Capture | Pending |
+| QUIZ-02 | Phase 2: Quiz & Profile Capture | Pending |
+| QUIZ-03 | Phase 2: Quiz & Profile Capture | Pending |
+| QUIZ-04 | Phase 2: Quiz & Profile Capture | Pending |
+| QUIZ-05 | Phase 2: Quiz & Profile Capture | Pending |
+| MATCH-01 | Phase 3: Matching & US Financial Spine | Pending |
+| MATCH-03 | Phase 3: Matching & US Financial Spine | Pending |
+| MATCH-04 | Phase 3: Matching & US Financial Spine | Pending |
+| FIN-01 | Phase 3: Matching & US Financial Spine | Pending |
+| MATCH-02 | Phase 4: International Destinations & Country Models | Pending |
+| FIN-02 | Phase 4: International Destinations & Country Models | Pending |
+| FOUND-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-01 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| ROAD-01 | Phase 6: Relocation Roadmap | Pending |
+| ROAD-02 | Phase 6: Relocation Roadmap | Pending |
+| ROAD-03 | Phase 6: Relocation Roadmap | Pending |
+| VISA-01 | Phase 7: Visa Concierge | Pending |
+| VISA-02 | Phase 7: Visa Concierge | Pending |
+| VISA-03 | Phase 7: Visa Concierge | Pending |
+| VISA-04 | Phase 7: Visa Concierge | Pending |
+| TIER-01 | Phase 8: Freemium Tier Gate | Pending |
+| TIER-02 | Phase 8: Freemium Tier Gate | Pending |
+| TIER-03 | Phase 8: Freemium Tier Gate | Pending |
+| PITCH-01 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-02 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-03 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-04 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-05 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-06 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-07 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Pending |
+| PITCH-08 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Pending |
+| PITCH-09 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Pending |
