@@ -123,9 +123,9 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 **Depends on**: Phase 7
 **Requirements**: TIER-01, TIER-02, TIER-03
 **Success Criteria** (what must be TRUE):
-  1. A user in the free tier sees only the #1 match city and one headline financial number; all other cities and detail sections are visibly locked with upgrade prompts
-  2. Switching to Basic, Plus, and Premium tiers each reveals the correct feature set (full list, live AI layer, roadmap, visa concierge) with no broken states
-  3. Every locked section displays a "what you unlock" upsell message with Plus positioned as the primary call-to-action
+  1. A user in the free tier sees a minimal teaser (that a #1 match exists) with deeper results and detail sections visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style locked results)
+  2. Switching tiers reveals the correct run-based feature set with no broken states: Basic $0.99 (1 run — the single most optimal city + core financials), Plus $9.99 (3 runs — full ranked list + live-AI layer + roadmap), Premium $29.99 (unlimited runs — adds the visa concierge)
+  3. Every locked section displays a "what you unlock" upsell message with Plus ($9.99, badged "most popular") positioned as the primary call-to-action
   4. The DemoTierSwitcher control cycles through all four tiers during a live demo, making every tier visible to judges in under 60 seconds
 **Plans**: TBD
 **UI hint**: yes
@@ -138,7 +138,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 **Success Criteria** (what must be TRUE):
   1. A bottom-up market sizing document exists built from Census Bureau annual mover data (~8M households), international migration interest figures, and the 22–35 demographic segment — every layer cited to a primary source (PITCH-01)
   2. A competitive positioning document names Nomad List, WhereNext, and the Teleport-to-Topia acquisition explicitly, states what each competitor cannot do, and articulates Potential's three specific differentiators (PITCH-02, PITCH-03)
-  3. A business model document specifies hybrid pricing (Basic $9 one-time, Plus $29 one-time, Premium $99/$9.99/mo), a full conversion funnel with stated conversion rate assumptions benchmarked to freemium industry data, and named distribution channels with audience-fit rationale (PITCH-04, PITCH-06)
+  3. A business model document specifies the run-based, one-time pricing (Free teaser, Basic $0.99 = 1 run, Plus $9.99 = 3 runs and the primary upsell, Premium $29.99 = unlimited runs; runs are never-expiring credits, no subscription), a full conversion funnel with stated conversion-rate assumptions (high first-purchase via the near-frictionless $0.99 entry, low re-run rate) benchmarked to freemium/16Personalities data, named recurring/scaling revenue (affiliate/referral + future B2B employer), and named distribution channels with audience-fit rationale (PITCH-04, PITCH-06)
   4. A financial model exists built bottom-up from stated assumptions: startup costs (API, legal, marketing), CAC per channel, LTV by tier, break-even month — every number re-derivable from first principles in 60 seconds (PITCH-05)
 **Plans**: TBD
 

@@ -30,14 +30,14 @@ This GSD project is the **full competition deliverable** for the **FBLA Collegia
 - [ ] Live AI data layer (real jobs, real housing, day-in-the-life) backed by a real backend/proxy — not the broken client-side call
 - [ ] Relocation **roadmap** output: step-by-step "how to actually move there" (timeline, costs, action steps, job/housing path)
 - [ ] Immigration/visa pathway as the premium differentiator
-- [ ] Freemium funnel: free teaser at results (#1 match + one headline number), then paywalled tiers
-- [ ] Tiered offering: Basic / Plus (upsell target) / Premium, with features layered per tier
+- [ ] Freemium funnel: free teaser at results (minimal preview + blurred/locked deeper sections to drive curiosity), then paywalled tiers
+- [ ] Tiered offering, run-based one-time pricing (never-expiring credits, no subscription): Basic $0.99 (1 run) / Plus $9.99 (3 runs, upsell target, "most popular") / Premium $29.99 (unlimited runs), with features layered per tier
 
 **Pitch package — what wins the competition:**
 - [ ] Problem identification & market opportunity (sized, validated)
 - [ ] Business concept & innovation (clear differentiation)
 - [ ] Value proposition & customer benefit
-- [ ] Business model: pricing, sales, distribution (hybrid one-time + subscription)
+- [ ] Business model: pricing, sales, distribution (run-based one-time pricing, no consumer subscription; recurring/scaling revenue via affiliate + future B2B)
 - [ ] Feasibility & financials: startup costs, projections, profitability, sustainability
 - [ ] Marketing & growth strategy (incl. how we drive users to the Plus upsell)
 - [ ] Pitch deck + 10-min presentation + 5-min Q&A prep, sourced/cited
@@ -78,7 +78,9 @@ This GSD project is the **full competition deliverable** for the **FBLA Collegia
 | Core value = win #1, not "ship the app" | Optimizes every tradeoff toward the judges' rubric. | — Pending |
 | Include international destinations in v1 | Enables "living abroad" angle + premium visa concierge differentiator. | — Pending |
 | Freemium with free teaser at results | Better conversion than hard paywall; scores value-prop/marketing points. | — Pending |
-| Hybrid pricing: one-time reports + Premium subscription | Impulse-buy revenue + recurring MRR story for judges. | — Pending |
+| Run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99), no consumer subscription | Relocation is a one-time decision — a subscription is hard to defend in Q&A. Runs = never-expiring credits remove the "use it or lose it" objection. Recurring/scaling revenue comes from affiliate/referral + future B2B, not consumer MRR. | — Pending (revised 2026-05-30, supersedes earlier hybrid sub pricing) |
+| Model pricing/packaging + free-locked teaser on 16Personalities | Proven, recognizable consumer business on the exact funnel (free quiz → free-but-locked results → one-time unlock). Citable Q&A proof point. See `.planning/research/competitors/16personalities/`. | — Pending |
+| $0.99 Basic as a near-frictionless entry purchase | Micro-price maximizes first-purchase conversion, then upsell to Plus/Premium. | — Pending |
 | Premium = immigration/visa concierge | Leverages founder's real expertise; defensible moat; ties to international scope. | — Pending |
 | Plus tier is the marketing upsell target | Middle tier carries the live-AI + roadmap "wow"; growth strategy aims users here. | — Pending |
 | Keep live-AI layer as demo centerpiece (hotspot) | Team can run internet via phone hotspot on stage; it's the product's magic. | — Pending |
@@ -107,4 +109,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-30 after initialization*
+*Last updated: 2026-05-30 — Phase 9 discussion revised the business model to run-based one-time pricing (no consumer subscription), modeled on 16Personalities.*

@@ -59,8 +59,8 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Freemium Tier Gate
 
-- [ ] **TIER-01**: Free tier shows only the #1 match + one headline financial number; deeper content is visibly locked with upgrade prompts
-- [ ] **TIER-02**: Basic / Plus / Premium tiers each unlock the correct feature set, demonstrable by switching tier state in the UI
+- [ ] **TIER-01**: Free tier shows a minimal teaser (that a #1 match exists); deeper results and detail sections are visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style)
+- [ ] **TIER-02**: Basic ($0.99, 1 run) / Plus ($9.99, 3 runs) / Premium ($29.99, unlimited runs) tiers each unlock the correct run-based feature set, demonstrable by switching tier state in the UI
 - [ ] **TIER-03**: Tier-locked features display a clear "what you unlock" upsell, with Plus positioned as the primary upsell target
 
 ### Pitch Package (what the judges score)
@@ -68,7 +68,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 - [ ] **PITCH-01**: Problem identification & market opportunity, with sized, cited market data
 - [ ] **PITCH-02**: Business concept & innovation framed against the competitor landscape (incl. the Teleport-exited-to-enterprise narrative)
 - [ ] **PITCH-03**: Value proposition & customer benefit articulated for the target user
-- [ ] **PITCH-04**: Business model — hybrid one-time (Basic/Plus) + Premium subscription — with pricing, sales, and distribution
+- [ ] **PITCH-04**: Business model — run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99 as never-expiring credits, no consumer subscription; recurring/scaling revenue via affiliate + future B2B) — with pricing, sales, and distribution
 - [ ] **PITCH-05**: Feasibility & financials — startup costs, unit economics, projections, profitability path, all defensible in Q&A
 - [ ] **PITCH-06**: Marketing & growth strategy, including how users are driven to the Plus upsell
 - [ ] **PITCH-07**: Pitch deck + ≤10-minute presentation built, with every claim sourced/cited (Sources row is directly scored)
@@ -85,7 +85,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 - [ ] Additional fully-built visa pathways beyond Portugal D8 + Canada Express Entry
 - [ ] Curated attorney-referral network with affiliate revenue
 - [ ] Email delivery of reports
-- [ ] Real-time visa-policy-change tracking (justifies Premium subscription long-term)
+- [ ] Real-time visa-policy-change tracking (future Premium add-on / B2B value — no longer tied to a consumer subscription)
 - [ ] Employer-side B2B product (relocation benefits for remote-first companies)
 
 ## Out of Scope
