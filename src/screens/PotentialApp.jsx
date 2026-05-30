@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { PROFESSION_CATEGORIES, BASE_SALARIES, LIFESTYLE_TAGS, DEAL_BREAKERS } from '../../shared/data/constants.js';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
-// Deep profile + AI-powered real data
+// Ported from prototype into src/screens/
+// Fonts load via index.html (no useEffect).
+// AI fetch stubbed — live data arrives Phase 5.
 // ═══════════════════════════════════════════
 
 const CITIES_DATA = [
@@ -18,50 +21,6 @@ const CITIES_DATA = [
   { name: "Salt Lake City, UT", emoji: "🏂", color: "#5C6BC0", lat: 40.76, lng: -111.89, pop: "1.3M metro", climate: "Dry, snowy winters, warm summers", costIndex: 99, stateTax: 4.65, medianRent: 1300, medianHome: 460000, avgTemp: 52, vibe: ["Outdoorsy","Tech","Growing","Family"], walkScore: 57, transitScore: 39, safetyIndex: 76, jobGrowth: 4.0, topIndustries: ["Tech","Finance","Outdoor Rec","Healthcare"] },
   { name: "Chicago, IL", emoji: "🏙️", color: "#C62828", lat: 41.88, lng: -87.63, pop: "9.4M metro", climate: "Cold winters, hot summers", costIndex: 107, stateTax: 4.95, medianRent: 1700, medianHome: 320000, avgTemp: 50, vibe: ["Diverse","Nightlife","Walkable","Creative"], walkScore: 78, transitScore: 65, safetyIndex: 58, jobGrowth: 1.8, topIndustries: ["Finance","Food/Bev","Tech","Manufacturing"] },
   { name: "San Diego, CA", emoji: "🏖️", color: "#0288D1", lat: 32.72, lng: -117.16, pop: "3.3M metro", climate: "Mediterranean, mild year-round", costIndex: 146, stateTax: 13.3, medianRent: 2200, medianHome: 820000, avgTemp: 64, vibe: ["Outdoorsy","Diverse","Healthy","Tropical"], walkScore: 51, transitScore: 35, safetyIndex: 73, jobGrowth: 2.6, topIndustries: ["Biotech","Military","Tourism","Tech"] },
-];
-
-const PROFESSION_CATEGORIES = {
-  "Design & Creative": ["Graphic Designer","UX/UI Designer","Interior Designer","Photographer","Video Editor","Animator","Art Director","Fashion Designer"],
-  "Tech & Engineering": ["Software Engineer","Data Analyst","Data Scientist","DevOps Engineer","Mechanical Engineer","Civil Engineer","Electrical Engineer","IT Support"],
-  "Business & Finance": ["Accountant","Financial Analyst","Marketing Manager","Project Manager","HR Manager","Business Analyst","Real Estate Agent","Insurance Agent"],
-  "Healthcare": ["Registered Nurse","Dental Hygienist","Physical Therapist","Pharmacy Technician","Medical Assistant","Paramedic","Psychologist"],
-  "Education & Social": ["Teacher (K-12)","College Professor","Social Worker","School Counselor","Librarian","Tutor / Instructor"],
-  "Trades & Services": ["Electrician","Plumber","HVAC Technician","Welder","Auto Mechanic","Chef / Cook","Restaurant Manager","Barber / Cosmetologist"],
-  "Media & Writing": ["Writer / Content Creator","Journalist","PR Specialist","Social Media Manager","Copywriter","Technical Writer"],
-};
-
-const BASE_SALARIES = {
-  "Graphic Designer":55000,"UX/UI Designer":82000,"Interior Designer":56000,"Photographer":42000,"Video Editor":52000,"Animator":65000,"Art Director":95000,"Fashion Designer":58000,
-  "Software Engineer":110000,"Data Analyst":72000,"Data Scientist":105000,"DevOps Engineer":115000,"Mechanical Engineer":80000,"Civil Engineer":75000,"Electrical Engineer":82000,"IT Support":52000,
-  "Accountant":65000,"Financial Analyst":78000,"Marketing Manager":80000,"Project Manager":85000,"HR Manager":78000,"Business Analyst":75000,"Real Estate Agent":62000,"Insurance Agent":55000,
-  "Registered Nurse":72000,"Dental Hygienist":78000,"Physical Therapist":82000,"Pharmacy Technician":38000,"Medical Assistant":36000,"Paramedic":45000,"Psychologist":85000,
-  "Teacher (K-12)":52000,"College Professor":78000,"Social Worker":48000,"School Counselor":55000,"Librarian":52000,"Tutor / Instructor":40000,
-  "Electrician":58000,"Plumber":56000,"HVAC Technician":52000,"Welder":48000,"Auto Mechanic":46000,"Chef / Cook":38000,"Restaurant Manager":52000,"Barber / Cosmetologist":35000,
-  "Writer / Content Creator":50000,"Journalist":48000,"PR Specialist":60000,"Social Media Manager":55000,"Copywriter":58000,"Technical Writer":72000,
-};
-
-const LIFESTYLE_TAGS = [
-  { id:"nightlife", label:"Nightlife & Bars", icon:"🍸" },
-  { id:"outdoors", label:"Hiking & Nature", icon:"🥾" },
-  { id:"arts", label:"Arts & Museums", icon:"🎨" },
-  { id:"foodie", label:"Food Scene", icon:"🍜" },
-  { id:"fitness", label:"Gyms & Fitness", icon:"💪" },
-  { id:"family", label:"Family-Friendly", icon:"👨‍👩‍👧" },
-  { id:"walkable", label:"Walkable / Transit", icon:"🚶" },
-  { id:"diversity", label:"Cultural Diversity", icon:"🌍" },
-  { id:"music", label:"Live Music", icon:"🎶" },
-  { id:"beach", label:"Beach / Water", icon:"🏄" },
-  { id:"snow", label:"Snow Sports", icon:"🏂" },
-  { id:"startup", label:"Startup Scene", icon:"🚀" },
-  { id:"lgbtq", label:"LGBTQ+ Friendly", icon:"🏳️‍🌈" },
-  { id:"quiet", label:"Peace & Quiet", icon:"🌿" },
-];
-
-const DEAL_BREAKERS = [
-  "No extreme cold", "No extreme heat", "Must have public transit",
-  "Must be walkable", "No state income tax", "Must be near mountains",
-  "Must be near ocean/coast", "Low crime only", "Need international airport",
-  "Must have strong job market in my field"
 ];
 
 const fmt = (n) => n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n/1000)}K` : `$${n}`;
@@ -95,11 +54,8 @@ export default function Potential() {
   const [sortBy, setSortBy] = useState("match");
   const [expandedSection, setExpandedSection] = useState(null);
 
+  // Animate on mount — fonts load from index.html, no font useEffect needed
   useEffect(() => {
-    const link = document.createElement("link");
-    link.href = "https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
     setTimeout(() => setAnim(true), 80);
   }, []);
 
@@ -185,50 +141,13 @@ export default function Potential() {
     return Math.min(99, Math.max(5, Math.round(score)));
   };
 
-  // ── AI Fetch ──
+  // ── AI Fetch — stubbed for Phase 1; live data wired in Phase 5 ──
   const fetchCityAI = useCallback(async (city, category) => {
     const key = `${city.name}_${category}`;
-    if (cityAIData[key] || aiLoading[key]) return;
-    setAiLoading(prev => ({ ...prev, [key]: true }));
-
-    const profLabel = profile.profession || "professional";
-    const prompts = {
-      jobs: `Search for 6 current job openings for "${profLabel}" in ${city.name}. For each, return: title, company, salary range if available, a one-line description, and the URL to the job listing. Return ONLY valid JSON array like: [{"title":"...","company":"...","salary":"...","desc":"...","url":"..."}]. No markdown, no preamble.`,
-      housing_rent: `Search for current apartment rental listings in ${city.name}. Find 5 specific real apartments/units available now on sites like apartments.com, zillow, or similar. For each return: the building or complex name, neighborhood, bedrooms, price per month, one notable feature, an image URL of the listing or building if available, and the URL to the actual listing. Return ONLY valid JSON array like: [{"name":"...","neighborhood":"...","beds":"...","price":"...","feature":"...","image":"...","url":"..."}]. No markdown.`,
-      housing_buy: `Search for current homes for sale in ${city.name} under $${Math.round(getSalary(city) * 5).toLocaleString()} on zillow, redfin, or realtor.com. Find 5 specific listings. Return ONLY valid JSON array like: [{"address":"...","neighborhood":"...","beds":"...","price":"...","sqft":"...","feature":"...","image":"...","url":"..."}]. No markdown.`,
-      nightlife: `Search for the top 6 most popular nightlife spots, bars, and clubs in ${city.name} right now. For each return: name, type (bar/club/lounge/brewery), neighborhood, what it's known for in one sentence, the venue's website or Google Maps URL, and an image URL if available. Return ONLY valid JSON array like: [{"name":"...","type":"...","neighborhood":"...","known_for":"...","url":"...","image":"..."}]. No markdown.`,
-      outdoors: `Search for the top 6 outdoor activities and nature spots near ${city.name}. Include hiking trails, parks, lakes, mountains. For each return: name, type, distance from downtown, a one-line description, a URL (AllTrails link, official site, or Google Maps), and an image URL if available. Return ONLY valid JSON array like: [{"name":"...","type":"...","distance":"...","desc":"...","url":"...","image":"..."}]. No markdown.`,
-      food: `Search for 6 highly-rated and popular restaurants in ${city.name} across different cuisines. For each return: name, cuisine, price range ($-$$$$), neighborhood, what makes it special, the restaurant's website or Yelp/Google URL, and an image URL if available. Return ONLY valid JSON array like: [{"name":"...","cuisine":"...","price":"...","neighborhood":"...","special":"...","url":"...","image":"..."}]. No markdown.`,
-      dayinlife: `Write a vivid, specific "A Day in the Life" narrative for a ${profile.age}-year-old ${profLabel} earning about ${fmt(getSalary(city))}/year living in ${city.name}. Include: morning routine, commute, work, lunch spot (name a real place), after-work activity (name a real place), evening plans, and how they feel about their life there. Make it 200 words, second person ("You wake up..."). Return ONLY the narrative text, no JSON, no markdown.`,
-    };
-
-    try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          tools: [{ type: "web_search_20250305", name: "web_search" }],
-          messages: [{ role: "user", content: prompts[category] }]
-        })
-      });
-      const data = await response.json();
-      const text = data.content?.map(i => i.type === "text" ? i.text : "").filter(Boolean).join("\n") || "";
-      let parsed;
-      try {
-        const clean = text.replace(/```json|```/g, "").trim();
-        parsed = JSON.parse(clean);
-      } catch {
-        parsed = text;
-      }
-      setCityAIData(prev => ({ ...prev, [key]: parsed }));
-    } catch (err) {
-      setCityAIData(prev => ({ ...prev, [key]: "error" }));
-    } finally {
-      setAiLoading(prev => ({ ...prev, [key]: false }));
-    }
-  }, [profile, cityAIData, aiLoading]);
+    if (cityAIData[key]) return;
+    console.info("[Phase 1] Live AI data is coming in Phase 5");
+    setCityAIData(prev => ({ ...prev, [key]: "coming_soon" }));
+  }, [cityAIData]);
 
   // ── CSS ──
   const css = {
@@ -625,6 +544,11 @@ export default function Potential() {
       );
       if (!data) return <p style={{ color:"var(--text3)", fontSize:13, padding:"12px 0" }}>Tap to load real data</p>;
       if (data === "error") return <p style={{ color:"var(--neg)", fontSize:13 }}>Failed to load — try again</p>;
+      if (data === "coming_soon") return (
+        <p style={{ color:"var(--text3)", fontSize:14, lineHeight:1.7 }}>
+          Live AI data arrives in Phase 5. This section will show real job listings, apartments, and a personalized day-in-the-life narrative.
+        </p>
+      );
       if (typeof data === "string") return <p style={{ color:"var(--text2)", fontSize:14, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{data}</p>;
       if (!Array.isArray(data)) return <p style={{ color:"var(--text3)", fontSize:13 }}>No results found</p>;
       return <div style={{ display:"flex", flexDirection:"column", gap:10, paddingTop:12 }}>{data.map((item, i) => renderItem(item, i))}</div>;

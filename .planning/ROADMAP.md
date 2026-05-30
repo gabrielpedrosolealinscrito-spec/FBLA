@@ -10,7 +10,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 - Integer phases (1–10): Planned milestone work
 - Decimal phases: Urgent insertions via `/gsd:phase insert`
 
-- [ ] **Phase 1: Scaffold & Port** - Verify reconciled repo, scaffold Vite + React, port prototype into component architecture
+- [x] **Phase 1: Scaffold & Port** - Verify reconciled repo, scaffold Vite + React, port prototype into component architecture (2026-05-30)
 - [ ] **Phase 2: Quiz & Profile Capture** - Multi-step profile quiz capturing all fields including citizenship/immigration status
 - [ ] **Phase 3: Matching & US Financial Spine** - Scoring engine, US financial model, ranked results — first fully offline demo
 - [ ] **Phase 4: International Destinations & Country Models** - 4 intl cities with sourced data and country-correct financials
@@ -33,7 +33,11 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
   2. `npm run dev` starts the app with no errors and the ported prototype renders in browser
   3. TypeScript vs JavaScript decision is committed in a STACK decision comment; engine and proxy directories exist with correct file extensions
   4. Existing dark-theme visual design (Instrument Serif, Manrope, JetBrains Mono) renders without regression
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [x] 01-01-PLAN.md — Vite scaffold, git history verify, shared/types.ts compile proof (2026-05-30)
+- [x] 01-02-PLAN.md — Port prototype to src/screens/PotentialApp.jsx, stub AI sections, visual parity checkpoint, delete root file
+- [x] 01-03-PLAN.md — Vercel deploy config, first deploy, live URL confirmed, auto-deploy on main (2026-05-30)
 **UI hint**: yes
 
 ### Phase 2: Quiz & Profile Capture
@@ -161,7 +165,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold & Port | 0/TBD | Not started | - |
+| 1. Scaffold & Port | 3/3 | Complete | 2026-05-30 |
 | 2. Quiz & Profile Capture | 0/TBD | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |

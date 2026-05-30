@@ -1,0 +1,12 @@
+{
+  "notes": "TS for shared/ + api/ (typed contract); plain JSX for src/ (prototype port, fast iteration). See .planning/phases/01-scaffold-port/01-CONTEXT.md.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["shared/**/*.ts", "api/**/*.ts"]
+}

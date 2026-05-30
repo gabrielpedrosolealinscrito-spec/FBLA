@@ -2,34 +2,57 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: None
-current_plan: N/A
-status: Not started
+current_phase: 01-scaffold-port
+current_plan: 3
+status: In Progress (Plan 03 complete)
+stopped_at: After 01-03-PLAN.md
 last_updated: "2026-05-30T23:41:53.147Z"
 last_activity: 2026-05-30
 progress:
   total_phases: 10
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 3
+  completed_plans: 3
+  percent: 10
 ---
 
 # Project State
 
 ## Current Position
 
-**Status:** Not started
-**Current Phase:** None
+Phase: 01 (scaffold-port) — COMPLETE
+Plan: 3 of 3
+**Status:** In Progress (Plan 03 complete)
+**Current Phase:** 01-scaffold-port
 **Last Activity:** 2026-05-30
-**Last Activity Description:** Workstream created
+**Last Activity Description:** Plan 01-03 complete — Vercel deploy config, live URL confirmed, walking skeleton proven end-to-end
+
+> **Parallel pitch track:** Phase 9 (Pitch — Business Substance) context gathered 2026-05-30 — business model redesigned to run-based one-time pricing (no subscription), ready to plan. See `.planning/phases/09-pitch-business-substance/09-CONTEXT.md`.
 
 ## Progress
 
-**Phases Complete:** 0
-**Current Plan:** N/A
+**Phases Complete:** 1 (product track) · Phase 9 context gathered (pitch track)
+**Current Plan:** 3
+
+## Decisions
+
+- TS(shared+api)/JSX(src) language split — typed contract at network boundary, fast JSX in prototype-origin UI layer
+- Google Fonts loaded in index.html head (not component useEffect) to eliminate FOUT
+- Vercel serverless function pattern: api/*.ts exports default handler(req, res) typed via @vercel/node
+- [Phase ?]: Keep CITIES_DATA inline
+- [Phase ?]: AI fetch stub pattern
+- Business model: run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99), no consumer subscription, modeled on 16Personalities (Phase 9 discussion)
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Tasks | Files |
+|-------|------|----------|-------|-------|
+| 01 | 01 | 5min | 2 | 11 |
+| Phase 01 P02 | 10min | 3 tasks | 4 files |
 
 ## Session Continuity
 
-**Stopped At:** Phase 9 context gathered
+**Stopped At:** After 01-03-PLAN.md (Phase 1 complete); Phase 9 context gathered (pitch track)
 **Resume File:** .planning/phases/09-pitch-business-substance/09-CONTEXT.md
+**Live URL:** https://fbla-ruddy.vercel.app
+**Walking Skeleton:** proven end-to-end (local npm run dev + public Vercel deploy + /api/health 200)
