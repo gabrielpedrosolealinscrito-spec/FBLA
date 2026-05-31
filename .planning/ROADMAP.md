@@ -18,7 +18,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 - [ ] **Phase 6: Relocation Roadmap** - Template-first authored roadmap generator for all 6 sections, PDF export
 - [ ] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations
 - [ ] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers
-- [ ] **Phase 9: Pitch — Business Substance** - Sourced market sizing, competitive positioning, business model, financials, marketing
+- [x] **Phase 9: Pitch — Business Substance** - Sourced market sizing, competitive positioning, business model, financials, marketing (completed 2026-05-31)
 - [ ] **Phase 10: Pitch — Deck, Rehearsal & Protocol** - Slide deck, Q&A bank, timed rehearsals, protocol compliance checklist
 
 ## Phase Details
@@ -173,5 +173,5 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
-| 9. Pitch — Business Substance | 2/3 | In Progress|  |
+| 9. Pitch — Business Substance | 3/3 | Complete   | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 0/TBD | Not started | - |
