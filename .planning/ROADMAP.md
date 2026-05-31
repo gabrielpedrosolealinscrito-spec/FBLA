@@ -182,4 +182,4 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
-| 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete   | 2026-05-31 |
+| 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
