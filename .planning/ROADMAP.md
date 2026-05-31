@@ -173,5 +173,5 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
-| 9. Pitch — Business Substance | 1/3 | In Progress|  |
+| 9. Pitch — Business Substance | 2/3 | In Progress|  |
 | 10. Pitch — Deck, Rehearsal & Protocol | 0/TBD | Not started | - |

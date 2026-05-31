@@ -68,9 +68,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 - [x] **PITCH-01**: Problem identification & market opportunity, with sized, cited market data
 - [x] **PITCH-02**: Business concept & innovation framed against the competitor landscape (incl. the Teleport-exited-to-enterprise narrative)
 - [x] **PITCH-03**: Value proposition & customer benefit articulated for the target user
-- [ ] **PITCH-04**: Business model — run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99 as never-expiring credits, no consumer subscription; recurring/scaling revenue via affiliate + future B2B) — with pricing, sales, and distribution
+- [x] **PITCH-04**: Business model — run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99 as never-expiring credits, no consumer subscription; recurring/scaling revenue via affiliate + future B2B) — with pricing, sales, and distribution
 - [ ] **PITCH-05**: Feasibility & financials — startup costs, unit economics, projections, profitability path, all defensible in Q&A
-- [ ] **PITCH-06**: Marketing & growth strategy, including how users are driven to the Plus upsell
+- [x] **PITCH-06**: Marketing & growth strategy, including how users are driven to the Plus upsell
 - [ ] **PITCH-07**: Pitch deck + ≤10-minute presentation built, with every claim sourced/cited (Sources row is directly scored)
 - [ ] **PITCH-08**: Q&A preparation — anticipated-question bank with defensible answers (esp. financials and visa accuracy)
 - [ ] **PITCH-09**: Protocol checklist passed — within time, no judge-clicked links/QR, no external speakers, nothing left with judges, dress code met
@@ -135,9 +135,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | PITCH-01 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-02 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-03 | Phase 9: Pitch — Business Substance | Complete |
-| PITCH-04 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-04 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-05 | Phase 9: Pitch — Business Substance | Pending |
-| PITCH-06 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-06 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-07 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Pending |
 | PITCH-08 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Pending |
 | PITCH-09 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Pending |
