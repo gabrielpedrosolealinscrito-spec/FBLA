@@ -16,7 +16,15 @@ This GSD project is the **full competition deliverable** for the **FBLA Collegia
 
 <!-- Shipped and confirmed valuable. -->
 
-(None yet — ship to validate. The existing `potential_v2.jsx` is a v0 prototype to react to, NOT validated/shipped product.)
+**Pitch business-substance deliverables — authored + goal-verified in Phase 9** (sourced, Q&A-defensible documents under `pitch/`; 7 founder-verify flags F1–F7 carried for live-source confirmation before pitch day):
+- [x] Problem identification & market opportunity — bottom-up TAM→SAM→SOM, Census/Pew/MBO/Truity cited (`pitch/market-research.md`) — *Validated in Phase 9*
+- [x] Business concept & innovation — competitive positioning (Nomad List / WhereNext / Teleport→Topia) + three differentiators (`pitch/market-research.md`) — *Validated in Phase 9*
+- [x] Value proposition & customer benefit (`pitch/business-model.md`) — *Validated in Phase 9*
+- [x] Business model & pricing — run-based one-time pricing, no consumer subscription, recurring via affiliate + future B2B (`pitch/business-model.md`) — *Validated in Phase 9*
+- [x] Feasibility & financials — 24-month base-case model, break-even ~Month 3–4, ~97–98% Plus margin (`pitch/financials/`) — *Validated in Phase 9*
+- [x] Marketing & growth — four named channels with per-channel CAC, funnel driving to Plus (`pitch/business-model.md`) — *Validated in Phase 9*
+
+(Product app requirements remain hypotheses until shipped — `potential_v2.jsx` is a v0 prototype to react to, NOT validated product.)
 
 ### Active
 
@@ -34,13 +42,8 @@ This GSD project is the **full competition deliverable** for the **FBLA Collegia
 - [ ] Tiered offering, run-based one-time pricing (never-expiring credits, no subscription): Basic $0.99 (1 run) / Plus $9.99 (3 runs, upsell target, "most popular") / Premium $29.99 (unlimited runs), with features layered per tier
 
 **Pitch package — what wins the competition:**
-- [ ] Problem identification & market opportunity (sized, validated)
-- [ ] Business concept & innovation (clear differentiation)
-- [ ] Value proposition & customer benefit
-- [ ] Business model: pricing, sales, distribution (run-based one-time pricing, no consumer subscription; recurring/scaling revenue via affiliate + future B2B)
-- [ ] Feasibility & financials: startup costs, projections, profitability, sustainability
-- [ ] Marketing & growth strategy (incl. how we drive users to the Plus upsell)
-- [ ] Pitch deck + 10-min presentation + 5-min Q&A prep, sourced/cited
+- (Business-substance dimensions — problem/market, concept, value prop, business model, financials, marketing — authored + verified in Phase 9; see Validated above.)
+- [ ] Pitch deck + 10-min presentation + 5-min Q&A prep, sourced/cited *(Phase 10)*
 
 ### Out of Scope
 
@@ -109,4 +112,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-30 — Phase 9 discussion revised the business model to run-based one-time pricing (no consumer subscription), modeled on 16Personalities.*
+*Last updated: 2026-05-31 — Phase 9 complete: the six business-substance pitch deliverables are authored, sourced, and goal-verified (`pitch/market-research.md`, `pitch/business-model.md`, `pitch/financials/`). Next: Phase 10 — deck, rehearsal & protocol.*
