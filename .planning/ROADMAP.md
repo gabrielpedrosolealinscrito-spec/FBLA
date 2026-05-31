@@ -19,7 +19,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 - [ ] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations
 - [ ] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers
 - [x] **Phase 9: Pitch — Business Substance** - Sourced market sizing, competitive positioning, business model, financials, marketing (completed 2026-05-31)
-- [ ] **Phase 10: Pitch — Deck, Rehearsal & Protocol** - Slide deck, Q&A bank, timed rehearsals, protocol compliance checklist
+- [x] **Phase 10: Pitch — Deck, Rehearsal & Protocol** - Slide deck, Q&A bank, timed rehearsals, protocol compliance checklist (completed 2026-05-31)
 
 ## Phase Details
 
@@ -160,9 +160,9 @@ Plans:
   4. The protocol compliance checklist is verified: no QR codes on any device screen, no physical materials for judges to keep, no contact with judges during setup, presentation runs on battery within the 2-device limit
 **Plans**: 3 plans
 Plans:
-- [ ] 10-01-PLAN.md — Deck outline + speaker notes (`pitch/deck/deck-outline.md`): 12–14 slides, source-tagged claim bullets, sub-timing table (PITCH-07)
-- [ ] 10-02-PLAN.md — Q&A bank (`pitch/qa-bank.md`): 20 questions, domain routing, source-tagged talking points (PITCH-08)
-- [ ] 10-03-PLAN.md — Protocol checklist + rehearse-later spec (`pitch/protocol-checklist.md`); timed run-throughs gated on Phase 8 (PITCH-09)
+- [x] 10-01-PLAN.md — Deck outline + speaker notes (`pitch/deck/deck-outline.md`): 12–14 slides, source-tagged claim bullets, sub-timing table (PITCH-07)
+- [x] 10-02-PLAN.md — Q&A bank (`pitch/qa-bank.md`): 20 questions, domain routing, source-tagged talking points (PITCH-08)
+- [x] 10-03-PLAN.md — Protocol checklist + rehearse-later spec (`pitch/protocol-checklist.md`); timed run-throughs gated on Phase 8 (PITCH-09)
 
 > **Author-now / rehearse-later split:** Plans 10-01/10-02 and the checklist + rehearsal spec in 10-03 are fully executable now. The three timed hotspot run-throughs (success criterion 3) and the mock-judge Q&A drill are a Phase 8–gated checkpoint inside 10-03 (Task 3) — specified now, executed once Phase 8 (live demo) ships.
 
@@ -182,4 +182,4 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
-| 10. Pitch — Deck, Rehearsal & Protocol | 0/3 | Planned | - |
+| 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete   | 2026-05-31 |
