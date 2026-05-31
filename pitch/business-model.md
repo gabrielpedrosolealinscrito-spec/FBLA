@@ -231,7 +231,7 @@ Four named channels, each with an audience-fit rationale and a per-channel CAC d
 | LTV (Premium) | ~$45 | $29.99 + 50% repurchase [ASSUMED] |
 | Blended LTV | ~$13–$15 | [ASSUMED — reflects 2–3× relocation frequency in the 22–35 cohort; [FOUNDER-VERIFY: F7]] |
 | Break-even (paid users needed) | ~112 | $1,000 total startup costs ÷ ~$9 net margin per paid user [ASSUMED] |
-| Break-even (time estimate) | ~Month 3 | 1,000 free users/mo × 5% conversion = 50 paid/mo [ASSUMED] |
+| Break-even (time estimate) | ~Month 3–4 | Simple startup-cost recovery (~112 paid users at 5% conversion) lands ~Month 3; the full model in `pitch/financials/model.csv` — which charges marketing spend every month, not just startup — crosses positive `Cumulative_Net` at **Month 4** [ASSUMED] |
 
 *Full derivable financial model in `pitch/financials/` — every input is a stated assumption, re-derivable in ~60 seconds.*
 
