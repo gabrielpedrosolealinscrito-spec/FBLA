@@ -1,41 +1,20 @@
 ---
 phase: 10-pitch-deck-rehearsal-protocol
-verified: 2026-05-31T00:00:00Z
-status: gaps_found
-score: 7/10 must-haves verified
+verified: 2026-05-31T12:00:00Z
+status: passed
+score: 10/10 must-haves verified
 overrides_applied: 0
-gaps:
-  - truth: "Per-slide timing targets for the eight business-arc sections sum to ~6:00; total stays <=10:00"
-    status: failed
-    reason: "The individual slide target times in the sub-timing table sum to 7:45, not the stated ~6:00. The deck header and summary row both read '~6:00' and '~8:30 combined envelope', but actual arithmetic: 0:15+0:45+1:00+0:45+0:45+0:45+0:45+1:30+0:45+0:30 = 7:45. At target demo (2:30), total = 10:15 — 15 seconds OVER the 10:00 hard cap. The '~6:00' label is arithmetically wrong; the sub-timing table's summary row and the document header both propagate this error."
-    artifacts:
-      - path: "pitch/deck/deck-outline.md"
-        issue: "Line 6: header says 'Business arc (all non-demo slides) ~6:00 target'. Line 383: summary row says '~6:00 | ~4:35'. Both are wrong. Actual sum: 7:45 target / 5:15 compressed."
-      - path: "pitch/deck/deck-outline.md"
-        issue: "Line 387: combined envelope note says 'Business arc (~6:00) + Demo target (2:30) = ~8:30 — within the 8:30–9:00 rehearsal target band.' At the real 7:45 arc, target demo (2:30) gives 10:15, which breaches the hard cap."
-    missing:
-      - "Correct the sub-timing table summary row: '~7:45' target / '~5:15' compressed"
-      - "Update the document header time-target line to reflect actual business arc (~7:45)"
-      - "Update the combined envelope note: actual arc (7:45) + target demo (2:30) = 10:15, which exceeds the cap. Maximum allowable demo at target arc is 2:15. The rehearsal band must be recalibrated."
-
-  - truth: "The speaker notes on Slide 9 state the simple-formula break-even is Month 3 — this contradicts Q10 in the Q&A bank (Month 3 = 105 paid users, below the 112-user threshold) and the Q12 entry which correctly says Month 4"
-    status: failed
-    reason: "Slide 9 speaker notes (line 246) say 'We hit that in Month 3.' Q10 (qa-bank.md line 135) states Month 3 = 105 paid users at 5% conversion. 105 < 112, so the $1,000 startup cost is NOT recovered in Month 3. Q12 (line 157) correctly states '160 at Month 4'. The claim bullet (line 239) also says 'Month 3 on the simple formula' — this is wrong. This is the CR-02 finding from 10-REVIEW.md, confirmed present in the file."
-    artifacts:
-      - path: "pitch/deck/deck-outline.md"
-        issue: "Line 239: claim bullet states 'Month 3 on the simple formula ($1,000 startup ÷ ~$9 net per paid user = 112 users)'. Line 246: speaker notes say 'We hit that in Month 3.' Both are factually wrong."
-    missing:
-      - "Correct Slide 9 claim bullet: remove the Month 3 simple-formula path; state the simple formula resolves to Month 4 (160 users × ~$9 = $1,440, consistent with the full model)"
-      - "Correct Slide 9 speaker notes: change 'We hit that in Month 3' to 'We reach that at Month 4 — consistent with the full model'"
-
-  - truth: "Q12 in the Q&A bank uses the exact model.csv figure (+$9.68) consistently"
-    status: failed
-    reason: "Q12 line 156 states '+$10' as the narrative value ('crosses to positive (+$10)') while the same sentence cites 'Cumulative_Net = +$9.68' in the source tag. A judge who hears Gabriel say '+$10' and then sees the cited value of +$9.68 may note the inconsistency. The review flagged this as IN-01 (info level); it is a consistency gap between spoken talking point and cited evidence."
-    artifacts:
-      - path: "pitch/qa-bank.md"
-        issue: "Line 156: 'Cumulative_Net crosses to positive (+$10)' — the rounded figure in the text contradicts the exact figure cited in the same sentence: '[SOURCE: pitch/financials/model.csv Month 4 row: Cumulative_Net = +$9.68]'"
-    missing:
-      - "Align Q12 talking-point text to the exact model.csv value: change '+$10' to '+$9.68' (or consistently use '+~$10' with a stated rounding note)"
+re_verification:
+  previous_status: gaps_found
+  previous_score: 7/10
+  gaps_closed:
+    - "Per-slide timing targets for the eight business-arc sections sum to ~7:45; total stays <=10:00 (CR-01 resolved in commit 951539b)"
+    - "Speaker notes on Slide 9 now state simple-formula break-even is Month 4, consistent with Q&A bank Q10 and Q12 (CR-02 resolved in commit 951539b)"
+    - "Q12 in the Q&A bank uses the exact model.csv figure (+$9.68) consistently (IN-01 resolved in commit 951539b)"
+    - "Q&A routing header correctly routes financials/CAC-LTV to Gabriel (WR-01 resolved in commit 951539b)"
+    - "Deck handoff cue correctly reads 'close of financials (Slide 10)' (WR-02 resolved in commit 951539b)"
+  gaps_remaining: []
+  regressions: []
 deferred:
   - truth: "Three timed full run-throughs clock 8:30–9:00 on a phone hotspot"
     addressed_in: "Phase 10 Task 3 (post Phase 8 completion)"
@@ -53,9 +32,9 @@ deferred:
 **Phase Goal:** The pitch deck is built, every quantitative claim has an audible source attribution, three timed full run-throughs clock 8:30–9:00 on a phone hotspot, a 15-question Q&A bank is written and rehearsed aloud, and the protocol compliance checklist is passed with zero violations.
 **Author-Now Scope (verified here):** pitch/deck/deck-outline.md (PITCH-07), pitch/qa-bank.md (PITCH-08), pitch/protocol-checklist.md (PITCH-09) — all deliverables that are executable now.
 **Rehearse-Later Scope (Phase 8-gated, deferred):** Three timed run-throughs, mock-judge Q&A drill, live checklist sign-off — explicitly gated on Phase 8 shipping (product track at Phase 2).
-**Verified:** 2026-05-31
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-05-31 (re-verification after gap closure in commit 951539b)
+**Status:** passed
+**Re-verification:** Yes — initial verification returned gaps_found (7/10); all five gaps closed in commit 951539b; re-verification score 10/10.
 
 ---
 
@@ -67,16 +46,16 @@ deferred:
 |---|-------|--------|----------|
 | 1 | A reader finds one slide entry per narrative-arc section in fixed order (problem, market, solution, differentiation, demo, business model, financials, marketing, ask) | VERIFIED | 13 slides present; fixed arc order confirmed by reading slides 1–12 in sequence |
 | 2 | Every quantitative claim bullet carries a [SOURCE: ...] tag — zero untagged numeric claims | VERIFIED | 37 SOURCE tags counted in deck-outline.md; visual scan of all slides 2–12 confirms no untagged numeric claim bullets |
-| 3 | Per-slide timing targets for the eight business-arc sections sum to ~6:00; total stays <=10:00 | FAILED | Individual row times in the sub-timing table sum to 7:45, not ~6:00 (see CR-01 in 10-REVIEW.md). At target demo (2:30), total = 10:15, exceeding the 10:00 hard cap. The summary row and document header both state the wrong total. |
-| 4 | Every slide carries a Luke/Gabriel speaker label; cross-presenter slides carry an explicit handoff cue | VERIFIED | 13/13 slides have **Speaker:** label; Slide 6 carries explicit [LUKE → GABRIEL] handoff cue; Slide 7 carries [GABRIEL → LUKE] cue; Slide 8 carries [GABRIEL → LUKE] back-reference cue (minor label error per WR-02 noted below) |
+| 3 | Per-slide timing targets for the eight business-arc sections sum to ~7:45; total with demo cap (2:15 max) stays <=10:00 | VERIFIED | Sub-timing table summary row reads ~7:45 / ~5:15. Independent arithmetic: Target column 15+45+60+45+45+45+45+90+45+30 = 465s = 7:45. Compressed column 10+30+45+30+30+30+30+60+30+20 = 315s = 5:15. Header (line 6) reads "~7:45 target / ~5:15 compressed \| Demo slot floating 1:30 / 2:00 / 2:15 max." Slide 7 body (line 168) reads "Max 2:15." Combined envelope (line 387) reads "7:45 + 2:15 = 10:00 — exactly the hard cap." No stale "~6:00", "4:35", "Target 2:30", or "Expandable 3:00" text remains anywhere in the file. |
+| 4 | Every slide carries a Luke/Gabriel speaker label; cross-presenter slides carry an explicit handoff cue | VERIFIED | 13/13 slides have **Speaker:** label; Slide 6 carries [LUKE → GABRIEL] cue; Slide 7 carries [GABRIEL → LUKE] cue; Slide 8 handoff cue (line 220) now correctly reads "[HANDOFF CUE at close of financials (Slide 10), back-reference:]" — WR-02 resolved |
 | 5 | Each open founder-verify flag (F1–F7) is surfaced inline on the slide whose claim it affects | VERIFIED | F1 on slide 3 (line 75), F2 on slide 3 (line 71), F3 on slide 9 (line 241), F4 on slide 8 (line 213), F5 on slide 11 (line 296), F6 on slide 4 (line 99), F7 on slide 10 (line 267) — all confirmed present |
-| 6 | Q&A bank has at least 15 entries (target 20); all six mandated topics present with routing and source tags | VERIFIED | grep -c '^### Q' returns 21 (20 questions + 1 routing-subheader); all 6 D-06 mandated topics confirmed present (data accuracy, CAC/LTV, legal advice, competitive moat, API resilience, Teleport); 21 "Routed to:" labels present |
-| 7 | Routing Summary table present mapping all Q1–Q20 | VERIFIED | "## Routing Summary" section present; 20-row table covering all questions with presenter assignments; both Luke and Gabriel assigned 10 questions each |
-| 8 | Every quantitative defense bullet in Q&A bank carries a source tag | VERIFIED | SOURCE:.*financials = 17 hits; SOURCE:.*business-model = 15 hits; all financial figures (Year-1 ~$9,500, Month-12 +$7,965, break-even Month 4) cited to model.csv; founder-verify markers F4, F5, F7 carried inline |
-| 9 | Speaker notes in Slide 9 do not contradict the Q&A bank on break-even month | FAILED | Slide 9 speaker notes (line 246) say "We hit that in Month 3." Q10 (qa-bank.md line 135) states Month 3 = 105 paid users — below the 112-user threshold. Q12 correctly states Month 4. The Slide 9 claim is internally contradicted across documents. |
-| 10 | Protocol checklist has >= 20 binary checkboxes covering every competition protocol rule; rehearse-later spec present with Phase 8 precondition; F1–F7 risk surface present | VERIFIED | 29 checkboxes (grep -c '^- \[ \]' = 29); all required categories present (timing, device rules, QR/links, physical materials, setup/conduct, content compliance, dress code); "Rehearse-Later Specification (Phase 8-Gated)" present with explicit "PRECONDITION: Phase 8 must be Complete" and "NOT executed in this planning pass" statement; 9-task rehearsal table; 3 handoff-cue confirmations; F1–F7 founder-verify table with F3/F4 marked HIGH |
+| 6 | Q&A bank has at least 15 entries (target 20); all six mandated topics present with routing and source tags | VERIFIED | 21 Q-headings (20 questions + 1 routing subheader); all 6 D-06 mandated topics confirmed; 21 "Routed to:" labels present |
+| 7 | Routing Summary table present mapping all Q1–Q20 | VERIFIED | "## Routing Summary" section present; 20-row table; routing header (line 14) now correctly reads "financials/CAC-LTV → Gabriel" — WR-01 resolved |
+| 8 | Every quantitative defense bullet in Q&A bank carries a source tag | VERIFIED | SOURCE tags on all financial figures; founder-verify markers F4, F5, F7 carried inline |
+| 9 | Speaker notes in Slide 9 do not contradict the Q&A bank on break-even month | VERIFIED | Slide 9 headline reads "Break-even at Month 4." Claim bullet (line 239) states "Break-even: Month 4 on the full model … simple recovery formula … is also cleared in Month 4, when cumulative paid users reach 160." Speaker notes (line 246) state "we cross that in Month 4, at roughly 160 paid users." Q12 (line 157) states "cumulative paid users reach 160 at Month 4." No "Month 3" break-even claim remains anywhere in the deck. CR-02 resolved. |
+| 10 | Protocol checklist has >= 20 binary checkboxes covering every competition protocol rule; rehearse-later spec present with Phase 8 precondition; F1–F7 risk surface present | VERIFIED | 29 checkboxes; all required categories present; "Rehearse-Later Specification (Phase 8-Gated)" present with "PRECONDITION: Phase 8 must be Complete" and "NOT executed in this planning pass"; 9-task rehearsal table; F1–F7 founder-verify table with F3/F4 marked HIGH |
 
-**Score: 7/10 truths verified** (3 deferred items correctly handled; 3 FAILED truths are genuine content errors)
+**Score: 10/10 truths verified** (3 deferred items correctly handled; 0 failed truths)
 
 ---
 
@@ -96,9 +75,9 @@ Items not yet met but correctly gated on Phase 8 — not actionable gaps for thi
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `pitch/deck/deck-outline.md` | 12-14 slide outline with per-slide schema, source-tagged claim bullets, speaker notes, sub-timing table | VERIFIED (with WARNING) | File exists; 411 lines; 13 slides; per-slide schema present on all slides; 37 SOURCE tags; sub-timing table present; WARNING: summary row states wrong total (~6:00 actual is 7:45) |
-| `pitch/qa-bank.md` | 20-question Q&A bank with routing, talking points, source tags | VERIFIED | File exists; 284 lines; 21 Q-headings (20 questions + routing subheader); all 6 mandated topics; routing summary table; financials and business-model source tags |
-| `pitch/protocol-checklist.md` | Binary day-of protocol checklist + rehearse-later spec + founder-verify risk surface | VERIFIED | File exists; 124 lines; 29 checkboxes; pre-competition and at-rehearsal sections; rehearse-later spec with Phase 8 precondition; 9-task rehearsal table; F1–F7 table |
+| `pitch/deck/deck-outline.md` | 12-14 slide outline with per-slide schema, source-tagged claim bullets, speaker notes, sub-timing table with correct arithmetic | VERIFIED | File exists; 411 lines; 13 slides; per-slide schema present on all slides; 37 SOURCE tags; sub-timing table present with correct totals (~7:45 / ~5:15); combined envelope note arithmetically correct (7:45 + 2:15 = 10:00); no stale timing values remain |
+| `pitch/qa-bank.md` | 20-question Q&A bank with routing, talking points, source tags; Q12 exact model.csv value; routing header correctly assigns financials/CAC-LTV to Gabriel | VERIFIED | File exists; 285 lines; 20 questions; all 6 mandated topics; routing header correctly reads "financials/CAC-LTV → Gabriel"; Q12 line 156 reads "+$9.68" matching its SOURCE tag |
+| `pitch/protocol-checklist.md` | Binary day-of protocol checklist + rehearse-later spec + founder-verify risk surface | VERIFIED | File exists; 125 lines; 29 checkboxes; pre-competition and at-rehearsal sections; rehearse-later spec with Phase 8 precondition; 9-task rehearsal table; F1–F7 table |
 
 ---
 
@@ -136,26 +115,25 @@ No probes declared in PLAN files. No `scripts/*/tests/probe-*.sh` files exist fo
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|----------|
-| PITCH-07 | 10-01-PLAN.md | Pitch deck + <=10-minute presentation built, with every claim sourced/cited | PARTIAL | Deck outline built with all 13 slides and 37 SOURCE tags (claim sourcing satisfied); timing arithmetic error means the stated "~6:00 business arc + 2:30 demo = ~8:30" rehearsal target is wrong — the real total at target demo is 10:15, violating the <=10:00 requirement stated in PITCH-07. The deck content is substantive and complete; the timing metadata is incorrect. |
-| PITCH-08 | 10-02-PLAN.md | Q&A preparation — anticipated-question bank with defensible answers | SATISFIED | 20-question bank with all 6 mandated topics, routing, source tags, airtight Q3 and Q6 entries (4 bullets each), routing summary table. One minor consistency issue (Q12 +$10 vs +$9.68 model value, IN-01). |
+| PITCH-07 | 10-01-PLAN.md | Pitch deck + <=10-minute presentation built, with every claim sourced/cited | SATISFIED | Deck outline built with all 13 slides and 37 SOURCE tags (claim sourcing satisfied); sub-timing table now correctly states ~7:45 business arc + 2:15 max demo = 10:00 hard cap ceiling. No scenario exceeds 10:00. |
+| PITCH-08 | 10-02-PLAN.md | Q&A preparation — anticipated-question bank with defensible answers | SATISFIED | 20-question bank with all 6 mandated topics, routing, source tags; Q12 consistent with model.csv (+$9.68); routing header correctly assigns financials/CAC-LTV to Gabriel per Routing Summary table. |
 | PITCH-09 | 10-03-PLAN.md | Protocol checklist passed — within time, no judge-clicked links/QR, no external speakers, nothing left with judges, dress code met | AUTHOR-NOW SATISFIED / EXECUTION GATED | The authored checklist is complete (29 items, all protocol rules covered). "Passed" execution is Phase 8-gated by design — correctly deferred. |
 
 ---
 
 ### Anti-Patterns Found
 
-| File | Location | Pattern | Severity | Impact |
-|------|----------|---------|----------|--------|
-| pitch/deck/deck-outline.md | Line 6 (header) | "~6:00" business arc total — arithmetically wrong | BLOCKER | Rehearsal calibrated on wrong baseline; target demo (2:30) at real arc (7:45) exceeds hard cap by 15 seconds |
-| pitch/deck/deck-outline.md | Line 383 (sub-timing table summary row) | "~6:00 | ~4:35" — wrong totals | BLOCKER | Same root cause as line 6; this is where the wrong total is stated explicitly |
-| pitch/deck/deck-outline.md | Line 387 (combined envelope note) | "Business arc (~6:00) + Demo target (2:30) = ~8:30" — derived from wrong base | BLOCKER | Presenters rehearsing to 8:30–9:00 under this assumption will enter competition running 10:15 at target demo length |
-| pitch/deck/deck-outline.md | Line 246 (Slide 9 speaker notes) | "We hit that in Month 3" — contradicted by Q10 (105 users < 112 threshold) | BLOCKER | Self-inflicted contradiction between deck and Q&A bank; will surface under judge questioning |
-| pitch/deck/deck-outline.md | Line 239 (Slide 9 claim bullet) | "Month 3 on the simple formula" — wrong; should be Month 4 | BLOCKER | Claim bullet is wrong and contradicts the Q&A bank |
-| pitch/qa-bank.md | Line 156 (Q12) | "+$10" stated vs. "+$9.68" in cited source on the same line | WARNING | Minor inconsistency between spoken talking-point and cited figure; low credibility risk but avoidable |
-| pitch/qa-bank.md | Line 14 (header routing note) | "Market/financials/CAC-LTV/Teleport → Luke" — wrong; Q2, Q11, Q12 (financials/CAC-LTV) are routed to Gabriel | WARNING | Presenters reading the header will expect Luke to own CAC/LTV and financials Q&A, but the routing table correctly assigns these to Gabriel; rehearsal-time confusion risk |
-| pitch/deck/deck-outline.md | Line 220 (Slide 8 speaker notes) | "[HANDOFF CUE at close of slide 11 financials]" — slide 11 is Marketing (Luke), not Financials; should say "Slide 10" | WARNING | Minor label error; the parenthetical in the same sentence correctly says "Slide 10"; inconsistency resolved in protocol-checklist which correctly states "Slide 10 → 11" |
+No new anti-patterns. All five issues flagged in the initial verification pass were resolved in commit 951539b. No TBD, FIXME, or XXX markers found in the three deliverable files.
 
-**Debt marker check:** No TBD, FIXME, or XXX markers found in the three deliverable files. No unresolved debt markers.
+| File | Location | Pattern | Severity | Status |
+|------|----------|---------|----------|--------|
+| pitch/deck/deck-outline.md | Line 6 (header) | "~6:00" business arc total — arithmetically wrong | BLOCKER | RESOLVED — now reads "~7:45 target / ~5:15 compressed" |
+| pitch/deck/deck-outline.md | Line 383 (sub-timing table summary row) | "~6:00 \| ~4:35" — wrong totals | BLOCKER | RESOLVED — now reads "~7:45 \| ~5:15" |
+| pitch/deck/deck-outline.md | Line 387 (combined envelope note) | "Business arc (~6:00) + Demo target (2:30) = ~8:30" — derived from wrong base | BLOCKER | RESOLVED — now reads "7:45 + 2:15 = 10:00 — exactly the hard cap" |
+| pitch/deck/deck-outline.md | Line 239/246 (Slide 9 claim + speaker notes) | "Month 3 on the simple formula" / "We hit that in Month 3" — contradicted by Q10 | BLOCKER | RESOLVED — both now state Month 4 with 160 paid users |
+| pitch/qa-bank.md | Line 156 (Q12) | "+$10" vs. "+$9.68" in cited source on the same line | WARNING | RESOLVED — now reads "+$9.68" consistently in both the talking-point text and the SOURCE tag |
+| pitch/qa-bank.md | Line 14 (routing header) | "financials/CAC-LTV → Luke" — wrong; Q2/Q11/Q12 route to Gabriel | WARNING | RESOLVED — now reads "financials/CAC-LTV → Gabriel" |
+| pitch/deck/deck-outline.md | Line 220 (Slide 8 handoff cue) | "close of slide 11 financials" — Slide 11 is Marketing | WARNING | RESOLVED — now reads "close of financials (Slide 10)" |
 
 ---
 
@@ -167,17 +145,19 @@ None beyond the Phase 8-gated deferred items already documented above. All autho
 
 ### Gaps Summary
 
-**Three BLOCKER issues** were identified, all arising from CR-01 and CR-02 in the existing 10-REVIEW.md. The review correctly diagnosed these issues; they were not corrected before this verification pass.
+All gaps from the initial verification pass (2026-05-31, status: gaps_found) were resolved in commit 951539b. No gaps remain.
 
-**Root cause 1 (CR-01 — timing arithmetic):** The sub-timing table's individual slide rows sum to 7:45, but the summary row and all derived text say ~6:00. This propagates into a false "8:30 combined envelope" and creates a real 10:15 total at target demo length — 15 seconds over the hard cap. The fix is purely mechanical: update the summary row and two derived sentences. The individual per-slide times are not in dispute.
+**Gap closure summary:**
+- CR-01 (timing arithmetic): Sub-timing table totals, document header, demo slot cap, and combined envelope note all corrected and internally consistent. Independent arithmetic confirms Target = 7:45 and Compressed = 5:15. The combined ceiling is exactly 10:00 at max demo. The rehearsal band note provides an honest blended-pace target (~6:30 arc + ~2:00 demo = ~8:30).
+- CR-02 (Month 3 break-even): Slide 9 headline, key visual note, claim bullet, and speaker notes all now state Month 4 consistently. No "Month 3" break-even claim remains in the deck. Full agreement with Q10 (105 users at Month 3 < 112 threshold) and Q12 (160 users at Month 4).
+- IN-01 (Q12 rounding): Q12 talking-point text changed from "+$10" to "+$9.68", matching its own SOURCE tag citation on the same line.
+- WR-01 (routing header): Routing header at line 14 now correctly routes "financials/CAC-LTV → Gabriel", consistent with the Routing Summary table (Q2, Q11, Q12 → Gabriel).
+- WR-02 (handoff cue label): Slide 8 back-reference cue now reads "close of financials (Slide 10)" — correct. Slide 11 is the Marketing slide; Slide 10 is the Financials (LTV:CAC) slide.
 
-**Root cause 2 (CR-02 — Month 3 break-even):** The Slide 9 claim bullet and speaker notes assert the simple-formula break-even is Month 3. Q10 in the Q&A bank states Month 3 = 105 paid users, which is below the 112-user threshold derived by the same formula. Q12 correctly states Month 4 with 160 users. The Slide 9 text must be corrected to remove the Month 3 claim and align with Q12 and the full model (both point to Month 4).
-
-**Two WARNING issues** (WR-01 routing header, WR-02 Slide 8 cue label, IN-01 Q12 rounding) are lower severity — they will cause rehearsal confusion but do not affect the mathematical validity of pitch claims. These should be fixed before first rehearsal.
-
-**Author-now scope is otherwise complete and well-formed.** All three deliverable files exist, are substantive, carry consistent source attribution, and are correctly gated. The gaps are localized content corrections, not structural failures of the authoring work.
+**Author-now scope is complete, consistent, and well-formed.** All three deliverable files exist, are substantive, carry consistent source attribution, are internally self-consistent across deck and Q&A bank, and are correctly gated for rehearse-later execution.
 
 ---
 
-_Verified: 2026-05-31_
+_Initial verification: 2026-05-31 (status: gaps_found, score: 7/10)_
+_Re-verification: 2026-05-31 (status: passed, score: 10/10) — gaps closed in commit 951539b_
 _Verifier: Claude (gsd-verifier)_
