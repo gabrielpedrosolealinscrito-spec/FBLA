@@ -48,10 +48,12 @@ created: 2026-05-30
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 9-01-01 | 01 | 1 | PITCH-01 | — | N/A | source-audit | `grep -cE "census\.gov" pitch/market-research.md` (≥1) | ❌ W0 | ⬜ pending |
-| 9-02-01 | 02 | 1 | PITCH-02/03 | — | N/A | source-audit | manual: Nomad List / WhereNext / Teleport→Topia each named + sourced | ❌ W0 | ⬜ pending |
-| 9-03-01 | 03 | 1 | PITCH-04/06 | — | N/A | consistency | `grep -niE "subscription\|/month" pitch/business-model.md` (only B2B scope) | ❌ W0 | ⬜ pending |
-| 9-04-01 | 04 | 1 | PITCH-05 | — | N/A | source-audit | manual: every CSV input re-derivable from a stated, sourced assumption | ❌ W0 | ⬜ pending |
+| 9-01-T1 | 01 | 1 | PITCH-01 | T-09-01-A/B/C | N/A | source-audit | `grep -cE "census\.gov" pitch/market-research.md` (≥1) | ❌ W0 | ⬜ pending |
+| 9-01-T2 | 01 | 1 | PITCH-02/03 | T-09-01-D | N/A | source-audit | `grep -ciE "topia\|teleport" pitch/market-research.md` (≥1) | ❌ W0 | ⬜ pending |
+| 9-02-T1 | 02 | 1 | PITCH-03/04 | — | N/A | consistency | `grep -niE "subscription\|/month\|/mo\b" pitch/business-model.md` (only future-B2B scope — D-04) | ❌ W0 | ⬜ pending |
+| 9-02-T2 | 02 | 1 | PITCH-06 | — | N/A | source-audit | `grep -ciE "r/IWantOut\|r/expats\|r/digitalnomad" pitch/business-model.md` (channels named) | ❌ W0 | ⬜ pending |
+| 9-03-T1 | 03 | 1 | PITCH-05 | — | N/A | source-audit | `test -f pitch/financials/model.csv` + every input cell re-derivable from a stated assumption | ❌ W0 | ⬜ pending |
+| 9-03-T2 | 03 | 1 | PITCH-05 | — | N/A | source-audit | `grep -ciE "break-?even" pitch/financials/summary.md` (≥1) | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 *Threat Ref column is N/A for this phase — no executable attack surface is created.*
