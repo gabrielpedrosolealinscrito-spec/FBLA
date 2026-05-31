@@ -112,4 +112,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-31 — Phase 9 complete: the six business-substance pitch deliverables are authored, sourced, and goal-verified (`pitch/market-research.md`, `pitch/business-model.md`, `pitch/financials/`). Next: Phase 10 — deck, rehearsal & protocol.*
+*Last updated: 2026-05-31 — Phase 10 complete (final phase of milestone): the pitch deck outline + speaker notes (`pitch/deck/deck-outline.md`), 20-question Q&A bank (`pitch/qa-bank.md`), and binary protocol checklist + rehearse-later spec (`pitch/protocol-checklist.md`) are authored, source-tagged, and goal-verified 10/10. The three timed hotspot run-throughs, mock-judge Q&A drill, and live protocol sign-off are specified and correctly gated on Phase 8 (live demo, not yet built — product track at Phase 2). All pitch-package phases (9–10) done; remaining work is the product track (Phases 2–8).*
