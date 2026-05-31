@@ -3,7 +3,7 @@
 
 > This document is the authoritative content layer. Canva execution follows this schema. Do not alter slide order — the arc is fixed: Problem → Market → Solution → Differentiation → Demo → Business Model → Financials → Marketing → Ask.
 
-**Time targets:** Business arc (all non-demo slides) ~6:00 target | Demo slot floating 1:30/2:30/3:00 | Total hard cap ≤10:00 | Rehearsal target band 8:30–9:00 (D-05)
+**Time targets:** Business arc (all non-demo slides) ~7:45 target / ~5:15 compressed | Demo slot floating 1:30 / 2:00 / 2:15 max | Total hard cap ≤10:00 | Rehearsal target band 8:30–9:00 (D-05 — see Combined envelope for how to land in band)
 
 ---
 
@@ -165,7 +165,7 @@ No quantitative claims on this slide; no attribution required.
 ## Slide 7: Demo [FLOATING SLOT]
 
 **Speaker:** Gabriel (assumed — confirm at rehearsal)
-**Target time:** Compressible 1:30 / Target 2:30 / Expandable 3:00
+**Target time:** Compressible 1:30 / Target 2:00 / Max 2:15 (against the ~7:45 business arc, a demo over 2:15 breaches the 10:00 hard cap)
 
 **Headline:** Let's see it live.
 
@@ -217,7 +217,7 @@ No quantitative claims on this slide. Demo output serves as live evidence.
 **Speaker notes (talking-point form):**
 [LUKE:] "Relocation is a one-time decision. A monthly subscription for a choice that happens once destroys the customer relationship — you can't defend that in front of a judge or a customer. So we modeled this on 16Personalities: one-time run credits that never expire, no subscription, 100 million test-takers. We mirror that structure exactly." Walk the four tiers. Emphasize: "Plus at $9.99 is the upsell target — three runs, the live-AI layer, the roadmap. That's where the product delivers its maximum value." Close with: "Runs never expire. Buy when you're ready."
 
-[HANDOFF CUE at close of slide 11 financials, back-reference:] After Gabriel closes financials (Slide 10), [GABRIEL → LUKE] "The unit economics work. Now how do we reach those 2 million addressable users?" → [LUKE] takes over.
+[HANDOFF CUE at close of financials (Slide 10), back-reference:] After Gabriel closes financials (Slide 10), [GABRIEL → LUKE] "The unit economics work. Now how do we reach those 2 million addressable users?" → [LUKE] takes over.
 
 **Source-attribution cue (in notes):**
 [LUKE:] "Our pricing model is based on 16Personalities — one of the most successful consumer assessment businesses, with over 100 million test-takers, built on this exact one-time-purchase funnel."
@@ -236,14 +236,14 @@ No quantitative claims on this slide. Demo output serves as live evidence.
 - Unit economics table below chart: startup cost / API COGS / gross margin
 
 **Claim bullets:**
-- Break-even: Month 4 on the full model (Cumulative_Net = +$9.68, per model.csv) / Month 3 on the simple formula ($1,000 startup ÷ ~$9 net per paid user = 112 users) [SOURCE: financials/summary.md §break-even analysis; model.csv Month 4 row]
+- Break-even: Month 4 on the full model (Cumulative_Net = +$9.68, per model.csv); the simple recovery formula ($1,000 startup ÷ ~$9 net per paid user = 112 users) is also cleared in Month 4, when cumulative paid users reach 160 [SOURCE: financials/summary.md §break-even analysis; model.csv Month 4 row]
 - Blended revenue per paid user: ~$10–$12 (50% Basic / 35% Plus / 15% Premium tier mix) [SOURCE: financials/summary.md §assumptions A-4; ASSUMED tier mix]
 - API COGS per Plus run: ~$0.06 (Haiku generation + web search tool) → ~98% gross margin per run [SOURCE: Anthropic pricing https://www.anthropic.com/pricing — [FOUNDER-VERIFY: F3 — re-verify within 2 weeks of every pitch]]
 - Total startup cost: ~$1,000 (API deposit, domain, Vercel Pro ~$240/yr, legal/registration) — extremely low because the product is AI-native: no data pipeline, no server infrastructure [SOURCE: financials/summary.md §startup costs]
 - Month 12 Cumulative_Net: +$7,965 | Month 24: +$34,588 [SOURCE: model.csv rows 12 and 24]
 
 **Speaker notes (talking-point form):**
-[GABRIEL:] "Let me walk you through the model." Point to chart: "Month 4 — Cumulative Net crosses to positive. That's the full model: every month we're paying marketing spend and hosting, not just a one-time startup cost. The simple recovery formula is even faster — $1,000 divided by $9 net per paid user equals 112 users. We hit that in Month 3." On COGS: "Our API cost is about 6 cents per run. On a $9.99 Plus purchase, that's a 98 percent gross margin. This is an AI-native product — our marginal cost of serving one additional user is near zero." Close with Month 12 and Month 24 trajectory.
+[GABRIEL:] "Let me walk you through the model." Point to chart: "Month 4 — Cumulative Net crosses to positive. That's the full model: every month we're paying marketing spend and hosting, not just a one-time startup cost. The simple recovery formula agrees — $1,000 divided by $9 net per paid user equals 112 users, and we cross that in Month 4, at roughly 160 paid users." On COGS: "Our API cost is about 6 cents per run. On a $9.99 Plus purchase, that's a 98 percent gross margin. This is an AI-native product — our marginal cost of serving one additional user is near zero." Close with Month 12 and Month 24 trajectory.
 
 **Source-attribution cue (in notes):**
 [GABRIEL:] "According to our 24-month financial model, built from stated assumptions and re-derivable in 60 seconds from the inputs on this slide, we reach break-even at Month 4." "According to Anthropic's published pricing, our per-run API cost is approximately 6 cents."
@@ -380,12 +380,12 @@ This slide IS the source attribution. All URLs listed here correspond to claim b
 | Financials (two slides) | 9–10 | Gabriel | 1:30 | 1:00 | Gabriel owns; most Q&A follows here — never rush |
 | Marketing channels | 11 | Luke | 0:45 | 0:30 | Four channels + blended CAC |
 | Ask | 12 | Luke | 0:30 | 0:20 | One specific ask |
-| **Business arc total** | **11 slides** | | **~6:00** | **~4:35** | |
+| **Business arc total** | **11 slides** | | **~7:45** | **~5:15** | |
 
-**Demo slot (Slide 7):** Floating — Compressible 1:30 / Target 2:30 / Expandable 3:00
+**Demo slot (Slide 7):** Floating — Compressible 1:30 / Target 2:00 / **Max 2:15** (a longer demo breaches the 10:00 hard cap against the ~7:45 business arc)
 
-**Combined envelope:** Business arc (~6:00) + Demo target (2:30) = **~8:30** — within the 8:30–9:00 rehearsal target band.
-At compressed demo (1:30): ~7:35 total. At expanded demo (3:00): ~9:00 total. **Hard cap: ≤10:00 in all scenarios.**
+**Combined envelope:** The business arc rows sum to ~7:45 at target pacing (~5:15 fully compressed). With the demo capped at 2:15, the absolute ceiling is **7:45 + 2:15 = 10:00 — exactly the hard cap**, so the demo must never run past 2:15.
+To land inside the **8:30–9:00 rehearsal band**, run a blend: target-pace the dense slides (Market, Financials — never rush these) and compress the soft ones (Problem, Solution, Differentiators, Business model, Marketing, Ask) for a ~6:30 arc, then add a ~2:00 demo → **~8:30**. A full target-pace arc (7:45) leaves room for only a ~1:00 demo to stay in band. **Hard cap: ≤10:00 in all scenarios** — at full target pacing the demo cannot exceed 2:15.
 
 **Cut rule:** If running long during the demo — marketing section (Slide 11) is the safe compress zone (0:45 → 0:30 saves 15 seconds). **Financials (Slides 9–10) should never be rushed** — Gabriel's Q&A defense territory and the most-challenged section.
 

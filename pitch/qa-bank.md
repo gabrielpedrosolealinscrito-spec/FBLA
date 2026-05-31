@@ -11,7 +11,7 @@
 ```
 
 **Routing note (D-07):** Both presenters must rehearse the full bank — either can field any question.
-Domain routing: visa/legal-advice + demo/API-resilience → Gabriel. Market/financials/CAC-LTV/Teleport → Luke.
+Domain routing: visa/legal-advice + demo/API-resilience + financials/CAC-LTV → Gabriel. Market sizing / business model / growth / Teleport narrative → Luke.
 Routing reflects primary expertise and Q&A ownership; it is not a filter on who may answer.
 
 ---
@@ -153,7 +153,7 @@ Routing reflects primary expertise and Q&A ownership; it is not a filter on who 
 
 **Routed to:** Gabriel
 
-- Month 4: Cumulative_Net crosses to positive (+$10) on the full model including all ongoing marketing spend — not just recovery of the one-time startup cost [SOURCE: pitch/financials/model.csv Month 4 row: Cumulative_Net = +$9.68]
+- Month 4: Cumulative_Net crosses to positive (+$9.68) on the full model including all ongoing marketing spend — not just recovery of the one-time startup cost [SOURCE: pitch/financials/model.csv Month 4 row: Cumulative_Net = +$9.68]
 - Simple formula check: $1,000 startup cost ÷ approximately $9 net revenue per paid user = approximately 112 users needed; cumulative paid users reach 160 at Month 4 [SOURCE: pitch/financials/summary.md §break-even analysis]
 - Month 6: firmly profitable (+$942 cumulative); Month 12: +$7,965; Month 24: +$34,588 — the model is available for any judge who wants to re-derive any row [SOURCE: pitch/financials/model.csv]
 
