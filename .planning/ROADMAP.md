@@ -158,7 +158,13 @@ Plans:
   2. A written Q&A bank of at least 15 questions exists covering data accuracy, CAC/LTV, legal advice avoidance, competitive moat, API failure resilience, and the "wasn't Teleport doing this?" question — all rehearsed aloud
   3. Three complete timed run-throughs of the full pitch on a phone hotspot land between 8:30 and 9:00
   4. The protocol compliance checklist is verified: no QR codes on any device screen, no physical materials for judges to keep, no contact with judges during setup, presentation runs on battery within the 2-device limit
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 10-01-PLAN.md — Deck outline + speaker notes (`pitch/deck/deck-outline.md`): 12–14 slides, source-tagged claim bullets, sub-timing table (PITCH-07)
+- [ ] 10-02-PLAN.md — Q&A bank (`pitch/qa-bank.md`): 20 questions, domain routing, source-tagged talking points (PITCH-08)
+- [ ] 10-03-PLAN.md — Protocol checklist + rehearse-later spec (`pitch/protocol-checklist.md`); timed run-throughs gated on Phase 8 (PITCH-09)
+
+> **Author-now / rehearse-later split:** Plans 10-01/10-02 and the checklist + rehearsal spec in 10-03 are fully executable now. The three timed hotspot run-throughs (success criterion 3) and the mock-judge Q&A drill are a Phase 8–gated checkpoint inside 10-03 (Task 3) — specified now, executed once Phase 8 (live demo) ships.
 
 ## Progress
 
@@ -176,4 +182,4 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
-| 10. Pitch — Deck, Rehearsal & Protocol | 0/TBD | Not started | - |
+| 10. Pitch — Deck, Rehearsal & Protocol | 0/3 | Planned | - |
