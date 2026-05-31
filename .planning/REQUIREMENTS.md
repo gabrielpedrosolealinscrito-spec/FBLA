@@ -65,9 +65,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Pitch Package (what the judges score)
 
-- [ ] **PITCH-01**: Problem identification & market opportunity, with sized, cited market data
-- [ ] **PITCH-02**: Business concept & innovation framed against the competitor landscape (incl. the Teleport-exited-to-enterprise narrative)
-- [ ] **PITCH-03**: Value proposition & customer benefit articulated for the target user
+- [x] **PITCH-01**: Problem identification & market opportunity, with sized, cited market data
+- [x] **PITCH-02**: Business concept & innovation framed against the competitor landscape (incl. the Teleport-exited-to-enterprise narrative)
+- [x] **PITCH-03**: Value proposition & customer benefit articulated for the target user
 - [ ] **PITCH-04**: Business model — run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99 as never-expiring credits, no consumer subscription; recurring/scaling revenue via affiliate + future B2B) — with pricing, sales, and distribution
 - [ ] **PITCH-05**: Feasibility & financials — startup costs, unit economics, projections, profitability path, all defensible in Q&A
 - [ ] **PITCH-06**: Marketing & growth strategy, including how users are driven to the Plus upsell
@@ -132,9 +132,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | TIER-01 | Phase 8: Freemium Tier Gate | Pending |
 | TIER-02 | Phase 8: Freemium Tier Gate | Pending |
 | TIER-03 | Phase 8: Freemium Tier Gate | Pending |
-| PITCH-01 | Phase 9: Pitch — Business Substance | Pending |
-| PITCH-02 | Phase 9: Pitch — Business Substance | Pending |
-| PITCH-03 | Phase 9: Pitch — Business Substance | Pending |
+| PITCH-01 | Phase 9: Pitch — Business Substance | Complete |
+| PITCH-02 | Phase 9: Pitch — Business Substance | Complete |
+| PITCH-03 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-04 | Phase 9: Pitch — Business Substance | Pending |
 | PITCH-05 | Phase 9: Pitch — Business Substance | Pending |
 | PITCH-06 | Phase 9: Pitch — Business Substance | Pending |
