@@ -51,6 +51,8 @@ Plans:
   3. User can declare citizenship and current immigration status; these fields are present on the Profile output and visible in browser state
   4. User can apply at least one hard dealbreaker that eliminates non-matching destinations (not just soft-weights them)
   5. User can set a target move timeline (or select "exploring / no timeline")
+  6. The quiz adapts based on prior answers (conditional/branching follow-ups), not a fixed linear sequence
+  7. When answers reveal conflicting priorities, the quiz surfaces a reconciling follow-up and stores the resolution (a tiebreaker/weight) on the Profile preference output
 **Plans**: TBD
 **UI hint**: yes
 
