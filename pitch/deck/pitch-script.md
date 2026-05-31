@@ -4,7 +4,7 @@
 >
 > **Pace:** Written at ~140 words/minute. Business arc runs ~6:30 at this script's pacing; with a ~2:00 demo you land at **~8:30–9:00** (D-05 band). Hard cap ≤10:00.
 >
-> **Speakers:** **L** = Luke · **G** = Gabriel · `[ … ]` = stage direction, not spoken.
+> **Speakers:** **L** = Luke · **G** = Gabe · `[ … ]` = stage direction, not spoken.
 >
 > **⚠️ Before pitch day:** Any number tagged `⚠️F#` below is a FOUNDER-VERIFY flag (see `deck-outline.md` §Founder-Verify Flags). Confirm or swap to the stated fallback before you read it aloud. Never speak an unverified figure as fact.
 
@@ -12,7 +12,7 @@
 
 ## Slide 1 — Title + Team · Luke · 0:15
 
-**L:** Good [morning / afternoon], judges. I'm Luke, this is Gabriel, and we built **Potential** — the first product that tells you where you'd actually thrive, and then hands you the roadmap to get there. Let me show you the problem we set out to solve.
+**L:** Good [morning / afternoon], judges. I'm Luke, this is Gabe, and we built **Potential** — the first product that tells you where you'd actually thrive, and then hands you the roadmap to get there. Let me show you the problem we set out to solve.
 
 ---
 
@@ -58,11 +58,11 @@ And we meter it simply. **Free** gets you your number-one match — that's the h
 
 ---
 
-## Slide 6 — Three Differentiators · Luke → Gabriel · 0:45
+## Slide 6 — Three Differentiators · Luke → Gabe · 0:45
 
 **L:** Three things no competitor has. **First — live AI.** Every other tool hands you a static data table. We generate a real-time picture of your life in that city: real job listings, real housing, a real day-in-the-life — at the moment you run it. **Second — the personalized roadmap.** WhereNext charges seventy-nine dollars for a static PDF; we generate a dynamic, six-section plan built around your citizenship, your timeline, and your finances.
 
-And the third differentiator is where Gabriel comes in — because he's lived it.
+And the third differentiator is where Gabe comes in — because he's lived it.
 
 [HANDOFF — L → G]
 
@@ -70,7 +70,7 @@ And the third differentiator is where Gabriel comes in — because he's lived it
 
 ---
 
-## Slide 7 — Live Demo · Gabriel · ~2:00 *(floating: min 1:30 / max 2:15)*
+## Slide 7 — Live Demo · Gabe · ~2:00 *(floating: min 1:30 / max 2:15)*
 
 > **This section is narrated live over the product, not read verbatim.** Speak naturally while you drive. Hit these six beats in order. **Hard-cut rule: if the clock hits 8:00, stop wherever you are and jump to Slide 8.**
 
@@ -100,7 +100,7 @@ Free, ninety-nine cents, nine ninety-nine, twenty-nine ninety-nine. The ninety-n
 
 ---
 
-## Slide 9 — Financials: Model + Unit Economics · Gabriel · 0:55
+## Slide 9 — Financials: Model + Unit Economics · Gabe · 0:55
 
 **G:** Let me walk you through the model — and you can re-derive every number on this slide in about sixty seconds.
 
@@ -110,7 +110,7 @@ Now the margin. According to Anthropic's published pricing, our API cost is abou
 
 ---
 
-## Slide 10 — Financials: LTV : CAC · Gabriel · 0:30
+## Slide 10 — Financials: LTV : CAC · Gabe · 0:30
 
 **G:** And the unit economics hold. Our blended customer acquisition cost is about **eight to twelve dollars** — modeled from named-channel benchmarks, and we state that as an assumption, not measured data. Our blended lifetime value is about **thirteen to fifteen dollars**, because this cohort relocates more than once in their twenties and thirties — and every move is a fresh purchase. ⚠️F7
 
@@ -122,7 +122,7 @@ Now the margin. According to Anthropic's published pricing, our API cost is abou
 
 ## Slide 11 — Marketing + Acquisition · Luke · 0:40
 
-**L:** Organic-first, four channels, each one hitting people at the exact moment they're deciding to move. **Search** — someone typing "cost of living in Lisbon" already has the problem; that's our highest-intent channel. **Reddit** — communities like r/IWantOut exist precisely because our user already gathers there, and that's near-zero cost. **TikTok and Reels** — Gabriel's immigration journey is the content; authentic, organic, and free to make. And **university career centers** — reaching F-1 and graduating students facing "where next" the moment they leave school.
+**L:** Organic-first, four channels, each one hitting people at the exact moment they're deciding to move. **Search** — someone typing "cost of living in Lisbon" already has the problem; that's our highest-intent channel. **Reddit** — communities like r/IWantOut exist precisely because our user already gathers there, and that's near-zero cost. **TikTok and Reels** — Gabe's immigration journey is the content; authentic, organic, and free to make. And **university career centers** — reaching F-1 and graduating students facing "where next" the moment they leave school.
 
 Blend it together and our customer acquisition cost is that eight-to-twelve dollars — and the whole model is built so any assumption can be stress-tested on the spot.
 
@@ -147,15 +147,15 @@ Potential is ready to be the first product that actually answers the question ev
 | 3 | Market | Luke | 0:55 |
 | 4 | Competition | Luke | 0:40 |
 | 5 | Solution | Luke | 0:40 |
-| 6 | Differentiators | Luke → Gabriel | 0:45 |
-| 7 | **Demo** | Gabriel | ~2:00 *(max 2:15)* |
+| 6 | Differentiators | Luke → Gabe | 0:45 |
+| 7 | **Demo** | Gabe | ~2:00 *(max 2:15)* |
 | 8 | Business model | Luke | 0:40 |
-| 9 | Financials I | Gabriel | 0:55 |
-| 10 | Financials II | Gabriel | 0:30 |
+| 9 | Financials I | Gabe | 0:55 |
+| 10 | Financials II | Gabe | 0:30 |
 | 11 | Marketing | Luke | 0:40 |
 | 12 | Ask | Luke | 0:30 |
 | | **Total** | | **~8:30–9:00** |
 
-**Cut zone if long:** compress Slide 11 first. **Never rush Slides 9–10** — that's Gabriel's Q&A territory and the most-challenged section.
+**Cut zone if long:** compress Slide 11 first. **Never rush Slides 9–10** — that's Gabe's Q&A territory and the most-challenged section.
 
 **Open founder-verify before pitch day:** F3 (Anthropic price, HIGH), F4 (16Personalities, HIGH), F1, F6, F7. See `deck-outline.md` for each flag's fallback.
