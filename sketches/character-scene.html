@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Character in the Dawn (prototype)</title>
+<!-- THROWAWAY PROTOTYPE — refined 2D character, coherent with the landing.
+     A small full-body figure standing in the night->dawn scene, rendered in
+     ivory + gold with soft form-shading and a gold dawn backlight rim (NOT flat).
+     Static except a gentle breathe + blink (no rotation). Professions re-dress
+     by silhouette + gold accent. Pure inline SVG, offline. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --night-1:#070a11; --night-2:#0d1119;
+    --gold:#e2b56b; --gold-soft:#caa05a; --ivory:#f3ede1;
+    --ivory-dim:rgba(243,237,225,.55); --faint:rgba(243,237,225,.16);
+    --card:rgba(13,16,22,.55); --border:rgba(243,237,225,.16);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Manrope',sans-serif;color:var(--ivory);-webkit-font-smoothing:antialiased;
+    background:var(--night-1);display:flex;align-items:center;justify-content:center}
+
+  .brand{position:fixed;top:24px;left:30px;z-index:5;font-family:'Instrument Serif',serif;font-size:24px;letter-spacing:.5px;opacity:.9;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+  .brand small{font-style:italic;opacity:.55;font-size:14px}
+  .nowDressing{position:fixed;top:24px;right:30px;z-index:5;text-align:right;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+  .nowDressing .k{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-soft)}
+  .nowDressing .v{font-family:'Instrument Serif',serif;font-size:26px;margin-top:2px}
+
+  .stage{width:min(96vw,560px)}
+  .stage svg{width:100%;height:auto;display:block}
+
+  /* idle — gentle, NO rotation */
+  .fig{animation:breathe 4.8s var(--ease) infinite}
+  @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4px)}}
+  .eyes{animation:blink 5.4s steps(1,end) infinite;transform-origin:center}
+  @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+  .grow{animation:pop .42s var(--ease) both}
+  @keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+  .twinkle{animation:tw 4s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.25}50%{opacity:.8}}
+
+  .dock{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:5;
+    max-width:min(94vw,840px);padding:13px 15px 11px;border-radius:20px;
+    background:var(--card);backdrop-filter:blur(14px);border:1px solid var(--border);
+    box-shadow:0 24px 60px -30px rgba(0,0,0,.9)}
+  .dockrow{display:flex;gap:8px;align-items:center;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  .dockrow::-webkit-scrollbar{height:6px}
+  .dockrow::-webkit-scrollbar-thumb{background:var(--faint);border-radius:6px}
+  .catlbl{flex:none;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:0 4px}
+  .sep{flex:none;width:1px;height:22px;background:var(--border)}
+  .pill{flex:none;font-family:inherit;font-size:13px;color:var(--ivory-dim);white-space:nowrap;
+    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:100px;padding:8px 14px;cursor:pointer;transition:.22s var(--ease)}
+  .pill:hover{color:var(--ivory);border-color:var(--gold-soft);transform:translateY(-1px)}
+  .pill.on{color:#13100a;background:var(--gold);border-color:var(--gold);font-weight:600;box-shadow:0 6px 18px rgba(226,181,107,.3)}
+  .pill.reset{color:var(--gold-soft)}
+  .hint{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:5;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important} }
+</style>
+</head>
+<body>
+  <div class="brand">Potential <small>°</small></div>
+  <div class="nowDressing"><div class="k">Now showing</div><div class="v" id="who">A life, unlived</div></div>
+  <div class="stage"><div id="figwrap"></div></div>
+  <div class="hint">pick a path to dress up</div>
+  <div class="dock"><div class="dockrow" id="dock"></div></div>
+
+<script>
+(() => {
+  // ---------- coherent ivory/gold palette ----------
+  const IVORY='#efe6d4', TAUPE='#c3b59a', WARMGRAY='#a99d88', DEEPGRAY='#6f6757',
+        GOLD='#e2b56b', GOLDS='#caa05a', PANTS='#46403a', SHOE='#272320';
+  const SKINS=['#e7d4b6','#d8bd98','#c4a37c','#ab835f','#8c6648','#6f4e36'];
+  const HAIRS=['#241a12','#382a1f','#523a24','#6f5636','#171411','#7c766b'];
+  const COATS=[IVORY,TAUPE,WARMGRAY,DEEPGRAY];
+  const pick = a => a[(Math.random()*a.length)|0];
+
+  // ---------- profession -> outfit (monochrome: tone + silhouette + gold accent) ----------
+  const PCFG = {
+    "Software Engineer":{coat:WARMGRAY,prop:'laptop'},
+    "Data Scientist":{coat:WARMGRAY,prop:'laptop',glasses:1},
+    "Product Designer":{coat:DEEPGRAY,hat:'beret',prop:'clip'},
+    "IT / DevOps":{coat:WARMGRAY,hat:'phones',prop:'laptop'},
+    "Nurse":{coat:IVORY,hat:'surgcap',steth:1,prop:'clip'},
+    "Physician":{coat:IVORY,steth:1,prop:'clip',long:1},
+    "Therapist":{coat:TAUPE,prop:'clip'},
+    "Pharmacist":{coat:IVORY,prop:'pills',long:1},
+    "Marketing":{coat:TAUPE,prop:'mega'},
+    "Finance":{coat:DEEPGRAY,prop:'brief'},
+    "Sales":{coat:DEEPGRAY,prop:'brief'},
+    "Operations":{coat:WARMGRAY,prop:'clip'},
+    "Writer":{coat:TAUPE,glasses:1,prop:'book'},
+    "Artist":{coat:TAUPE,hat:'beret',prop:'palette'},
+    "Musician":{coat:DEEPGRAY,hat:'phones',prop:'clap'},
+    "Filmmaker":{coat:DEEPGRAY,hat:'cap',prop:'clap'},
+    "Electrician":{coat:TAUPE,hat:'hardhat',prop:'wrench'},
+    "Chef":{coat:IVORY,hat:'toque',prop:'pan',long:1},
+    "Mechanic":{coat:WARMGRAY,hat:'cap',prop:'wrench'},
+    "Teacher":{coat:TAUPE,glasses:1,prop:'book'}
+  };
+
+  // ---------- person state ----------
+  const P={ name:null, skin:SKINS[1], hair:HAIRS[1], hairStyle:0, coat:COATS[0] };
+  function reroll(){ P.skin=pick(SKINS); P.hair=pick(HAIRS); P.hairStyle=(Math.random()*3)|0; P.coat=pick(COATS); }
+
+  // soft form-shading overlay (color-independent) + gold warmth
+  const shade = d => `<path d="${d}" fill="url(#gShade)"/>`;
+  const shadeE = (cx,cy,rx,ry) => `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#gShade)"/>`;
+
+  // ===== hats (local coords; head centre ~ (0,16), crown ~ y5) =====
+  function hat(type){
+    const ac=GOLD;
+    switch(type){
+      case 'toque': return {svg:`<g class="grow"><ellipse cx="0" cy="3" rx="12" ry="7.5" fill="${IVORY}"/><rect x="-10.5" y="6" width="21" height="6" rx="3" fill="${IVORY}"/>${shadeE(0,3,12,7.5)}</g>`,covers:1};
+      case 'hardhat': return {svg:`<g class="grow"><path d="M-12 8 Q0 -7 12 8 Z" fill="${TAUPE}"/><rect x="-14" y="6.5" width="28" height="3.4" rx="1.7" fill="${TAUPE}"/><rect x="-1.4" y="-3" width="2.8" height="11" rx="1.2" fill="${ac}"/></g>`,covers:1};
+      case 'cap': return {svg:`<g class="grow"><path d="M-11 9 Q0 -6 11 9 Z" fill="${WARMGRAY}"/><path d="M0 7 Q14 7 16 13 Q5 14 -1 11 Z" fill="${DEEPGRAY}"/></g>`,covers:1};
+      case 'surgcap': return {svg:`<g class="grow"><path d="M-11.5 9 Q0 -6 11.5 9 Z" fill="${IVORY}"/><circle cx="-5" cy="2" r=".9" fill="${ac}"/><circle cx="2" cy="-1" r=".9" fill="${ac}"/></g>`,covers:1};
+      case 'beret': return {svg:`<g class="grow"><ellipse cx="1" cy="3" rx="13" ry="5.6" fill="${TAUPE}" transform="rotate(-7 1 3)"/><circle cx="10" cy="-2" r="1.3" fill="${ac}"/></g>`,covers:0};
+      case 'phones': return {svg:`<g class="grow"><path d="M-12 16 Q-12 4 0 4 Q12 4 12 16" fill="none" stroke="${IVORY}" stroke-width="2.4" stroke-linecap="round"/><rect x="-14.5" y="13" width="5" height="9" rx="2.5" fill="${DEEPGRAY}"/><rect x="9.5" y="13" width="5" height="9" rx="2.5" fill="${DEEPGRAY}"/></g>`,covers:0};
+      default: return {svg:'',covers:0};
+    }
+  }
+
+  // ===== props (held at right hand ~ (16,90)) — tiny ivory/gold silhouettes =====
+  function prop(type){
+    const w = s => `<g class="grow" transform="translate(16.5,89)">${s}</g>`;
+    switch(type){
+      case 'laptop': return w(`<rect x="-9" y="-1" width="18" height="2.4" rx="1" fill="${WARMGRAY}"/><rect x="-8" y="-11" width="16" height="10" rx="1.5" fill="${DEEPGRAY}"/><rect x="-6" y="-9.5" width="12" height="7" rx="1" fill="${GOLD}"/>`);
+      case 'clip': return w(`<rect x="-6" y="-9" width="12" height="16" rx="2" fill="${IVORY}"/><rect x="-2.5" y="-11" width="5" height="3.4" rx="1.5" fill="${GOLDS}"/><path d="M-3.5 -4h7M-3.5 0h7" stroke="rgba(0,0,0,.25)" stroke-width="1"/>`);
+      case 'brief': return w(`<rect x="-10" y="-6" width="20" height="14" rx="2" fill="${DEEPGRAY}"/><rect x="-3.5" y="-9" width="7" height="3.4" rx="1.4" fill="none" stroke="${GOLDS}" stroke-width="1.4"/><path d="M-10 0h20" stroke="rgba(0,0,0,.25)" stroke-width="1"/>`);
+      case 'book': return w(`<rect x="-7" y="-9" width="14" height="18" rx="1.5" fill="${TAUPE}"/><rect x="-5.5" y="-7.5" width="11" height="15" rx="1" fill="${IVORY}"/><path d="M0 -7.5v15" stroke="rgba(0,0,0,.18)" stroke-width="1"/>`);
+      case 'palette': return w(`<ellipse cx="0" cy="0" rx="10" ry="8" fill="${TAUPE}"/><circle cx="3" cy="2" r="2" fill="${GOLD}"/><circle cx="-4" cy="-2" r="1.6" fill="${IVORY}"/><circle cx="2" cy="-4" r="1.6" fill="${GOLDS}"/>`);
+      case 'wrench': return w(`<path d="M5 -9 a3.4 3.4 0 0 0 -4.6 4.6 l-8 8 2.4 2.4 8 -8 a3.4 3.4 0 0 0 4.6 -4.6 l-2.4 2.4 -2.4 -2.4z" fill="${WARMGRAY}"/>`);
+      case 'pan': return w(`<ellipse cx="0" cy="0" rx="9" ry="3.4" fill="${DEEPGRAY}"/><rect x="8" y="-1.2" width="13" height="2.4" rx="1.2" fill="${DEEPGRAY}"/>`);
+      case 'pills': return w(`<rect x="-5" y="-8" width="10" height="15" rx="2" fill="${IVORY}"/><rect x="-5" y="-10.5" width="10" height="4" rx="1.6" fill="${GOLDS}"/><path d="M0 -3v5M-2.5 -.5h5" stroke="${GOLDS}" stroke-width="1.4"/>`);
+      case 'mega': return w(`<path d="M-8 -5 L4 -9 L4 9 L-8 5 Z" fill="${TAUPE}"/><path d="M4 -6 q6 6 0 12" fill="none" stroke="${GOLD}" stroke-width="1.4"/>`);
+      case 'clap': return w(`<rect x="-9" y="-5" width="18" height="12" rx="1.5" fill="${DEEPGRAY}"/><path d="M-9 -5 L9 -8 L10.4 -3.6 L-7.6 -.6 Z" fill="${WARMGRAY}"/><path d="M-6 -6.5 l1.4 2.8 M-2 -7 l1.4 2.8 M2 -7.5 l1.4 2.8" stroke="${IVORY}" stroke-width="1"/>`);
+      default: return '';
+    }
+  }
+
+  function hair(){
+    const c=P.hair;
+    if(P.hairStyle===1) return `<path d="M-9.5 17 Q-10 4 0 3.5 Q10 4 9.5 17 Q8 7 0 6.5 Q-8 7 -9.5 17 Z" fill="${c}"/>`;
+    if(P.hairStyle===2) return `<path d="M-9.5 17 Q-10 3 0 2.5 Q10 3 9.5 17 Q8 6 0 5.5 Q-8 6 -9.5 17 Z" fill="${c}"/><circle cx="0" cy="2" r="3.4" fill="${c}"/>`;
+    return `<path d="M-10 18 Q-11 2 0 2 Q11 2 10 18 Q9.6 9 4 7 Q9 11 0 10.5 Q-9 11 -4 7 Q-9.6 9 -10 18 Z" fill="${c}"/>`;
+  }
+  function face(){
+    return `<g class="eyes"><ellipse cx="-3.4" cy="16.5" rx="1.05" ry="1.7" fill="#2b211c"/><ellipse cx="3.4" cy="16.5" rx="1.05" ry="1.7" fill="#2b211c"/></g>
+            <rect x="-2.2" y="20.4" width="4.4" height="1.2" rx=".6" fill="#9b6f5e"/>`;
+  }
+  const glasses = on => on?`<g class="grow"><circle cx="-3.4" cy="16.5" r="2.7" fill="none" stroke="${GOLD}" stroke-width=".9"/><circle cx="3.4" cy="16.5" r="2.7" fill="none" stroke="${GOLD}" stroke-width=".9"/><path d="M-.7 16.5h1.4" stroke="${GOLD}" stroke-width=".9"/></g>`:'';
+  const steth = on => on?`<g class="grow"><path d="M-3.5 33 Q-6 46 1 53 Q8 46 5 33" fill="none" stroke="${GOLD}" stroke-width="1.4"/><circle cx="1" cy="56" r="2.4" fill="${GOLDS}"/></g>`:'';
+
+  // ===== full figure (local coords, centred x=0, feet y=150) =====
+  function figMarkup(){
+    const cfg = P.name ? (PCFG[P.name]||{}) : {};
+    const CO = cfg.coat || P.coat;
+    const H = hat(cfg.hat);
+    const coatD = cfg.long
+      ? "M-17 36 Q-17 33 -11 33 L11 33 Q17 33 17 36 L21 108 Q21 116 13 116 L-13 116 Q-21 116 -21 108 Z"
+      : "M-16.5 36 Q-16.5 33 -11 33 L11 33 Q16.5 33 16.5 36 L19.5 96 Q19.5 104 12.5 104 L-12.5 104 Q-19.5 104 -19.5 96 Z";
+    const legBot = cfg.long ? 116 : 92;
+    return `
+      ${H.covers ? '' : hair()}
+      <!-- legs -->
+      <path d="M-11 ${legBot} H-1.5 V141 Q-1.5 146 -6 146 Q-11 146 -11 141 Z" fill="${PANTS}"/>${shade(`M-11 ${legBot} H-1.5 V141 Q-1.5 146 -6 146 Q-11 146 -11 141 Z`)}
+      <path d="M1.5 ${legBot} H11 V141 Q11 146 6 146 Q1.5 146 1.5 141 Z" fill="${PANTS}"/>${shade(`M1.5 ${legBot} H11 V141 Q11 146 6 146 Q1.5 146 1.5 141 Z`)}
+      <!-- shoes -->
+      <path d="M-12 144 H-2 q2.5 5 -2.5 6 H-13 q-2.6 0 -2.6 -2.6 q0 -3.4 4 -3.4 Z" fill="${SHOE}"/>
+      <path d="M2 144 H12 q4 0 4 3.4 q0 2.6 -2.6 2.6 H4.5 q-5 -1 -2.5 -6 Z" fill="${SHOE}"/>
+      <!-- arms (behind coat sides) -->
+      <path d="M-16 37 Q-21 39 -21 49 L-18.5 84 Q-18.5 90 -13 90 L-10.5 90 L-12.5 44 Q-13.5 37 -16 37 Z" fill="${CO}"/>
+      <path d="M16 37 Q21 39 21 49 L18.5 84 Q18.5 90 13 90 L10.5 90 L12.5 44 Q13.5 37 16 37 Z" fill="${CO}"/>
+      <circle cx="-15.5" cy="90" r="4.4" fill="${P.skin}"/><circle cx="15.5" cy="90" r="4.4" fill="${P.skin}"/>
+      <!-- coat / torso -->
+      <path d="${coatD}" fill="${CO}"/>
+      <path d="M0 38 V${legBot}" stroke="rgba(0,0,0,.14)" stroke-width="1"/>
+      ${shade(coatD)}
+      <path d="${coatD}" fill="url(#gGold)"/>
+      ${steth(cfg.steth)}
+      <!-- neck + head -->
+      <path d="M-3.4 27 H3.4 V33 Q0 36 -3.4 33 Z" fill="${P.skin}"/>
+      <path d="M-3.4 27 H3.4 V29.5 Q0 32 -3.4 29.5 Z" fill="rgba(0,0,0,.16)"/>
+      <ellipse cx="-9" cy="17" rx="2.2" ry="3.2" fill="${P.skin}"/><ellipse cx="9" cy="17" rx="2.2" ry="3.2" fill="${P.skin}"/>
+      <ellipse cx="0" cy="16" rx="9.6" ry="11" fill="${P.skin}"/>
+      ${shadeE(0,16,9.6,11)}
+      <ellipse cx="0" cy="16" rx="9.6" ry="11" fill="url(#gGold)"/>
+      ${face()}
+      ${glasses(cfg.glasses)}
+      ${(!H.covers && P.hairStyle!==1) ? `<path d="M-10 18 Q-11 2 0 2 Q7 2 9.5 6 Q4 4.5 0 4.5 Q-8 4.5 -10 18 Z" fill="${P.hair}"/>` : ''}
+      ${H.svg}
+      ${prop(cfg.prop)}`;
+  }
+
+  // ===== the dawn scene around the figure =====
+  function scene(){
+    const fig = figMarkup();
+    return `
+    <svg viewBox="0 0 460 380" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#080c15"/><stop offset=".5" stop-color="#10141f"/>
+          <stop offset=".72" stop-color="#2a2233"/><stop offset=".85" stop-color="#7a532d"/>
+          <stop offset="1" stop-color="#caa05a"/>
+        </linearGradient>
+        <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="rgba(255,222,160,.9)"/><stop offset=".4" stop-color="rgba(226,170,100,.35)"/>
+          <stop offset="1" stop-color="rgba(226,170,100,0)"/>
+        </radialGradient>
+        <linearGradient id="gShade" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="rgba(8,10,16,.34)"/><stop offset=".55" stop-color="rgba(8,10,16,0)"/>
+          <stop offset="1" stop-color="rgba(8,10,16,0)"/>
+        </linearGradient>
+        <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="rgba(226,181,107,0)"/><stop offset=".82" stop-color="rgba(226,181,107,0)"/>
+          <stop offset="1" stop-color="rgba(255,210,130,.22)"/>
+        </linearGradient>
+        <filter id="goldglow" x="-60%" y="-60%" width="220%" height="220%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="1.6" result="d"/>
+          <feFlood flood-color="#e8b86a"/><feComposite in2="d" operator="in" result="g"/>
+          <feGaussianBlur in="g" stdDeviation="4.5"/>
+        </filter>
+        <filter id="soft"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+
+      <rect width="460" height="380" fill="url(#sky)"/>
+      <ellipse cx="230" cy="262" rx="220" ry="120" fill="url(#sun)"/>
+      <!-- distant hills -->
+      <path d="M0 258 Q120 238 230 252 Q340 264 460 246 V300 H0 Z" fill="#0e1320" opacity=".9"/>
+      <path d="M0 270 Q140 256 230 266 Q360 278 460 262 V310 H0 Z" fill="#0a0e18"/>
+      <!-- ground -->
+      <rect y="286" width="460" height="94" fill="#080b12"/>
+      <rect y="286" width="460" height="2.5" fill="rgba(226,181,107,.25)"/>
+      <!-- fog band -->
+      <ellipse cx="230" cy="286" rx="260" ry="26" fill="rgba(202,160,114,.16)" filter="url(#soft)"/>
+      <!-- stars/particles -->
+      ${Array.from({length:26},(_,i)=>{const x=(i*53%450)+6,y=(i*37%150)+18,r=(i%3)?.8:1.3;
+        return `<circle class="twinkle" style="animation-delay:${(i%5)*0.6}s" cx="${x}" cy="${y}" r="${r}" fill="#f3ede1"/>`;}).join('')}
+
+      <!-- ground shadow -->
+      <ellipse cx="230" cy="306" rx="46" ry="7" fill="rgba(0,0,0,.4)" filter="url(#soft)"/>
+
+      <!-- the figure: gold backlit halo behind, crisp figure in front -->
+      <g class="fig" transform="translate(230,156) scale(.97)">
+        <g filter="url(#goldglow)" opacity=".85">${fig}</g>
+        ${fig}
+      </g>
+    </svg>`;
+  }
+
+  // ---------- render ----------
+  const figwrap=document.getElementById('figwrap'), who=document.getElementById('who');
+  function render(){ figwrap.innerHTML=scene(); who.textContent=P.name||'A life, unlived';
+    document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on', p.dataset.name===P.name)); }
+  function dress(n){ P.name=n||null; render(); }
+
+  // ---------- dock ----------
+  const PROFS={ "Tech":["Software Engineer","Data Scientist","Product Designer","IT / DevOps"],
+    "Health":["Nurse","Physician","Therapist","Pharmacist"], "Business":["Marketing","Finance","Sales","Operations"],
+    "Creative":["Writer","Artist","Musician","Filmmaker"], "Trades":["Electrician","Chef","Mechanic","Teacher"] };
+  const dock=document.getElementById('dock');
+  { const r=document.createElement('button'); r.className='pill reset'; r.textContent='🎲 New person'; r.dataset.name='';
+    r.onclick=()=>{ reroll(); dress(null); }; dock.appendChild(r); }
+  Object.entries(PROFS).forEach(([cat,list])=>{
+    const sep=document.createElement('span'); sep.className='sep'; dock.appendChild(sep);
+    const lbl=document.createElement('span'); lbl.className='catlbl'; lbl.textContent=cat; dock.appendChild(lbl);
+    list.forEach(n=>{ const b=document.createElement('button'); b.className='pill'; b.textContent=n; b.dataset.name=n; b.onclick=()=>dress(n); dock.appendChild(b); });
+  });
+
+  reroll(); render();
+})();
+</script>
+</body>
+</html>
