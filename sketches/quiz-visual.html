@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Visual Quiz (prototype)</title>
+<!-- THROWAWAY PROTOTYPE — illustrated Phase-2 quiz. A live SVG "diorama" stage
+     reacts to every answer: a blank mannequin dresses into your profession, a coin
+     pyramid grows with income, a spouse / kids / pet join the scene, rent vs buy
+     shows an apartment or a house, education shows a diploma. All inline SVG,
+     no assets, offline, vanilla JS. Cohesive with the cinematic landing. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --night-1:#070a11; --night-2:#0d1119;
+    --gold:#e2b56b; --gold-soft:#d2a45a; --gold-deep:#13100a;
+    --ivory:#f3ede1; --ivory-dim:rgba(243,237,225,.55); --ivory-faint:rgba(243,237,225,.16);
+    --card:rgba(255,255,255,.035); --card-2:rgba(255,255,255,.06);
+    --border:rgba(243,237,225,.12); --border-2:rgba(243,237,225,.22);
+    --neg:#e0816a;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--night-1); color:var(--ivory);
+    font-family:'Manrope',sans-serif; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, #141b27 0%, var(--night-2) 42%, var(--night-1) 80%),
+      radial-gradient(70% 50% at 50% 118%, rgba(226,181,107,.10), transparent 70%);
+    background-attachment:fixed;
+  }
+  .grain{position:fixed;inset:0;width:100%;height:100%;z-index:40;pointer-events:none;opacity:.045;mix-blend-mode:overlay}
+
+  .brand{position:fixed;top:26px;left:32px;z-index:20;
+    font-family:'Instrument Serif',serif;font-size:24px;letter-spacing:.5px;opacity:.85}
+  .brand small{font-style:italic;opacity:.6;font-size:14px}
+
+  .wrap{max-width:600px;margin:0 auto;padding:90px 24px 120px;position:relative;z-index:10}
+
+  .top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+  .back{background:none;border:none;color:var(--ivory-dim);cursor:pointer;font-size:20px;
+    width:34px;height:34px;border-radius:50%;transition:.3s var(--ease);flex:none}
+  .back:hover{color:var(--gold);background:var(--card)}
+  .segs{flex:1;display:flex;gap:5px}
+  .seg{flex:1;height:3px;border-radius:2px;background:var(--border);transition:.5s var(--ease)}
+  .seg.on{background:var(--gold);box-shadow:0 0 8px rgba(226,181,107,.5)}
+  .count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ivory-dim)}
+
+  /* ---------- the live illustrated stage ---------- */
+  .stage{position:relative;width:100%;margin:0 auto 26px;border-radius:22px;overflow:hidden;
+    border:1px solid var(--border);
+    background:
+      radial-gradient(120% 90% at 50% 4%, rgba(226,181,107,.10), transparent 60%),
+      radial-gradient(80% 60% at 50% 116%, rgba(226,181,107,.16), transparent 70%),
+      linear-gradient(180deg, #0f1420, #0a0d16);
+    box-shadow:inset 0 1px 0 rgba(243,237,225,.05), 0 20px 50px -30px rgba(0,0,0,.9)}
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(60% 50% at 50% 60%, transparent 55%, rgba(7,10,17,.5) 100%)}
+  .stage svg{display:block;width:100%;height:auto}
+  .stage .scene-anim{animation:stagein .55s var(--ease)}
+  @keyframes stagein{from{opacity:0}to{opacity:1}}
+  .figpop{animation:figpop .5s var(--ease)}
+  @keyframes figpop{0%{transform:translateY(4px) scale(.96);opacity:.3}100%{transform:none;opacity:1}}
+  .stagecap{position:absolute;left:0;right:0;bottom:11px;text-align:center;z-index:3;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;
+    color:var(--gold-soft);text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+
+  #host{transition:opacity .35s var(--ease), transform .35s var(--ease);will-change:opacity,transform}
+  .q{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(28px,5vw,42px);
+    line-height:1.04;letter-spacing:-.01em;margin-bottom:8px}
+  .q em{font-style:italic;color:var(--gold)}
+  .sub{color:var(--ivory-dim);font-size:14.5px;font-weight:300;margin-bottom:28px;line-height:1.5}
+
+  .group{margin-bottom:24px}
+  .label{display:block;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-soft);font-weight:500;margin-bottom:12px}
+  .label .val{font-family:'JetBrains Mono',monospace;color:var(--gold);letter-spacing:0;text-transform:none}
+  .label .val.neg{color:var(--neg)}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-family:inherit;font-size:13.5px;color:var(--ivory-dim);
+    background:var(--card);border:1px solid var(--border);border-radius:100px;
+    padding:9px 16px;cursor:pointer;transition:.25s var(--ease);user-select:none}
+  .pill:hover{border-color:var(--border-2);color:var(--ivory)}
+  .pill.on{color:var(--ivory);border-color:var(--gold);
+    background:linear-gradient(0deg, rgba(226,181,107,.14), rgba(226,181,107,.07));
+    box-shadow:0 0 0 1px rgba(226,181,107,.25), 0 8px 24px rgba(226,181,107,.10)}
+
+  .cat{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-faint);
+    margin:18px 0 9px;font-weight:600}
+  .cat:first-child{margin-top:0}
+
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{font-family:inherit;text-align:left;color:var(--ivory-dim);background:var(--card);
+    border:1px solid var(--border);border-radius:14px;padding:14px 15px;cursor:pointer;
+    transition:.25s var(--ease);font-size:14px;display:flex;align-items:center;gap:10px}
+  .tile:hover{border-color:var(--border-2);color:var(--ivory)}
+  .tile.on{color:var(--ivory);border-color:var(--gold);
+    background:linear-gradient(0deg, rgba(226,181,107,.13), rgba(226,181,107,.05))}
+  .tile .ic{font-size:19px;flex:none}
+
+  /* illustrated option cards (housing / education / pets) */
+  .optcards{display:grid;gap:12px}
+  .optcards.two{grid-template-columns:1fr 1fr}
+  .optcards.three{grid-template-columns:1fr 1fr 1fr}
+  .optcard{font-family:inherit;color:var(--ivory-dim);background:var(--card);
+    border:1px solid var(--border);border-radius:16px;padding:12px 10px 11px;cursor:pointer;
+    transition:.25s var(--ease);text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px}
+  .optcard:hover{border-color:var(--border-2);color:var(--ivory);transform:translateY(-2px)}
+  .optcard.on{color:var(--ivory);border-color:var(--gold);
+    background:linear-gradient(0deg, rgba(226,181,107,.13), rgba(226,181,107,.05));
+    box-shadow:0 0 0 1px rgba(226,181,107,.22), 0 10px 26px rgba(226,181,107,.10)}
+  .optcard svg{width:100%;height:62px}
+  .optcard .ol{font-size:12.5px;font-weight:500;letter-spacing:.01em}
+
+  .rowtoggle{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .seg2{display:flex;gap:8px;flex-wrap:wrap}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(90deg, var(--gold) var(--p,40%), rgba(243,237,225,.14) var(--p,40%));
+    outline:none;cursor:pointer;margin:6px 0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--gold);cursor:pointer;box-shadow:0 0 0 4px rgba(226,181,107,.18), 0 2px 8px rgba(0,0,0,.4);transition:.2s}
+  input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 6px rgba(226,181,107,.22)}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:var(--gold)}
+  .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--ivory-faint);margin-top:5px}
+
+  input[type=text]{width:100%;font-family:inherit;font-size:15px;color:var(--ivory);
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;transition:.25s var(--ease)}
+  input[type=text]::placeholder{color:var(--ivory-faint)}
+  input[type=text]:focus{outline:none;border-color:var(--gold);background:var(--card-2)}
+
+  .ranklist{display:flex;flex-direction:column;gap:8px}
+  .rank{display:flex;align-items:center;gap:11px}
+  .rank .n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);width:18px}
+  .rank .body{flex:1;display:flex;justify-content:space-between;align-items:center;
+    padding:13px 15px;background:var(--card);border:1px solid var(--border);border-radius:11px;font-size:14px}
+  .arrow{background:none;border:1px solid var(--border);border-radius:7px;color:var(--ivory-dim);
+    cursor:pointer;padding:2px 8px;font-size:13px;transition:.2s}
+  .arrow:hover{border-color:var(--gold);color:var(--gold)}
+
+  .foot{margin-top:34px}
+  .cta{width:100%;font-family:inherit;font-size:14px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gold-deep);background:var(--gold);border:none;border-radius:100px;padding:17px;
+    cursor:pointer;transition:.4s var(--ease);font-weight:600}
+  .cta:hover{box-shadow:0 14px 40px rgba(226,181,107,.28);transform:translateY(-2px)}
+  .cta:disabled{background:var(--card);color:var(--ivory-faint);cursor:not-allowed;box-shadow:none;transform:none;border:1px solid var(--border)}
+
+  .flag{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft);
+    margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .flag::before{content:"";width:26px;height:1px;background:var(--gold-soft)}
+  .choices{display:flex;flex-direction:column;gap:12px;margin-top:30px}
+  .choice{font-family:inherit;text-align:left;color:var(--ivory);background:var(--card);
+    border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:.25s var(--ease)}
+  .choice:hover{border-color:var(--gold);background:var(--card-2);transform:translateY(-2px)}
+  .choice b{font-family:'Instrument Serif',serif;font-weight:400;font-size:21px;display:block;margin-bottom:4px}
+  .choice span{font-size:13px;color:var(--ivory-dim);font-weight:300}
+
+  .summary{display:flex;flex-direction:column;gap:1px;background:var(--border);
+    border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:24px 0}
+  .srow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 18px;background:var(--night-1);font-size:14px}
+  .srow .k{color:var(--ivory-dim);font-weight:300}
+  .srow .v{color:var(--ivory);text-align:right;font-weight:500}
+  .srow .v.mono{font-family:'JetBrains Mono',monospace;color:var(--gold)}
+
+  @media (max-width:480px){ .tiles{grid-template-columns:1fr} .optcards.three{grid-template-columns:1fr 1fr} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+  <svg class="grain"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+  <div class="brand">Potential <small>°</small></div>
+
+  <div class="wrap">
+    <div class="top">
+      <button class="back" data-nav="back" aria-label="Back">←</button>
+      <div class="segs" id="segs"></div>
+      <span class="count" id="count">1/5</span>
+    </div>
+    <div class="stage" id="stage"></div>
+    <div id="host"></div>
+  </div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const host = $('#host');
+  const stageEl = $('#stage');
+
+  /* ============================================================
+     SVG ART LIBRARY  — every visual is procedural inline SVG.
+     ============================================================ */
+  const SK = '#d8a17a';                 // skin
+  const ST = 'rgba(243,237,225,.9)';    // outline (ivory)
+  const HAIR = '#3a2c22';
+
+  // ---- profession -> costume config. coat/pants color, hat, held prop ----
+  const PCFG = {
+    "Software Engineer":{coat:'#3f6fa6',pants:'#2b3242',hat:'none',prop:'laptop',hair:HAIR},
+    "Data Scientist":   {coat:'#4a5d7e',pants:'#2b3242',hat:'none',prop:'laptop',glasses:1,hair:HAIR},
+    "Product Designer": {coat:'#2f2f33',pants:'#3a3a40',hat:'beret',prop:'ruler',hair:HAIR},
+    "IT / DevOps":      {coat:'#2d6a4f',pants:'#2b3242',hat:'headset',prop:'gear',hair:HAIR},
+    "Nurse":            {coat:'#46a6a6',pants:'#3a8a8a',hat:'surgcap',prop:'steth',steth:1},
+    "Physician":        {coat:'#f1ece1',pants:'#2b3242',hat:'none',prop:'steth',lapel:1,steth:1,hair:HAIR},
+    "Therapist":        {coat:'#6b5b95',pants:'#332f44',hat:'none',prop:'clip',hair:HAIR},
+    "Pharmacist":       {coat:'#f1ece1',pants:'#2b3242',hat:'none',prop:'pills',lapel:1,hair:HAIR},
+    "Marketing":        {coat:'#d4684a',pants:'#3a2f2c',hat:'none',prop:'mega',hair:HAIR},
+    "Finance":          {coat:'#2b3a55',pants:'#222a3c',hat:'none',prop:'brief',hair:HAIR},
+    "Sales":            {coat:'#b5894a',pants:'#3a3225',hat:'none',prop:'brief',hair:HAIR},
+    "Operations":       {coat:'#50607a',pants:'#2b3242',hat:'none',prop:'clip',hair:HAIR},
+    "Writer":           {coat:'#6d4c3d',pants:'#3a2f2c',hat:'none',prop:'book',glasses:1,hair:HAIR},
+    "Artist":           {coat:'#c44e6a',pants:'#3a2f33',hat:'beret',prop:'palette',hair:HAIR},
+    "Musician":         {coat:'#3b3b5c',pants:'#2b2b40',hat:'phones',prop:'note',hair:HAIR},
+    "Filmmaker":        {coat:'#2f2f33',pants:'#3a3a40',hat:'cap',prop:'clap',hair:HAIR},
+    "Electrician":      {coat:'#c98a2b',pants:'#7a5a1d',hat:'hardhat',prop:'wrench'},
+    "Chef":             {coat:'#f1ece1',pants:'#2b3242',hat:'toque',prop:'pan',lapel:1,hair:HAIR},
+    "Mechanic":         {coat:'#3a6e5a',pants:'#2b4a3c',hat:'cap',prop:'wrench'},
+    "Teacher":          {coat:'#7a6ea3',pants:'#332f44',hat:'none',prop:'book',glasses:1,hair:HAIR}
+  };
+
+  // ---- one human figure (local coords ~70 x 150, feet at y=150) ----
+  function person(cfg){
+    cfg = cfg || {};
+    const blank = cfg.blank;
+    const coat = blank ? '#566' : (cfg.coat||'#6b7280');
+    const pants= blank ? '#3a4150' : (cfg.pants||'#33384a');
+    const sk   = blank ? '#5b6172' : SK;
+    const hair = cfg.hair;
+    const ds   = blank ? 'stroke-dasharray="4 3"' : '';
+    let g = `<g fill="none" stroke="${ST}" stroke-width="1.4" stroke-linejoin="round" ${ds}>`;
+    // legs + shoes
+    g += `<rect x="22" y="100" width="11" height="46" rx="5" fill="${pants}"/>`;
+    g += `<rect x="37" y="100" width="11" height="46" rx="5" fill="${pants}"/>`;
+    g += `<ellipse cx="26" cy="148" rx="8.5" ry="4" fill="#171b27"/><ellipse cx="44" cy="148" rx="8.5" ry="4" fill="#171b27"/>`;
+    // arms behind + hands
+    g += `<rect x="7" y="50" width="9.5" height="45" rx="4.7" fill="${coat}"/>`;
+    g += `<rect x="53.5" y="50" width="9.5" height="45" rx="4.7" fill="${coat}"/>`;
+    g += `<circle cx="11.7" cy="96" r="5" fill="${sk}"/><circle cx="58.3" cy="96" r="5" fill="${sk}"/>`;
+    // torso / coat
+    g += `<path d="M16 53 Q16 44 25 44 H45 Q54 44 54 53 V97 Q54 104 47 104 H23 Q16 104 16 97 Z" fill="${coat}"/>`;
+    // white-coat lapels + buttons
+    if(cfg.lapel){
+      g += `<path d="M35 44 L27 70 M35 44 L43 70" stroke="rgba(0,0,0,.18)"/>`;
+      g += `<circle cx="35" cy="78" r="1.3" fill="rgba(0,0,0,.25)" stroke="none"/><circle cx="35" cy="88" r="1.3" fill="rgba(0,0,0,.25)" stroke="none"/>`;
+    }
+    // neck + head
+    g += `<rect x="30" y="35" width="10" height="9" rx="3" fill="${sk}"/>`;
+    g += `<circle cx="35" cy="24" r="15" fill="${sk}"/>`;
+    // hair (skip if a full hat covers the crown)
+    const covers = ['hardhat','toque','surgcap','cap'].includes(cfg.hat);
+    if(hair && !covers) g += `<path d="M20 22 Q20 8 35 8 Q50 8 50 22 Q44 15 35 15 Q26 15 20 22 Z" fill="${hair}" stroke="none"/>`;
+    // eyes
+    g += `<circle cx="30" cy="24" r="1.4" fill="#1a1a1a" stroke="none"/><circle cx="40" cy="24" r="1.4" fill="#1a1a1a" stroke="none"/>`;
+    // glasses
+    if(cfg.glasses) g += `<g stroke="${ST}" stroke-width="1.2"><circle cx="30" cy="24" r="4.2"/><circle cx="40" cy="24" r="4.2"/><path d="M34.2 24h1.6"/></g>`;
+    // hats
+    g += hat(cfg.hat);
+    // stethoscope on chest
+    if(cfg.steth){
+      g += `<g stroke="#2f3b49" stroke-width="1.8" fill="none"><path d="M30 41 C27 54 29 66 35 73"/><path d="M40 41 C43 52 41 63 36 72"/></g>`;
+      g += `<circle cx="36" cy="75" r="3.4" fill="#c7ccd6" stroke="#2f3b49"/>`;
+    }
+    g += `</g>`;
+    // held prop (front/centre, drawn over body)
+    g += prop(cfg.prop);
+    // blank "?"
+    if(blank) g += `<text x="35" y="80" font-family="Instrument Serif,serif" font-size="34" fill="rgba(243,237,225,.35)" text-anchor="middle" stroke="none">?</text>`;
+    return g;
+  }
+
+  function hat(h){
+    switch(h){
+      case 'toque':   return `<path d="M24 12 q-4 -10 5 -9 q2 -6 12 0 q9 -2 5 9 z" fill="#f4efe6"/><rect x="24" y="11" width="22" height="5" rx="2" fill="#f4efe6"/>`;
+      case 'hardhat': return `<path d="M21 17 a14 12 0 0 1 28 0 z" fill="#f2b42e"/><rect x="17" y="16" width="36" height="3.5" rx="1.7" fill="#f2b42e"/><rect x="33" y="6" width="4" height="9" rx="1.5" fill="#d99a1e"/>`;
+      case 'surgcap': return `<path d="M20 18 a15 13 0 0 1 30 0 z" fill="#3f9a9a"/><circle cx="28" cy="13" r="1" fill="rgba(255,255,255,.6)" stroke="none"/><circle cx="35" cy="11" r="1" fill="rgba(255,255,255,.6)" stroke="none"/><circle cx="42" cy="13" r="1" fill="rgba(255,255,255,.6)" stroke="none"/>`;
+      case 'cap':     return `<path d="M21 17 a14 11 0 0 1 28 0 z" fill="#374052"/><path d="M48 17 q12 0 13 5 q-9 1 -13 -1 z" fill="#2b3242"/>`;
+      case 'beret':   return `<ellipse cx="36" cy="13" rx="15" ry="6.5" fill="#7a2a3a"/><circle cx="48" cy="9" r="2" fill="#7a2a3a"/>`;
+      case 'phones':  return `<path d="M19 24 V20 a16 16 0 0 1 32 0 v4" stroke="#cdd2dc" stroke-width="2.4"/><rect x="15.5" y="22" width="7" height="12" rx="3.2" fill="#2f3b49"/><rect x="47.5" y="22" width="7" height="12" rx="3.2" fill="#2f3b49"/>`;
+      default: return '';
+    }
+  }
+
+  function prop(p){
+    const s='stroke="'+ST+'" stroke-width="1.4" stroke-linejoin="round"';
+    switch(p){
+      case 'laptop': return `<g ${s}><rect x="21" y="84" width="28" height="17" rx="2" fill="#222a38"/><rect x="24" y="87" width="22" height="11" rx="1" fill="#5fd0c4" stroke="none"/><path d="M18 101 h34 l-2 4 h-30 z" fill="#39414f"/></g>`;
+      case 'steth':  return ``; // drawn on chest
+      case 'clip':   return `<g ${s}><rect x="24" y="80" width="22" height="27" rx="2" fill="#e9e3d6"/><rect x="31" y="77" width="8" height="5" rx="1.5" fill="#9aa0ab"/><path d="M28 89h14M28 94h14M28 99h9" stroke="rgba(0,0,0,.25)"/></g>`;
+      case 'pills':  return `<g ${s}><rect x="27" y="84" width="16" height="20" rx="2.5" fill="#e9e3d6"/><rect x="29" y="80" width="12" height="6" rx="1.5" fill="#c44e4e"/><path d="M35 91v8M31 95h8" stroke="#c44e4e"/></g>`;
+      case 'brief':  return `<g ${s}><rect x="22" y="86" width="27" height="19" rx="2.5" fill="#5a3d2b"/><path d="M31 86v-4h9v4" /><path d="M22 94h27" stroke="rgba(0,0,0,.25)"/></g>`;
+      case 'book':   return `<g ${s}><path d="M22 86 q8 -3 14 0 v20 q-6 -3 -14 0 z" fill="#7a4030"/><path d="M50 86 q-8 -3 -14 0 v20 q6 -3 14 0 z" fill="#8a4c3a"/><path d="M36 86v20" stroke="rgba(0,0,0,.3)"/></g>`;
+      case 'palette':return `<g ${s}><path d="M36 82 a15 12 0 1 0 .1 0 q-7 0 -7 5 q4 4 0 7 q-4 0 -4 4" fill="#caa15f"/><circle cx="30" cy="88" r="2" fill="#c44e6a" stroke="none"/><circle cx="40" cy="86" r="2" fill="#4a7fb0" stroke="none"/><circle cx="44" cy="93" r="2" fill="#5aa66a" stroke="none"/></g>`;
+      case 'note':   return `<g ${s}><path d="M40 80 v18 a4 4 0 1 1 -3 -4 V84 l8 -2 v12 a4 4 0 1 1 -3 -4 V80z" fill="#e2b56b"/></g>`;
+      case 'clap':   return `<g ${s}><rect x="22" y="88" width="28" height="17" rx="1.5" fill="#222a38"/><path d="M22 88 l28 -3 l1 5 l-28 3 z" fill="#39414f"/><path d="M26 86 l3 4 M33 85 l3 4 M40 84 l3 4" stroke="#e9e3d6"/></g>`;
+      case 'wrench': return `<g ${s}><path d="M48 80 a6 6 0 0 0 -8 8 l-16 16 4 4 16 -16 a6 6 0 0 0 4 -12 l-4 4 -4 -4 z" fill="#9aa0ab"/></g>`;
+      case 'pan':    return `<g ${s}><ellipse cx="33" cy="98" rx="13" ry="5" fill="#2b3038"/><path d="M46 98 h14" stroke-width="2.6"/></g>`;
+      case 'mega':   return `<g ${s}><path d="M24 90 l16 -7 v18 l-16 -7 z" fill="#d4684a"/><path d="M40 86 v14" /><path d="M44 88 q5 5 0 10" stroke="#e2b56b"/></g>`;
+      case 'ruler':  return `<g ${s}><rect x="30" y="80" width="6" height="26" rx="1" fill="#caa15f"/><path d="M30 86h3M30 92h3M30 98h3" stroke="rgba(0,0,0,.3)"/></g>`;
+      case 'gear':   return `<g ${s}><circle cx="36" cy="92" r="8" fill="#50607a"/><circle cx="36" cy="92" r="3" fill="#0d1119"/><g stroke="#50607a" stroke-width="3"><path d="M36 80v4M36 100v4M24 92h4M44 92h4M28 84l3 3M41 97l3 3M44 84l-3 3M31 97l-3 3"/></g></g>`;
+      default: return '';
+    }
+  }
+
+  // ---- a child (scaled person), a pet ----
+  function child(){ return person({coat:'#c98a8a',pants:'#5a4a6a',hair:HAIR}); }
+  function pet(type){
+    const s='stroke="'+ST+'" stroke-width="1.3" stroke-linejoin="round"';
+    if(type==='Cat') return `<g ${s}><ellipse cx="20" cy="26" rx="16" ry="9" fill="#6b6b73"/><circle cx="36" cy="18" r="8" fill="#6b6b73"/><path d="M30 12 l2 -6 3 5 M42 12 l-2 -6 -3 5" fill="#6b6b73"/><path d="M4 26 q-6 -2 -8 -8" fill="none"/><circle cx="38" cy="17" r="1" fill="#1a1a1a" stroke="none"/></g>`;
+    if(type==='Dog'||type==='Both') return `<g ${s}><ellipse cx="20" cy="26" rx="17" ry="10" fill="#9c6b3f"/><circle cx="37" cy="20" r="9" fill="#9c6b3f"/><path d="M30 13 q-4 -2 -5 4 q4 2 6 0" fill="#7a4f2c"/><path d="M2 22 q-4 4 0 8" fill="none"/><circle cx="40" cy="19" r="1.1" fill="#1a1a1a" stroke="none"/><circle cx="44" cy="22" r="1.6" fill="#1a1a1a" stroke="none"/></g>`;
+    return `<g ${s}><ellipse cx="22" cy="24" rx="12" ry="8" fill="#5a8fb0"/><circle cx="34" cy="20" r="6" fill="#5a8fb0"/><path d="M40 20 l6 -2 -4 4 z" fill="#e2b56b"/><circle cx="35" cy="19" r="1" fill="#1a1a1a" stroke="none"/></g>`;
+  }
+
+  // ---- money: growing coin pyramid + bills (centred at origin, grows up) ----
+  function money(t){
+    t=Math.max(0,Math.min(1,t));
+    const total=Math.max(1,Math.round(t*16));
+    const cap=[6,5,4,3,2,1], cw=18, ch=8.4; let rem=total, g='';
+    // glow
+    g+=`<ellipse cx="0" cy="4" rx="${(38+t*22).toFixed(0)}" ry="11" fill="rgba(226,181,107,.22)" stroke="none"/>`;
+    // bills behind for higher income
+    if(t>0.5) g+=`<g transform="translate(0,-${(cap.length*ch+6)}) rotate(-8)"><rect x="-22" y="-12" width="44" height="20" rx="2" fill="#1f6f4a" stroke="rgba(243,237,225,.5)"/><circle cx="0" cy="-2" r="5" fill="none" stroke="rgba(243,237,225,.5)"/><text x="0" y="1.5" font-size="7" fill="rgba(243,237,225,.7)" text-anchor="middle" stroke="none">$</text></g>`;
+    for(let r=0;r<cap.length && rem>0;r++){
+      const c=Math.min(rem,cap[r]); rem-=c;
+      const startX=-(c*cw)/2 + cw/2, y=-r*ch;
+      for(let i=0;i<c;i++){ const x=startX+i*cw;
+        g+=`<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><ellipse rx="9" ry="4.6" fill="#e2b56b" stroke="#a9772b" stroke-width="1.1"/><ellipse cx="-2" cy="-1" rx="3.4" ry="1.5" fill="rgba(255,255,255,.4)" stroke="none"/></g>`;
+      }
+    }
+    return `<g class="figpop">${g}</g>`;
+  }
+
+  // ---- dwellings ----
+  function apartment(sel){
+    const c=sel?'#e2b56b':'rgba(243,237,225,.8)', f=sel?'rgba(226,181,107,.12)':'rgba(255,255,255,.04)';
+    let win=''; for(let r=0;r<4;r++)for(let cI=0;cI<3;cI++){const lit=sel&&((r+cI)%2===0);win+=`<rect x="${14+cI*12}" y="${14+r*12}" width="7" height="8" rx="1" fill="${lit?'#ffce87':'rgba(243,237,225,.18)'}" stroke="none"/>`;}
+    return `<g stroke="${c}" stroke-width="1.6" stroke-linejoin="round"><rect x="8" y="8" width="44" height="58" rx="2" fill="${f}"/>${win}<rect x="24" y="56" width="12" height="10" rx="1" fill="rgba(243,237,225,.12)"/></g>`;
+  }
+  function house(sel){
+    const c=sel?'#e2b56b':'rgba(243,237,225,.8)', f=sel?'rgba(226,181,107,.12)':'rgba(255,255,255,.04)';
+    return `<g stroke="${c}" stroke-width="1.6" stroke-linejoin="round"><path d="M8 30 L32 10 L56 30 Z" fill="${sel?'rgba(226,181,107,.2)':'rgba(255,255,255,.06)'}"/><rect x="14" y="30" width="36" height="34" fill="${f}"/><rect x="26" y="44" width="12" height="20" rx="1" fill="rgba(243,237,225,.14)"/><rect x="18" y="36" width="8" height="8" rx="1" fill="${sel?'#ffce87':'rgba(243,237,225,.18)'}" stroke="none"/><rect x="44" y="14" width="5" height="10" fill="${c}"/></g>`;
+  }
+
+  // ---- diploma / certificate (tier 1..5, or trade badge) ----
+  function cert(edu, sel){
+    const c=sel?'#e2b56b':'rgba(243,237,225,.85)';
+    const paper=sel?'#f1ece1':'rgba(243,237,225,.85)';
+    const tierMap={highschool:1,associates:2,bachelors:3,masters:4,doctorate:5,trade:0};
+    const tier=tierMap[edu]??1;
+    if(edu==='trade'){
+      return `<g stroke="${c}" stroke-width="1.5" stroke-linejoin="round"><circle cx="34" cy="30" r="20" fill="${sel?'rgba(226,181,107,.16)':'rgba(255,255,255,.05)'}"/><path d="M34 16 l4 9 10 1 -7 7 2 10 -9 -5 -9 5 2 -10 -7 -7 10 -1 z" fill="${sel?'#e2b56b':'none'}"/><path d="M22 48 l-4 12 6 -3 5 4 1 -10 M46 48 l4 12 -6 -3 -5 4 -1 -10" fill="${c}"/></g>`;
+    }
+    let g=`<g stroke="${c}" stroke-width="1.5" stroke-linejoin="round"><rect x="8" y="10" width="52" height="40" rx="2" fill="${sel?'rgba(241,236,225,.14)':'rgba(255,255,255,.05)'}"/>`;
+    g+=`<path d="M16 20h36M16 26h36M16 32h26" stroke="${sel?'rgba(226,181,107,.7)':'rgba(243,237,225,.4)'}"/>`;
+    // ribbon seal
+    g+=`<circle cx="48" cy="44" r="6" fill="${sel?'#e2b56b':'none'}" stroke="${c}"/><path d="M45 49 l-2 8 5 -3 5 3 -2 -8" fill="${sel?'#c98a2b':'none'}" stroke="${c}"/>`;
+    // grad cap for higher degrees
+    if(tier>=3) g+=`<g transform="translate(20,40)"><path d="M-9 2 L0 -3 L9 2 L0 7 Z" fill="${sel?'#2b3242':'none'}" stroke="${c}"/><path d="M9 2 v6" /><circle cx="9" cy="9" r="1.4" fill="${c}" stroke="none"/></g>`;
+    // extra ribbons = prestige
+    g+=`</g>`;
+    return g;
+  }
+
+  // ---- citizenship passport badge (flag emoji inside) ----
+  function passport(flag){
+    return `<g stroke="${ST}" stroke-width="1.4" stroke-linejoin="round"><rect x="14" y="6" width="36" height="48" rx="4" fill="#3a2f5a"/><circle cx="32" cy="24" r="9" fill="none" stroke="#e2b56b"/><text x="32" y="28" font-size="11" text-anchor="middle" stroke="none">${flag||'🌍'}</text><path d="M22 42h20M26 47h12" stroke="#e2b56b"/></g>`;
+  }
+
+  /* ============================================================
+     DATA  +  STATE
+     ============================================================ */
+  const PROFS = {
+    "Tech": ["Software Engineer","Data Scientist","Product Designer","IT / DevOps"],
+    "Healthcare": ["Nurse","Physician","Therapist","Pharmacist"],
+    "Business": ["Marketing","Finance","Sales","Operations"],
+    "Creative": ["Writer","Artist","Musician","Filmmaker"],
+    "Trades & Service": ["Electrician","Chef","Mechanic","Teacher"]
+  };
+  const LIFE = [
+    ["outdoors","🏔","Outdoors & nature"],["nightlife","🌃","Nightlife & energy"],
+    ["food","🍜","Food scene"],["arts","🎭","Arts & culture"],
+    ["quiet","🌾","Quiet & slow"],["fitness","🧘","Fitness & wellness"],
+    ["beach","🏖","Beach & sun"],["walkable","🚶","Walkable & transit"],
+    ["community","🤝","Tight community"],["careerhub","🚀","Career hub"]
+  ];
+  const DEALS = ["Harsh winters","High crime","Car-dependent","No transit","Far from family",
+    "Too expensive","No nature access","Extreme heat","Poor healthcare"];
+  const CITIZEN = [["🇺🇸","United States"],["🇨🇦","Canada"],["🇪🇺","EU"],["🇬🇧","UK"],
+    ["🇵🇭","Philippines"],["🇮🇳","India"],["🌍","Other"]];
+  const STATUS = ["Citizen","Permanent resident","Work visa","Student visa","Other"];
+  const EDU = [["highschool","High School"],["associates","Associate's"],["bachelors","Bachelor's"],
+    ["masters","Master's"],["doctorate","Doctorate"],["trade","Trade / Vocational"]];
+  const PETS = ["Dog","Cat","Both","Other"];
+  const TIMELINE = [["asap","As soon as I can"],["year","Within a year"],["1to3","1–3 years"],["explore","Just exploring"]];
+  const RANK_LABELS = {cost:"💰 Affordability",career:"💼 Career growth",lifestyle:"🎭 Lifestyle & culture",safety:"🛡️ Safety & stability"};
+  const flagFor = name => (CITIZEN.find(c=>c[1]===name)||['🌍'])[0];
+
+  const P = {
+    profession:"", customProfession:"", hasRemote:false,
+    income:55000, savings:15000, debt:0, housing:"rent",
+    hasPartner:false, partnerIncome:0, hasDependents:false, numDependents:1,
+    age:28, education:"bachelors", currentCity:"", citizenship:"", status:"", hasPets:false, petType:"Dog",
+    lifestyle:[], openness:30,
+    rank:["cost","career","lifestyle","safety"], timeline:"", deals:[], tradeoff:null
+  };
+
+  const STEPS = ["career","finances","background","lifestyle","priorities"];
+  let idx = 0, view = "quiz";
+
+  // ---------- helpers ----------
+  const f$ = n => "$" + n.toLocaleString();
+  const opennessLabel = v => v<20?"Set in my country":v<45?"Open to nearby":v<70?"Open to abroad":v<90?"Drawn to abroad":"Anywhere on earth";
+  const pct = (v,min,max) => ((v-min)/(max-min)*100);
+  const profCfg = () => {
+    if(P.profession && PCFG[P.profession]) return PCFG[P.profession];
+    if(P.customProfession) return {coat:'#caa15f',pants:'#33384a',hat:'none',prop:'note',hair:HAIR};
+    return {blank:true};
+  };
+
+  const pill = (key,val,label,multi=false) =>
+    `<button class="pill ${ (multi?P[key].includes(val):P[key]===val)?'on':'' }" data-${multi?'multi':'pill'}="${key}|${val}">${label}</button>`;
+  const slider = (key,min,max,step,fmt) =>
+    `<input type="range" min="${min}" max="${max}" step="${step}" value="${P[key]}" data-slider="${key}|${min}|${max}|${fmt||''}" style="--p:${pct(P[key],min,max)}%">`;
+  const toggle = (key,label,extra='') =>
+    `<div class="group"><div class="rowtoggle"><span class="label" style="margin:0">${label}</span>
+      <button class="pill ${P[key]?'on':''}" data-toggle="${key}">${P[key]?'✓ Yes':'No'}</button></div>${extra}</div>`;
+
+  /* ============================================================
+     STAGE  — the living diorama, recomposed per step / per change
+     ============================================================ */
+  function place(inner, x, y, s, cls){ return `<g class="${cls||''}" transform="translate(${x},${y}) scale(${s})">${inner}</g>`; }
+
+  function stageSVG(){
+    const W=340, H=190, floor=`<line x1="40" y1="168" x2="300" y2="168" stroke="rgba(243,237,225,.12)" stroke-width="1.4"/>`;
+    let body='', cap='';
+    const step = STEPS[idx];
+
+    if(view==='done'){
+      body += place(person(profCfg()),100,22,.94,'figpop');
+      if(P.hasPartner) body += place(person({coat:'#b06a8a',pants:'#3a2f44',hair:HAIR}),168,28,.86,'figpop');
+      body += place(money((P.income-20000)/230000),268,150,1,'figpop');
+      cap = 'your shape, captured';
+    }
+    else if(view==='reconcile'){
+      body += place(person(profCfg()),135,18,1,'figpop');
+      body += `<g transform="translate(170,84)" class="figpop"><path d="M0 -22 L20 18 L-20 18 Z" fill="none" stroke="#e2b56b" stroke-width="1.6"/><text x="0" y="6" font-size="20" text-anchor="middle" stroke="none">⚖</text></g>`;
+      cap = 'a tension to resolve';
+    }
+    else if(step==='career'){
+      body += place(person(profCfg()),135,18,1,'figpop');
+      cap = P.profession || P.customProfession || 'pick a path — watch them change';
+    }
+    else if(step==='finances'){
+      // household on the left, coin pyramid on the right, home up top-right
+      let hx=58;
+      body += place(person(profCfg()),hx,40,.84,'figpop'); hx+=58;
+      if(P.hasPartner){ body += place(person({coat:'#b06a8a',pants:'#3a2f44',hair:HAIR}),hx,46,.78,'figpop'); hx+=50; }
+      if(P.hasDependents){ for(let i=0;i<Math.min(P.numDependents,3);i++){ body += place(child(),hx,86,.5,'figpop'); hx+=30; } }
+      body += place((P.housing==='buy'?house(true):apartment(true)),248,8,.7);
+      body += place(money((P.income-20000)/230000),265,150,1);
+      const homeword = P.housing==='buy'?'a house':'an apartment';
+      cap = `${f$(P.income)} · ${homeword}` + (P.hasPartner?` · +partner`:'');
+    }
+    else if(step==='background'){
+      body += place(person(profCfg()),60,30,.86,'figpop');
+      body += place(cert(P.education,true),150,12,1.0,'figpop');
+      if(P.citizenship) body += place(passport(flagFor(P.citizenship)),236,18,1.0,'figpop');
+      if(P.hasPets) body += place(pet(P.petType),196,116,1.0,'figpop');
+      const eduLabel=(EDU.find(e=>e[0]===P.education)||[,''])[1];
+      cap = `age ${P.age} · ${eduLabel}` + (P.citizenship?` · ${flagFor(P.citizenship)}`:'');
+    }
+    else if(step==='lifestyle'){
+      body += place(person(profCfg()),135,30,.9,'figpop');
+      // chosen lifestyles float around as glowing chips
+      const ring = P.lifestyle.slice(0,8);
+      ring.forEach((id,i)=>{ const ic=(LIFE.find(l=>l[0]===id)||[,'•'])[1];
+        const a=(-Math.PI/2)+(i/Math.max(1,ring.length))*Math.PI*2; const cx=170+Math.cos(a)*120, cy=95+Math.sin(a)*70;
+        body += `<g class="figpop" transform="translate(${cx.toFixed(0)},${cy.toFixed(0)})"><circle r="15" fill="rgba(226,181,107,.10)" stroke="rgba(226,181,107,.5)"/><text y="5" font-size="15" text-anchor="middle" stroke="none">${ic}</text></g>`;
+      });
+      cap = P.lifestyle.length?`${P.lifestyle.length} chosen · ${opennessLabel(P.openness)}`:'choose your ideal life';
+    }
+    else if(step==='priorities'){
+      body += place(person(profCfg()),135,24,.92,'figpop');
+      // top priority banner
+      const top=RANK_LABELS[P.rank[0]];
+      body += `<g class="figpop" transform="translate(170,150)"><text x="0" y="0" font-size="13" fill="#e2b56b" text-anchor="middle" stroke="none" font-family="JetBrains Mono,monospace">#1 ${top}</text></g>`;
+      // deal-breaker no-signs
+      P.deals.slice(0,5).forEach((d,i)=>{ const x=44+i*16;
+        body += `<g class="figpop" transform="translate(${x},30)"><circle r="7" fill="none" stroke="#e0816a" stroke-width="1.6"/><path d="M-5 -5 L5 5" stroke="#e0816a" stroke-width="1.6"/></g>`;
+      });
+      cap = `top: ${top.replace(/^[^ ]+ /,'')}` + (P.deals.length?` · ${P.deals.length} deal-breaker${P.deals.length>1?'s':''}`:'');
+    }
+
+    return `<svg viewBox="0 0 ${W} ${H}" class="scene-anim" xmlns="http://www.w3.org/2000/svg">${floor}${body}</svg><div class="stagecap">${cap}</div>`;
+  }
+  function renderStage(){ stageEl.innerHTML = stageSVG(); }
+
+  /* ============================================================
+     STEP BUILDERS  (forms below the stage)
+     ============================================================ */
+  function career(){
+    let cats = Object.entries(PROFS).map(([c,ps])=>
+      `<div class="cat">${c}</div><div class="pills">${ps.map(p=>pill('profession',p,p)).join('')}</div>`).join('');
+    return `
+      <h2 class="q">What do you <em>do?</em></h2>
+      <p class="sub">Pick one and watch your character suit up — it sets your salary range and job matches.</p>
+      <div class="group">${cats}</div>
+      <div class="group"><span class="label">Or write your own</span>
+        <input type="text" data-text="customProfession" value="${P.customProfession}" placeholder="e.g. Marine Biologist"></div>
+      ${toggle('hasRemote','Can you work fully remote?')}`;
+  }
+  function finances(){
+    return `
+      <h2 class="q">Your <em>finances</em></h2>
+      <p class="sub">Drag income up and the pile grows. Add a partner and they join you on stage.</p>
+      <div class="group"><span class="label">Annual income <span class="val" data-readout="income">${f$(P.income)}</span></span>
+        ${slider('income',20000,250000,5000,'$')}<div class="ends"><span>$20K</span><span>$250K</span></div></div>
+      <div class="group"><span class="label">Savings available <span class="val" data-readout="savings">${f$(P.savings)}</span></span>
+        ${slider('savings',0,200000,2500,'$')}</div>
+      <div class="group"><span class="label">Total debt <span class="val ${P.debt>0?'neg':''}" data-readout="debt">${f$(P.debt)}</span></span>
+        ${slider('debt',0,200000,2500,'$')}</div>
+      <div class="group"><span class="label">Where will you live?</span>
+        <div class="optcards two">
+          <button class="optcard ${P.housing==='rent'?'on':''}" data-pill="housing|rent">
+            <svg viewBox="0 0 60 70">${apartment(P.housing==='rent')}</svg><span class="ol">🏢 Renting</span></button>
+          <button class="optcard ${P.housing==='buy'?'on':''}" data-pill="housing|buy">
+            <svg viewBox="0 0 64 70">${house(P.housing==='buy')}</svg><span class="ol">🏠 Buying</span></button>
+        </div></div>
+      ${toggle('hasPartner','Partner or spouse?', P.hasPartner?`
+        <div style="margin-top:14px"><span class="label">Partner's income <span class="val" data-readout="partnerIncome">${f$(P.partnerIncome)}</span></span>
+        ${slider('partnerIncome',0,200000,5000,'$')}</div>`:'')}
+      ${toggle('hasDependents','Kids or dependents?', P.hasDependents?`
+        <div class="seg2" style="margin-top:14px">${[1,2,3,4].map(n=>pill('numDependents',n,n)).join('')}</div>`:'')}`;
+  }
+  function background(){
+    return `
+      <h2 class="q">A bit <em>about you</em></h2>
+      <p class="sub">These sharpen your matches — and your diploma, passport, and pet show up on stage.</p>
+      <div class="group"><span class="label">Age <span class="val" data-readout="age">${P.age}</span></span>
+        ${slider('age',18,70,1,'')}</div>
+      <div class="group"><span class="label">Education</span>
+        <div class="optcards three">${EDU.map(([k,l])=>`
+          <button class="optcard ${P.education===k?'on':''}" data-pill="education|${k}">
+            <svg viewBox="0 0 68 60">${cert(k,P.education===k)}</svg><span class="ol">${l}</span></button>`).join('')}</div></div>
+      <div class="group"><span class="label">Where do you live now?</span>
+        <input type="text" data-text="currentCity" value="${P.currentCity}" placeholder="e.g. Springfield, MO"></div>
+      <div class="group"><span class="label">Citizenship</span><div class="pills">
+        ${CITIZEN.map(([fl,n])=>pill('citizenship',n,fl+' '+n)).join('')}</div></div>
+      <div class="group"><span class="label">Current status</span><div class="pills">
+        ${STATUS.map(s=>pill('status',s,s)).join('')}</div></div>
+      ${toggle('hasPets','Pets?', P.hasPets?`
+        <div class="optcards three" style="margin-top:14px">${PETS.map(t=>`
+          <button class="optcard ${P.petType===t?'on':''}" data-pill="petType|${t}">
+            <svg viewBox="0 0 56 44">${pet(t)}</svg><span class="ol">${t}</span></button>`).join('')}</div>`:'')}`;
+  }
+  function lifestyle(){
+    return `
+      <h2 class="q">Your ideal <em>life</em></h2>
+      <p class="sub">Pick everything that matters — they orbit your character. At least one.</p>
+      <div class="group"><div class="tiles">
+        ${LIFE.map(([id,ic,l])=>`<button class="tile ${P.lifestyle.includes(id)?'on':''}" data-multi="lifestyle|${id}">
+          <span class="ic">${ic}</span> ${l}</button>`).join('')}</div></div>
+      <div class="group"><span class="label">How open are you to living abroad?
+        <span class="val" data-readout="openness">${opennessLabel(P.openness)}</span></span>
+        ${slider('openness',0,100,1,'')}
+        <div class="ends"><span>Stay in my country</span><span>Anywhere on earth</span></div></div>`;
+  }
+  function priorities(){
+    return `
+      <h2 class="q">Priorities & <em>deal-breakers</em></h2>
+      <p class="sub">What matters most — and what's truly non-negotiable.</p>
+      <div class="group"><span class="label">Rank what matters most</span><div class="ranklist">
+        ${P.rank.map((it,i)=>`<div class="rank"><span class="n">#${i+1}</span>
+          <div class="body"><span>${RANK_LABELS[it]}</span><span>
+            ${i>0?`<button class="arrow" data-rank="up|${i}">↑</button>`:''}
+            ${i<3?`<button class="arrow" data-rank="down|${i}">↓</button>`:''}</span></div></div>`).join('')}
+      </div></div>
+      <div class="group"><span class="label">Target timeline</span><div class="seg2">
+        ${TIMELINE.map(([k,l])=>pill('timeline',k,l)).join('')}</div></div>
+      <div class="group"><span class="label">Hard deal-breakers — these eliminate a place, not just dock points</span>
+        <div class="pills">${DEALS.map(d=>pill('deals',d,(P.deals.includes(d)?'🚫 ':'')+d,true)).join('')}</div></div>`;
+  }
+  const BUILDERS = {career,finances,background,lifestyle,priorities};
+
+  // ---------- conflict + done ----------
+  let _c=null;
+  function conflict(){
+    if(P.tradeoff) return null;
+    if(P.rank[0]==='cost' && (P.lifestyle.includes('nightlife')||P.lifestyle.includes('careerhub')))
+      return {key:'budget_vs_buzz', title:`You put <em>affordability first</em> — but you also crave a big, buzzing city.`,
+        line:`Those usually pull in opposite directions. When they collide, which one wins?`,
+        a:["Protect my budget","Keep me somewhere I can actually save, even if it's quieter."],
+        b:["Worth paying for the buzz","I'll stretch the budget for energy, culture, and opportunity."]};
+    if(P.openness>=65 && P.deals.includes("Far from family"))
+      return {key:'abroad_vs_family', title:`You're <em>drawn to living abroad</em> — but "far from family" is a deal-breaker.`,
+        line:`Both can't fully win. Which one anchors the search?`,
+        a:["Stay near family","Keep me within reach of home, even if it limits the map."],
+        b:["Chase the bigger life","Open the whole world; I'll make the distance work."]};
+    return null;
+  }
+  function reconcile(c){
+    return `
+      <div class="flag">One more thing</div>
+      <h2 class="q">${c.title}</h2>
+      <p class="sub">${c.line}</p>
+      <div class="choices">
+        <button class="choice" data-reconcile="${c.key}|a"><b>${c.a[0]}</b><span>${c.a[1]}</span></button>
+        <button class="choice" data-reconcile="${c.key}|b"><b>${c.b[0]}</b><span>${c.b[1]}</span></button>
+      </div>`;
+  }
+  function done(){
+    const prof = P.customProfession || P.profession || "—";
+    const hh = P.income + (P.hasPartner?P.partnerIncome:0);
+    const tl = (TIMELINE.find(t=>t[0]===P.timeline)||[,'—'])[1];
+    const trade = P.tradeoff ? P.tradeoff.replace(/_/g,' ') : "none needed";
+    return `
+      <div class="flag">Profile captured</div>
+      <h2 class="q">We've got <em>your shape.</em></h2>
+      <p class="sub">Everything feeds the matching engine — your cities, your real numbers, your roadmap.</p>
+      <div class="summary">
+        <div class="srow"><span class="k">Work</span><span class="v">${prof}${P.hasRemote?' · remote':''}</span></div>
+        <div class="srow"><span class="k">Household income</span><span class="v mono">${f$(hh)}</span></div>
+        <div class="srow"><span class="k">Home</span><span class="v">${P.housing==='buy'?'Buying':'Renting'}</span></div>
+        <div class="srow"><span class="k">Openness to abroad</span><span class="v">${opennessLabel(P.openness)}</span></div>
+        <div class="srow"><span class="k">Citizenship · status</span><span class="v">${P.citizenship||'—'}${P.status?' · '+P.status:''}</span></div>
+        <div class="srow"><span class="k">Top priority</span><span class="v">${RANK_LABELS[P.rank[0]]}</span></div>
+        <div class="srow"><span class="k">Timeline</span><span class="v">${tl}</span></div>
+        <div class="srow"><span class="k">Hard deal-breakers</span><span class="v">${P.deals.length||'none'}</span></div>
+        <div class="srow"><span class="k">Tie-breaker</span><span class="v">${trade}</span></div>
+      </div>
+      <div class="foot"><button class="cta" data-nav="finish">See my matches →</button></div>`;
+  }
+
+  // ---------- validation ----------
+  const canProceed = () => {
+    if(view!=="quiz") return true;
+    if(STEPS[idx]==="career") return !!(P.profession||P.customProfession);
+    if(STEPS[idx]==="lifestyle") return P.lifestyle.length>=1;
+    return true;
+  };
+
+  // ---------- render ----------
+  function render(){
+    let html;
+    if(view==="quiz"){
+      html = BUILDERS[STEPS[idx]]();
+      const last = idx===STEPS.length-1;
+      html += `<div class="foot"><button class="cta" data-nav="next" ${canProceed()?'':'disabled'}>
+        ${last?'Review my profile →':'Continue →'}</button></div>`;
+    } else if(view==="reconcile"){ html = reconcile(_c); }
+    else { html = done(); }
+    host.innerHTML = html;
+    renderStage();
+
+    const segs = $('#segs'), count = $('#count');
+    segs.innerHTML = STEPS.map((_,i)=>`<div class="seg ${(i<=idx&&view!=='done')||view==='done'?'on':''}"></div>`).join('');
+    count.textContent = view==='done' ? '✓' : `${idx+1}/${STEPS.length}`;
+    $('.back').style.visibility = (idx===0 && view==='quiz') ? 'hidden' : 'visible';
+  }
+  function go(fn){ host.style.opacity=0; host.style.transform='translateY(12px)';
+    setTimeout(()=>{ fn(); render(); host.style.opacity=1; host.style.transform='none';
+      window.scrollTo({top:0,behavior:'smooth'}); }, 240); }
+
+  // ---------- navigation ----------
+  function next(){
+    if(view==="reconcile") return;
+    if(idx < STEPS.length-1){ go(()=>idx++); return; }
+    const c = conflict();
+    if(c){ go(()=>{ view="reconcile"; _c=c; }); } else { go(()=>view="done"); }
+  }
+  function back(){
+    if(view==="done"){ go(()=>{ view="quiz"; idx=STEPS.length-1; }); return; }
+    if(view==="reconcile"){ go(()=>{ view="quiz"; }); return; }
+    if(idx>0) go(()=>idx--);
+  }
+
+  // ---------- events ----------
+  host.addEventListener('click', e=>{
+    const t = e.target.closest('[data-pill],[data-multi],[data-toggle],[data-rank],[data-reconcile],[data-nav]');
+    if(!t) return;
+    if(t.dataset.nav){ const n=t.dataset.nav;
+      if(n==='next') next(); else if(n==='back') back();
+      else if(n==='finish') alert('→ Profile complete. Hands off to the Matching engine (Phase 3).');
+      return; }
+    if(t.dataset.pill){ const [k,v]=t.dataset.pill.split('|'); P[k]=isNaN(+v)?v:+v; render(); return; }
+    if(t.dataset.multi){ const [k,v]=t.dataset.multi.split('|');
+      const i=P[k].indexOf(v); i>=0?P[k].splice(i,1):P[k].push(v); render(); return; }
+    if(t.dataset.toggle){ const k=t.dataset.toggle; P[k]=!P[k]; render(); return; }
+    if(t.dataset.rank){ const [d,i]=t.dataset.rank.split('|'); const j=+i, r=P.rank;
+      const s=d==='up'?j-1:j+1; [r[j],r[s]]=[r[s],r[j]]; render(); return; }
+    if(t.dataset.reconcile){ const [key,ch]=t.dataset.reconcile.split('|');
+      P.tradeoff = key+': '+ch; go(()=>view="done"); return; }
+  });
+  $('.back').addEventListener('click', back);
+
+  host.addEventListener('input', e=>{
+    const t=e.target;
+    if(t.dataset.slider){ const [k,min,max,fmt]=t.dataset.slider.split('|'); const v=+t.value; P[k]=v;
+      t.style.setProperty('--p', pct(v,+min,+max)+'%');
+      const out=host.querySelector(`[data-readout="${k}"]`);
+      if(out) out.textContent = k==='openness'?opennessLabel(v):(fmt==='$'?f$(v):v);
+      if(k==='debt'&&out) out.classList.toggle('neg',v>0);
+      renderStage();   // <-- live: the coin pile / orbit / scene react as you drag
+    }
+    else if(t.dataset.text){ P[t.dataset.text]=t.value; }
+  });
+  addEventListener('keydown', e=>{ if(e.key==='Enter' && canProceed()) next(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
