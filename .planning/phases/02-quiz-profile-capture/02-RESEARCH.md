@@ -188,10 +188,10 @@ Pure functions + a state machine → highly testable. Recommended validation req
 - **Sensitive immigration questions** — keep minimal, neutral, US-fast-path; store structured, never free-text for status.
 - **Contract drift** — `src/` prototype state carries extras (`name`, `customProfession`, `color`) not in `types.ts`; reconcile explicitly (keep `customProfession` folded into `profession`; drop `color`).
 
-## Open Questions (for the planner / Phase 3 contract)
-1. **`City` attribute gaps:** wiring all dealbreakers needs `City` fields for airport / coast / mountains / state-income-tax. Define these on the `City` contract now (populated Phase 3/4) or scope a subset of hard filters for Phase 2? **Recommend:** define the fields in the contract now; Phase 3 populates.
-2. **Citizenship shortlist final 10** — confirm against Phase 6 `ROADMAP_TEMPLATES` coverage so we don't offer citizenships with no downstream template (generic fallback acceptable?).
-3. **Priority pillars: keep 4 or expand to 6** (adding climate/community)? Recommend keep 4 visible + derive finer weights, to protect demo clarity.
+## Open Questions (RESOLVED)
+1. **`City` attribute gaps** — RESOLVED (Plan 02-01): wiring all dealbreakers needs `City` fields for airport / coast / mountains / state-income-tax. **Resolution:** define these fields on the `City` contract now (Plan 02-01 Task 1); Phase 3/4 populate them.
+2. **Citizenship shortlist final 10** — RESOLVED (Plan 02-01): adopt the UI-SPEC's locked citizenship shortlist (default US), with a generic-roadmap fallback acceptable for citizenships lacking a Phase 6 `ROADMAP_TEMPLATES` entry.
+3. **Priority pillars: keep 4 or expand to 6** — RESOLVED (Plan 02-03): keep the 4 visible pillars (cost/career/lifestyle/safety) and derive finer weights, to protect demo clarity.
 
 ## Assumptions Log
 - A-1: Primary user = US citizen (CONTEXT D-07). Citizenship defaults US; status auto-`citizen`. [from CONTEXT]

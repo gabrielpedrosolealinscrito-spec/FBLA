@@ -491,14 +491,15 @@ Styles:
 
 ### E. Conditional Tension Reconciliation Follow-Up (D-03, D-14)
 
-**Trigger condition:** After the user completes the Lifestyle step AND the Motivations step,
-the quiz evaluates for conflicting priority pairs. Phase 2 detects and surfaces exactly one
-conflict at a time (highest-confidence conflict if multiple exist). Detection logic is
-defined in the planner's task — the UI spec only covers the visual treatment.
+**Trigger condition:** After the user completes the Priorities & Deal-breakers step (step 7) —
+so `importanceRank` reflects the user's actual ranking, not the default order — the quiz
+evaluates for conflicting priority pairs. Phase 2 detects and surfaces exactly one conflict at
+a time (highest-confidence conflict if multiple exist). Detection logic is defined in the
+planner's task — the UI spec only covers the visual treatment.
 
 **Placement:** The reconciliation panel appears as an injected sub-step WITHIN the existing
-step frame — it does not get its own progress-bar step. It appears between Motivations step
-and Priorities step, animated in with `fadeIn`.
+step frame — it does not get its own progress-bar step. It appears after the Priorities &
+Deal-breakers step, before final submit (step 8 in the sequence above), animated in with `fadeIn`.
 
 **Reconciliation Panel Layout:**
 
