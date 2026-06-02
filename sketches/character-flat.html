@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Flat Character (prototype)</title>
+<!-- THROWAWAY PROTOTYPE — FLAT 2D character (no 3D, no rotation) in the
+     diverse casual-attire flat-illustration aesthetic. Front-facing, static
+     except a gentle breathe + blink. Picking a profession re-dresses the
+     figure; "New person" re-rolls a fresh diverse look. Pure inline SVG, offline. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#ece4d4; --cream-2:#f3ece0; --ink:#2a2118;
+    --gold:#c98a3a; --gold-soft:#b07a2e;
+    --muted:rgba(42,33,24,.55); --faint:rgba(42,33,24,.18);
+    --card:rgba(255,255,255,.5); --border:rgba(42,33,24,.14);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Manrope',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(120% 90% at 50% 0%, var(--cream-2), var(--cream) 60%),
+      radial-gradient(60% 50% at 50% 120%, rgba(201,138,58,.14), transparent 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+  .brand{position:fixed;top:24px;left:30px;font-family:'Instrument Serif',serif;font-size:24px;letter-spacing:.5px}
+  .brand small{font-style:italic;opacity:.55;font-size:14px}
+  .nowDressing{position:fixed;top:24px;right:30px;text-align:right}
+  .nowDressing .k{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-soft)}
+  .nowDressing .v{font-family:'Instrument Serif',serif;font-size:26px;margin-top:2px}
+
+  .stage{width:min(90vw,360px);max-height:74vh}
+  .stage svg{width:100%;height:auto;display:block;overflow:visible}
+
+  /* idle motion — gentle, NO rotation */
+  .fig{animation:breathe 4.6s var(--ease) infinite;transform-origin:50% 92%}
+  @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .eyes{animation:blink 5.2s steps(1,end) infinite;transform-origin:50% 20%}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+  .grow{animation:pop .42s var(--ease) both;transform-origin:50% 60%}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+
+  .dock{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+    max-width:min(94vw,840px);padding:13px 15px 11px;border-radius:20px;
+    background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--border);
+    box-shadow:0 20px 50px -30px rgba(42,33,24,.5)}
+  .dockrow{display:flex;gap:8px;align-items:center;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  .dockrow::-webkit-scrollbar{height:6px}
+  .dockrow::-webkit-scrollbar-thumb{background:var(--faint);border-radius:6px}
+  .catlbl{flex:none;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+  .sep{flex:none;width:1px;height:22px;background:var(--border)}
+  .pill{flex:none;font-family:inherit;font-size:13px;color:var(--muted);white-space:nowrap;
+    background:rgba(255,255,255,.5);border:1px solid var(--border);border-radius:100px;padding:8px 14px;cursor:pointer;transition:.22s var(--ease)}
+  .pill:hover{color:var(--ink);border-color:var(--gold-soft);transform:translateY(-1px)}
+  .pill.on{color:#fff;background:var(--gold);border-color:var(--gold);font-weight:600;box-shadow:0 6px 18px rgba(201,138,58,.34)}
+  .pill.reset{color:var(--gold-soft)}
+  .hint{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important} }
+</style>
+</head>
+<body>
+  <div class="brand">Potential <small>°</small></div>
+  <div class="nowDressing"><div class="k">Now showing</div><div class="v" id="who">A new face</div></div>
+  <div class="stage"><div id="figwrap"></div></div>
+  <div class="hint">pick a path to dress up</div>
+  <div class="dock"><div class="dockrow" id="dock"></div></div>
+
+<script>
+(() => {
+  // ---------- palettes ----------
+  const SKINS=['#f3caa6','#eab489','#d49a6a','#be8456','#9c6a44','#7a4f30','#5e3a24'];
+  const HAIRS=['#2a1d14','#3a2c22','#5a3a22','#7a5a30','#161616','#6b6660','#caa15f','#8a3b2a'];
+  const COATS=['#b5613a','#c99a3a','#7a7d4a','#4a6a8a','#9a4b54','#3f6f63','#b08a5a','#d98c5f'];
+  const PANTS=['#3a4256','#5a4a3a','#43505e','#6a5a48','#2f3a45','#4a3f4e'];
+  const TEES =['#e7dcc8','#d8c4a8','#cf6b58','#5f8a8a','#3a4a6a','#b9a14e'];
+  const pick = a => a[(Math.random()*a.length)|0];
+
+  // ---------- profession -> outfit ----------
+  const PCFG = {
+    "Software Engineer":{coat:'#3f6fa6',prop:'laptop'},
+    "Data Scientist":{coat:'#4a5d7e',prop:'laptop',glasses:1},
+    "Product Designer":{coat:'#2f2f33',hat:'beret',prop:'clip'},
+    "IT / DevOps":{coat:'#2d6a4f',hat:'phones',prop:'laptop'},
+    "Nurse":{coat:'#46a6a6',hat:'surgcap',steth:1,prop:'clip'},
+    "Physician":{coat:'#f1ece1',steth:1,prop:'clip',tee:'#bcd2d6'},
+    "Therapist":{coat:'#6b5b95',prop:'clip'},
+    "Pharmacist":{coat:'#f1ece1',prop:'pills',tee:'#cdd6c2'},
+    "Marketing":{coat:'#d4684a',prop:'mega'},
+    "Finance":{coat:'#2b3a55',prop:'brief',tee:'#e7dcc8'},
+    "Sales":{coat:'#b5894a',prop:'brief'},
+    "Operations":{coat:'#50607a',prop:'clip'},
+    "Writer":{coat:'#6d4c3d',glasses:1,prop:'book'},
+    "Artist":{coat:'#c44e6a',hat:'beret',prop:'palette'},
+    "Musician":{coat:'#3b3b5c',hat:'phones',prop:'clap'},
+    "Filmmaker":{coat:'#2f2f33',hat:'cap',prop:'clap'},
+    "Electrician":{coat:'#c98a2b',hat:'hardhat',prop:'wrench'},
+    "Chef":{coat:'#f1ece1',hat:'toque',prop:'pan',tee:'#d8d2c4'},
+    "Mechanic":{coat:'#3a6e5a',hat:'cap',prop:'wrench'},
+    "Teacher":{coat:'#7a6ea3',glasses:1,prop:'book'}
+  };
+
+  // ---------- state (the person) ----------
+  const P = { name:null, skin:SKINS[1], hair:HAIRS[1], hairStyle:0, coat:COATS[3], pants:PANTS[0], tee:TEES[0] };
+  function reroll(){ P.skin=pick(SKINS); P.hair=pick(HAIRS); P.hairStyle=(Math.random()*3)|0;
+    P.coat=pick(COATS); P.pants=pick(PANTS); P.tee=pick(TEES); }
+
+  // ---------- helpers ----------
+  const sh = 'rgba(0,0,0,.13)';                 // soft shading
+  const darken = (hex,a=.18)=>`${hex}`;         // (kept simple: overlay shapes do the shading)
+
+  // ===== HAIR (a few simple styles) =====
+  function hair(){
+    const c=P.hair;
+    if(P.hairStyle===1) // short crop
+      return `<path d="M84 72 Q80 36 120 33 Q160 36 156 72 Q150 50 120 49 Q90 50 84 72 Z" fill="${c}"/>`;
+    if(P.hairStyle===2) // bun + side
+      return `<path d="M85 74 Q80 34 120 32 Q160 34 155 74 Q150 48 120 47 Q90 48 85 74 Z" fill="${c}"/>
+              <circle cx="120" cy="30" r="11" fill="${c}"/>`;
+    // default: rounded with a little volume
+    return `<path d="M83 76 Q78 30 120 30 Q162 30 157 76 Q156 52 138 47 Q150 60 120 58 Q90 60 102 47 Q84 52 83 76 Z" fill="${c}"/>`;
+  }
+
+  // ===== HATS ===== (return {svg, covers})
+  function hat(type){
+    switch(type){
+      case 'toque': return {svg:`<g class="grow"><ellipse cx="120" cy="30" rx="35" ry="23" fill="#f4efe6"/><rect x="88" y="40" width="64" height="15" rx="7" fill="#f4efe6"/><rect x="88" y="40" width="64" height="15" rx="7" fill="rgba(0,0,0,.05)"/></g>`,covers:true};
+      case 'hardhat': return {svg:`<g class="grow"><path d="M83 52 Q120 8 157 52 Z" fill="#f2b42e"/><rect x="74" y="49" width="92" height="9" rx="4.5" fill="#f2b42e"/><rect x="116" y="20" width="8" height="30" rx="3" fill="#d99a1e"/></g>`,covers:true};
+      case 'cap': return {svg:`<g class="grow"><path d="M86 54 Q120 14 154 54 Z" fill="#37425a"/><path d="M120 50 Q170 50 176 64 Q146 66 118 60 Z" fill="#2b3242"/></g>`,covers:true};
+      case 'surgcap': return {svg:`<g class="grow"><path d="M85 56 Q120 16 155 56 Z" fill="#3f9a9a"/><circle cx="104" cy="40" r="2" fill="rgba(255,255,255,.6)"/><circle cx="120" cy="34" r="2" fill="rgba(255,255,255,.6)"/><circle cx="136" cy="40" r="2" fill="rgba(255,255,255,.6)"/></g>`,covers:true};
+      case 'beret': return {svg:`<g class="grow"><ellipse cx="122" cy="40" rx="38" ry="16" fill="#7a2a3a" transform="rotate(-7 122 40)"/><circle cx="150" cy="28" r="3.5" fill="#7a2a3a"/></g>`,covers:false};
+      case 'phones': return {svg:`<g class="grow"><path d="M84 70 Q84 34 120 34 Q156 34 156 70" fill="none" stroke="#cdd2dc" stroke-width="7" stroke-linecap="round"/><rect x="78" y="62" width="14" height="26" rx="7" fill="#2f3b49"/><rect x="148" y="62" width="14" height="26" rx="7" fill="#2f3b49"/></g>`,covers:false};
+      default: return {svg:'',covers:false};
+    }
+  }
+
+  // ===== PROPS ===== (held near the figure's right hand ~ x176,y250)
+  function prop(type){
+    const wrap = s => `<g class="grow" transform="translate(176,250)">${s}</g>`;
+    switch(type){
+      case 'laptop': return wrap(`<rect x="-26" y="-2" width="52" height="6" rx="2" fill="#39414f"/><rect x="-23" y="-30" width="46" height="30" rx="3" fill="#222a38"/><rect x="-18" y="-25" width="36" height="20" rx="2" fill="#5fd0c4"/>`);
+      case 'clip': return wrap(`<rect x="-18" y="-26" width="36" height="48" rx="4" fill="#e9e3d6"/><rect x="-8" y="-31" width="16" height="9" rx="3" fill="#9aa0ab"/><path d="M-11 -12h22M-11 -2h22M-11 8h13" stroke="rgba(0,0,0,.22)" stroke-width="2"/>`);
+      case 'brief': return wrap(`<rect x="-28" y="-18" width="56" height="40" rx="4" fill="#5a3d2b"/><rect x="-10" y="-26" width="20" height="9" rx="3" fill="none" stroke="#3a2618" stroke-width="3"/><path d="M-28 0h56" stroke="rgba(0,0,0,.22)" stroke-width="2"/>`);
+      case 'book': return wrap(`<rect x="-20" y="-26" width="40" height="52" rx="3" fill="#7a4030"/><rect x="-16" y="-22" width="32" height="44" rx="2" fill="#efe7d4"/><path d="M0 -22v44" stroke="rgba(0,0,0,.18)" stroke-width="2"/>`);
+      case 'palette': return wrap(`<ellipse cx="0" cy="0" rx="28" ry="22" fill="#caa15f"/><circle cx="8" cy="6" r="6" fill="${P.coat}"/><circle cx="-10" cy="-6" r="5" fill="#c44e6a"/><circle cx="6" cy="-10" r="5" fill="#4a7fb0"/><circle cx="-12" cy="8" r="5" fill="#5aa66a"/><circle cx="-2" cy="2" r="5" fill="#0d1119" opacity=".15"/>`);
+      case 'wrench': return wrap(`<path d="M14 -26 a9 9 0 0 0 -12 12 l-22 22 6 6 22 -22 a9 9 0 0 0 12 -12 l-6 6 -6 -6z" fill="#9aa0ab" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>`);
+      case 'pan': return wrap(`<ellipse cx="0" cy="0" rx="24" ry="9" fill="#2b3038"/><rect x="22" y="-3" width="34" height="6" rx="3" fill="#20242c"/>`);
+      case 'pills': return wrap(`<rect x="-13" y="-22" width="26" height="40" rx="4" fill="#e9e3d6"/><rect x="-13" y="-28" width="26" height="10" rx="3" fill="#c44e4e"/><path d="M0 -8v14M-7 -1h14" stroke="#c44e4e" stroke-width="3"/>`);
+      case 'mega': return wrap(`<path d="M-22 -12 L10 -22 L10 22 L-22 12 Z" fill="#d4684a"/><path d="M10 -16 q16 16 0 32" fill="none" stroke="#c98a2b" stroke-width="3"/>`);
+      case 'clap': return wrap(`<rect x="-26" y="-14" width="52" height="34" rx="3" fill="#222a38"/><path d="M-26 -14 L26 -22 L30 -10 L-22 -2 Z" fill="#39414f"/><path d="M-18 -18 l4 8 M-6 -20 l4 8 M6 -22 l4 8" stroke="#e9e3d6" stroke-width="2.5"/>`);
+      default: return '';
+    }
+  }
+
+  // ===== FACE (minimal) =====
+  function face(){
+    return `<g class="eyes"><ellipse cx="108" cy="74" rx="3.4" ry="5" fill="#2b211c"/><ellipse cx="132" cy="74" rx="3.4" ry="5" fill="#2b211c"/></g>
+            <rect x="113" y="88" width="14" height="3.4" rx="1.7" fill="#ae7460"/>`;
+  }
+
+  // ===== ACCESSORIES =====
+  function glasses(on){ return on?`<g class="grow"><circle cx="108" cy="74" r="9" fill="none" stroke="#2a2a2e" stroke-width="2.4"/><circle cx="132" cy="74" r="9" fill="none" stroke="#2a2a2e" stroke-width="2.4"/><path d="M117 74h6" stroke="#2a2a2e" stroke-width="2.4"/></g>`:''; }
+  function steth(on){ return on?`<g class="grow"><path d="M112 116 Q104 150 120 168 Q136 150 128 116" fill="none" stroke="#2f3b49" stroke-width="4"/><circle cx="120" cy="174" r="7" fill="#c7ccd6" stroke="#2f3b49" stroke-width="2"/></g>`:''; }
+
+  // ===== assemble the whole figure =====
+  function build(){
+    const cfg = P.name ? (PCFG[P.name]||{}) : {};
+    const coat = cfg.coat || P.coat;
+    const tee  = cfg.tee  || P.tee;
+    const H = hat(cfg.hat);
+    const showHair = !H.covers;
+
+    return `
+    <svg viewBox="0 0 240 380" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="120" cy="356" rx="74" ry="11" fill="rgba(42,33,24,.13)"/>
+      <g class="fig">
+        ${showHair ? hair() : ''}
+
+        <!-- legs -->
+        <path d="M86 248 H116 V322 Q116 330 108 330 H94 Q86 330 86 322 Z" fill="${P.pants}"/>
+        <path d="M124 248 H154 V322 Q154 330 146 330 H132 Q124 330 124 322 Z" fill="${P.pants}"/>
+        <path d="M120 250 v74" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
+        <!-- shoes -->
+        <path d="M84 330 h22 q4 10 -2 12 H82 q-6 0 -6 -6 q0 -6 8 -6 Z" fill="#2c2620"/>
+        <path d="M134 330 h22 q8 0 8 6 q0 6 -6 6 H136 q-6 -2 -2 -12 Z" fill="#2c2620"/>
+
+        <!-- torso / jacket -->
+        <path d="M72 138 Q72 126 90 123 L150 123 Q168 126 168 138 L174 236 Q174 252 156 252 L84 252 Q66 252 66 236 Z" fill="${coat}"/>
+        <!-- tee / collar layer -->
+        <path d="M104 124 Q120 140 136 124 L132 150 Q120 158 108 150 Z" fill="${tee}"/>
+        <!-- jacket center seam + soft side shadow -->
+        <path d="M120 150 V250" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
+        <path d="M120 150 V250 L156 252 Q174 252 174 236 L168 138 Q168 150 120 150 Z" fill="rgba(0,0,0,.08)"/>
+
+        <!-- arms -->
+        <path d="M70 140 Q60 142 60 156 L66 226 Q66 238 78 238 L84 238 L80 150 Q78 140 70 140 Z" fill="${coat}"/>
+        <path d="M170 140 Q180 142 180 156 L174 226 Q174 238 162 238 L156 238 L160 150 Q162 140 170 140 Z" fill="${coat}"/>
+        <!-- hands -->
+        <circle cx="74" cy="244" r="10" fill="${P.skin}"/>
+        <circle cx="166" cy="244" r="10" fill="${P.skin}"/>
+
+        ${steth(cfg.steth)}
+
+        <!-- neck + head -->
+        <rect x="109" y="100" width="22" height="22" rx="8" fill="${P.skin}"/>
+        <path d="M109 102 h22 v6 q-11 7 -22 0 Z" fill="rgba(0,0,0,.12)"/>
+        <ellipse cx="88" cy="80" rx="6.5" ry="10" fill="${P.skin}"/>
+        <ellipse cx="152" cy="80" rx="6.5" ry="10" fill="${P.skin}"/>
+        <ellipse cx="120" cy="74" rx="33" ry="37" fill="${P.skin}"/>
+        <path d="M120 37 a33 37 0 0 1 0 74 a26 37 0 0 0 0 -74 Z" fill="rgba(0,0,0,.06)"/>
+
+        ${face()}
+        ${glasses(cfg.glasses)}
+        ${showHair && P.hairStyle!==1 ? `<path d="M83 76 Q78 32 120 31 Q139 31 150 42 Q132 40 120 40 Q92 40 86 78 Z" fill="${P.hair}"/>` : ''}
+        ${H.svg}
+
+        <!-- held prop (front) -->
+        ${prop(cfg.prop)}
+      </g>
+    </svg>`;
+  }
+
+  // ---------- render ----------
+  const figwrap=document.getElementById('figwrap'), who=document.getElementById('who');
+  function render(){
+    figwrap.innerHTML = build();
+    who.textContent = P.name || 'A new face';
+    document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on', p.dataset.name===P.name));
+  }
+  function dress(name){ P.name=name||null; render(); }
+
+  // ---------- dock ----------
+  const PROFS = {
+    "Tech":["Software Engineer","Data Scientist","Product Designer","IT / DevOps"],
+    "Health":["Nurse","Physician","Therapist","Pharmacist"],
+    "Business":["Marketing","Finance","Sales","Operations"],
+    "Creative":["Writer","Artist","Musician","Filmmaker"],
+    "Trades":["Electrician","Chef","Mechanic","Teacher"]
+  };
+  const dock=document.getElementById('dock');
+  { const r=document.createElement('button'); r.className='pill reset'; r.textContent='🎲 New person'; r.dataset.name='';
+    r.onclick=()=>{ reroll(); dress(null); }; dock.appendChild(r); }
+  Object.entries(PROFS).forEach(([cat,list])=>{
+    const sep=document.createElement('span'); sep.className='sep'; dock.appendChild(sep);
+    const lbl=document.createElement('span'); lbl.className='catlbl'; lbl.textContent=cat; dock.appendChild(lbl);
+    list.forEach(n=>{ const b=document.createElement('button'); b.className='pill'; b.textContent=n; b.dataset.name=n; b.onclick=()=>dress(n); dock.appendChild(b); });
+  });
+
+  reroll(); render();
+})();
+</script>
+</body>
+</html>
