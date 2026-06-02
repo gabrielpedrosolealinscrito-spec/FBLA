@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Quiz Format Gallery</title>
+<!-- THROWAWAY PROTOTYPE — the SAME real Phase-2 quiz content (from 02-UI-SPEC.md)
+     rendered in 4 different layout formats you can flip between to choose one.
+     Top bar: Format switch + Palette toggle (Gold cinematic / Mint per spec).
+     Pure inline, offline, vanilla JS. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* GOLD cinematic (default) */
+    --bg:#070a11; --bg2:#0d1119; --card:rgba(255,255,255,.035); --card2:rgba(255,255,255,.06);
+    --border:rgba(243,237,225,.12); --border2:rgba(243,237,225,.24);
+    --accent:#e2b56b; --accent-ink:#13100a; --accent-dim:rgba(226,181,107,.12);
+    --ink:#f3ede1; --dim:rgba(243,237,225,.56); --faint:rgba(243,237,225,.30);
+    --neg:#e0816a; --warn:#e2b56b; --warn-dim:rgba(226,181,107,.08);
+    --serif:'Instrument Serif',serif; --mono:'JetBrains Mono',monospace;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  body.mint{
+    --bg:#08090C; --bg2:#111318; --card:#171B22; --card2:#1C2029;
+    --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.14);
+    --accent:#6EE7B7; --accent-ink:#08090C; --accent-dim:rgba(110,231,183,.1);
+    --ink:#EEF2F7; --dim:#8896AB; --faint:#505C6F;
+    --neg:#F87171; --warn:#FBBF24; --warn-dim:rgba(251,191,36,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);
+    -webkit-font-smoothing:antialiased;min-height:100vh;
+    background-image:radial-gradient(120% 80% at 50% -10%, var(--bg2), var(--bg) 60%)}
+
+  /* ---------- top control bar ---------- */
+  .bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:14px 22px;background:color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  .bar .brand{font-family:var(--serif);font-size:22px;letter-spacing:.5px}
+  .bar .brand small{font-style:italic;opacity:.55;font-size:13px}
+  .spacer{flex:1}
+  .tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:4px}
+  .tab{font-family:inherit;font-size:12.5px;color:var(--dim);border:none;background:none;cursor:pointer;
+    padding:7px 14px;border-radius:100px;transition:.2s var(--ease);white-space:nowrap}
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--accent-ink);background:var(--accent);font-weight:600}
+  .seg{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:4px}
+  .seg button{font-family:inherit;font-size:12px;color:var(--dim);border:none;background:none;cursor:pointer;padding:6px 12px;border-radius:100px}
+  .seg button.on{color:var(--accent-ink);background:var(--accent);font-weight:600}
+  .tablbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+
+  /* ---------- shared field primitives ---------- */
+  .lab{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:600;margin-bottom:9px}
+  .lab .val{font-family:var(--mono);text-transform:none;letter-spacing:0;color:var(--accent);font-weight:600}
+  .lab .val.neg{color:var(--neg)}
+  .field{margin-bottom:24px}
+  .cat{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin:14px 0 8px}
+  .cat:first-child{margin-top:0}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-family:inherit;font-size:13px;color:var(--dim);background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:8px 16px;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:6px}
+  .pill:hover{color:var(--ink);border-color:var(--border2)}
+  .pill.on{color:var(--accent);border:1.5px solid var(--accent);background:var(--accent-dim);font-weight:600}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{font-family:inherit;font-size:13.5px;color:var(--dim);background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:13px 14px;cursor:pointer;transition:.2s var(--ease);display:flex;align-items:center;gap:9px;text-align:left}
+  .tile:hover{color:var(--ink);border-color:var(--border2)}
+  .tile.on{color:var(--accent);border:1.5px solid var(--accent);background:var(--accent-dim)}
+  .togrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0;cursor:pointer}
+  input[type=range].neg{accent-color:var(--neg)}
+  .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:2px}
+  input[type=text]{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);
+    border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:.2s var(--ease)}
+  input[type=text]:focus{outline:none;border-color:var(--border2)}
+  input[type=text]::placeholder{color:var(--faint)}
+  .annot{font-size:12px;color:var(--neg);background:rgba(224,129,106,.08);padding:6px 12px;border-radius:8px;margin-top:8px;display:inline-block}
+  .warn{margin-top:12px;background:var(--warn-dim);border:1px solid color-mix(in srgb,var(--warn) 22%,transparent);
+    border-radius:12px;padding:12px 16px}
+  .warn b{display:block;font-size:13px;font-weight:600;color:var(--warn);margin-bottom:3px}
+  .warn span{font-size:13px;color:var(--dim);line-height:1.6}
+  .ranklist{display:flex;flex-direction:column;gap:8px}
+  .rank{display:flex;align-items:center;gap:11px}
+  .rank .n{font-family:var(--mono);font-size:12px;color:var(--accent);width:18px}
+  .rank .rbody{flex:1;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;
+    background:var(--card);border:1px solid var(--border);border-radius:11px;font-size:14px}
+  .arrow{background:none;border:1px solid var(--border);border-radius:7px;color:var(--dim);cursor:pointer;padding:2px 8px;font-size:12px}
+  .arrow:hover{border-color:var(--accent);color:var(--accent)}
+  .acc{border-left:3px solid var(--accent);padding-left:16px}
+  .glabel{font-family:var(--serif);font-size:20px;margin-bottom:14px}
+
+  .q{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-height:1.06}
+  .qsub{color:var(--dim);font-size:14px;font-weight:300;line-height:1.6;margin-top:6px}
+  .cta{width:100%;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:.03em;color:var(--accent-ink);
+    background:var(--accent);border:none;border-radius:14px;padding:16px;cursor:pointer;transition:.3s var(--ease)}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 14px 36px -12px color-mix(in srgb,var(--accent) 60%,transparent)}
+  .ghost{background:none;border:none;color:var(--faint);font-family:inherit;font-size:13px;cursor:pointer}
+  .ghost:hover{color:var(--accent)}
+  .progress{display:flex;gap:4px;flex:1}
+  .progress i{flex:1;height:3px;border-radius:2px;background:var(--border);transition:.3s}
+  .progress i.on{background:var(--accent)}
+  .count{font-family:var(--mono);font-size:12px;color:var(--faint)}
+
+  /* ---------- FORMAT: stepper card ---------- */
+  .f-stepper{max-width:560px;margin:0 auto;padding:48px 24px 80px}
+  .f-stepper .topnav{display:flex;align-items:center;gap:14px;margin-bottom:34px}
+  .f-stepper .q{font-size:32px}
+  .f-stepper .fields{margin-top:26px}
+  .f-stepper .foot{margin-top:30px;display:flex;flex-direction:column;gap:12px}
+
+  /* ---------- FORMAT: immersive focus ---------- */
+  .f-focus{min-height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:60px 24px 120px;text-align:center;position:relative}
+  .f-focus .dots{position:fixed;top:74px;left:50%;transform:translateX(-50%);display:flex;gap:7px}
+  .f-focus .dots i{width:7px;height:7px;border-radius:50%;background:var(--border);transition:.3s}
+  .f-focus .dots i.on{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .f-focus .inner{max-width:580px;width:100%}
+  .f-focus .q{font-size:clamp(34px,6vw,56px)}
+  .f-focus .qsub{font-size:16px;max-width:38ch;margin:10px auto 0}
+  .f-focus .fields{margin-top:38px;text-align:left}
+  .f-focus .pills,.f-focus .grid2{justify-content:center}
+  .f-focus .foot{margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .f-focus .cta{max-width:320px}
+  .f-focus .backarrow{position:fixed;left:30px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;
+    border:1px solid var(--border);background:var(--card);color:var(--dim);font-size:20px;cursor:pointer;transition:.3s}
+  .f-focus .backarrow:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ---------- FORMAT: split / sidebar ---------- */
+  .f-split{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 56px)}
+  .f-split .rail{border-right:1px solid var(--border);padding:40px 28px;position:sticky;top:56px;align-self:start;height:calc(100vh - 56px);overflow:auto}
+  .f-split .rail h3{font-family:var(--serif);font-size:26px;margin-bottom:6px}
+  .f-split .rail .railsub{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:26px}
+  .f-split .steplist{display:flex;flex-direction:column;gap:2px}
+  .f-split .sitem{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer;color:var(--dim);font-size:14px;transition:.2s}
+  .f-split .sitem:hover{background:var(--card)}
+  .f-split .sitem.on{color:var(--ink);background:var(--card)}
+  .f-split .sitem .dot{width:22px;height:22px;border-radius:50%;border:1px solid var(--border2);display:grid;place-items:center;
+    font-family:var(--mono);font-size:11px;flex:none}
+  .f-split .sitem.on .dot{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+  .f-split .sitem.done .dot{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
+  .f-split .pane{padding:56px 48px 80px;max-width:620px}
+  .f-split .q{font-size:30px}
+  .f-split .fields{margin-top:28px}
+  .f-split .foot{margin-top:32px;display:flex;gap:12px;align-items:center}
+  .f-split .foot .cta{max-width:240px}
+
+  /* ---------- FORMAT: single scroll ---------- */
+  .f-scroll{max-width:600px;margin:0 auto;padding:40px 24px 120px}
+  .f-scroll .stickybar{position:sticky;top:56px;z-index:20;display:flex;align-items:center;gap:12px;
+    padding:12px 0;background:linear-gradient(var(--bg),var(--bg) 70%,transparent)}
+  .f-scroll section{padding:40px 0;border-bottom:1px solid var(--border)}
+  .f-scroll section:last-of-type{border-bottom:none}
+  .f-scroll .snum{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.1em}
+  .f-scroll .q{font-size:28px;margin:6px 0}
+  .f-scroll .fields{margin-top:22px}
+  .f-scroll .submit{margin-top:30px}
+
+  @media(max-width:720px){ .f-split{grid-template-columns:1fr} .f-split .rail{display:none} }
+  @media(prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <span class="brand">Potential <small>°</small></span>
+    <span class="tablbl">format</span>
+    <div class="tabs" id="tabs"></div>
+    <span class="spacer"></span>
+    <span class="tablbl">palette</span>
+    <div class="seg" id="palette"><button data-th="gold" class="on">Gold</button><button data-th="mint">Mint</button></div>
+  </div>
+  <div id="app"></div>
+
+<script>
+(() => {
+  const $=s=>document.querySelector(s);
+  const app=$('#app');
+
+  // ===================== REAL QUIZ CONTENT (from 02-UI-SPEC.md) =====================
+  const PROFS={
+    "Tech":["Software Engineer","Data Scientist","Product Designer","IT / DevOps"],
+    "Healthcare":["Nurse","Physician","Therapist","Pharmacist"],
+    "Business":["Marketing","Finance","Sales","Operations"],
+    "Creative":["Writer","Artist","Musician","Filmmaker"],
+    "Trades & Service":["Electrician","Chef","Mechanic","Teacher"]
+  };
+  const EDU=["High School","Associate's","Bachelor's","Master's","Doctorate","Trade / Vocational"];
+  const LIFE=[["🏔","Outdoors & nature"],["🌃","Nightlife & energy"],["🍜","Food scene"],["🎭","Arts & culture"],
+    ["🌾","Quiet & slow"],["🧘","Fitness & wellness"],["🏖","Beach & sun"],["🚶","Walkable & transit"],
+    ["🤝","Tight community"],["🚀","Career hub"]];
+  const CITIZEN=["US Citizen","Canadian","British","Australian","EU Citizen","Indian","Mexican","Filipino","Brazilian","Nigerian","Other"];
+  const IMMIG=["US Citizen","Permanent Resident","Work Visa (H-1B / O-1 / etc.)","Student Visa","Other / Not in US"];
+  const TIMELINE=["Within 6 months","6–12 months","1–2 years","2+ years","Just exploring"];
+  const MOTIV=["Better career opportunities","Lower cost of living","Adventure / experience abroad","Better quality of life",
+    "Family reasons","Climate / nature","Political / social environment","Just curious"];
+  const WORK=["Fully remote","Hybrid (office + remote)","On-site / in-person","Self-employed / freelance","Job-hunting / between roles"];
+  const COMMUNITY=["Very important","Somewhat important","I'm ready for a fresh start"];
+  const PACE=["Fast-paced / hustle","Balanced","Laid-back / slow"];
+  const RISK=["I like stability and predictability","I can handle some uncertainty","I thrive in change"];
+  const DEALS=["Harsh winters","High crime","Car-dependent","No public transit","Far from family",
+    "Too expensive","No nature access","Extreme heat","Poor healthcare","Long commutes"];
+  const RANKS=["Affordability","Career growth","Lifestyle & culture","Safety & stability"];
+
+  // state
+  const S={
+    profession:"", remote:false,
+    income:60000, savings:15000, debt:0, housing:"", partner:false, partnerIncome:0, deps:false, depCount:1,
+    age:28, education:"", city:"", pets:false, petType:"",
+    openness:40, citizenship:"US Citizen", immigration:"", timeline:"",
+    lifestyle:[], motivations:[], work:"", community:"", pace:"", risk:"",
+    rank:[...RANKS], deals:[], tiebreaker:""
+  };
+  const money=n=>"$"+(+n).toLocaleString();
+  const opennessLabel=v=>v==0?"Not at all":v<=30?"A little curious":v<=70?"Definitely open":"Ready to go";
+
+  // ---------- field builders ----------
+  const F={
+    profGroups(){ return {t:'profgroup'}; },
+    pills:(key,label,opts,o={})=>({t:'pills',key,label,opts,...o}),
+    multi:(key,label,opts,o={})=>({t:'multi',key,label,opts,...o}),
+    tiles:(key,label,opts)=>({t:'tiles',key,label,opts}),
+    slider:(key,label,min,max,step,fmt,labels)=>({t:'slider',key,label,min,max,step,fmt,labels}),
+    text:(key,label,ph)=>({t:'text',key,label,ph}),
+    toggle:(key,label,children)=>({t:'toggle',key,label,children}),
+    rank:(key,label)=>({t:'rank',key,label}),
+    custom:(fn)=>({t:'custom',fn})
+  };
+
+  // ---------- THE STEPS ----------
+  const STEPS=[
+    { id:'career', h:"What do you do?", sub:"It sets your salary range and the job matches we'll surface.",
+      fields:[ F.profGroups(), F.text('','',''), // placeholder replaced below
+        F.toggle('remote','Can you work fully remote?') ] },
+    { id:'finances', h:"Your finances", sub:"Be honest — this is what makes the numbers real.",
+      fields:[
+        F.slider('income','Annual income',20000,250000,5000,'money',["$20K","$250K"]),
+        F.slider('savings','Savings available',0,200000,2500,'money'),
+        F.slider('debt','Total debt',0,200000,2500,'money-neg'),
+        F.pills('housing','Housing',[["rent","🏢 Renting"],["buy","🏠 Buying"]]),
+        F.toggle('partner','Partner or spouse?',[F.slider('partnerIncome',"Partner's income",0,200000,5000,'money')]),
+        F.toggle('deps','Kids or dependents?',[F.pills('depCount','How many?',[[1,"1"],[2,"2"],[3,"3"],[4,"4"]])]) ] },
+    { id:'background', h:"A bit about you", sub:"These sharpen your matches and your real numbers.",
+      fields:[
+        F.slider('age','Age',18,70,1,'plain'),
+        F.pills('education','Education',EDU.map(e=>[e,e])),
+        F.text('city','Where do you live now?',"e.g. Springfield, MO"),
+        F.toggle('pets','Pets?',[F.pills('petType','Which?',[["Dog","Dog"],["Cat","Cat"],["Both","Both"],["Other","Other"]])]) ] },
+    { id:'global', h:"Going Global", sub:"This shapes whether international cities appear in your matches — and which visa pathways open up.",
+      fields:[ F.custom(goingGlobal) ] },
+    { id:'lifestyle', h:"Your ideal life", sub:"Pick everything that matters — at least one.",
+      fields:[ F.tiles('lifestyle','What pulls you?',LIFE) ] },
+    { id:'motivations', h:"What drives you?", sub:"This helps us find places that match who you actually are, not just what you earn.",
+      fields:[
+        F.multi('motivations','Why are you thinking about moving? (max 3)',MOTIV.map(m=>[m,m]),{max:3}),
+        F.pills('work','How do you work?',WORK.map(w=>[w,w])),
+        F.pills('community','Staying close to family / community?',COMMUNITY.map(c=>[c,c])),
+        F.pills('pace','Preferred pace of life',PACE.map(p=>[p,p])),
+        F.pills('risk','How do you feel about uncertainty?',RISK.map(r=>[r,r])) ] },
+    { id:'priorities', h:"Priorities & dealbreakers", sub:"What matters most — and what's truly non-negotiable.",
+      fields:[
+        F.rank('rank','Rank what matters most'),
+        F.custom(dealbreakers) ] },
+    { id:'reconcile', h:"We noticed something", sub:"", recon:true,
+      fields:[ F.custom(reconcile) ] }
+  ];
+  // fix career custom-profession text field
+  STEPS[0].fields[1]=F.text('professionCustom','Or write your own',"e.g. Marine Biologist");
+
+  // ---------- custom field renderers ----------
+  function goingGlobal(){
+    const v=S.openness;
+    const annot = v==0 ? `<div class="annot">🚫 International cities excluded from your results</div>` : '';
+    const immig = S.citizenship!=="US Citizen"
+      ? `<div class="field" style="margin-top:18px"><span class="lab">Current immigration status (US)</span>
+          <div class="pills">${IMMIG.map(i=>pillBtn('immigration',i,i)).join('')}</div></div>` : '';
+    return `<div class="acc">
+      <div class="field"><span class="lab">Open to living abroad <span class="val">${opennessLabel(v)}</span></span>
+        <input type="range" min="0" max="100" step="5" value="${v}" data-act="slider" data-key="openness" data-fmt="open">
+        ${annot}</div>
+      <div class="field"><span class="lab">Citizenship</span>
+        <div class="pills">${CITIZEN.map(c=>pillBtn('citizenship',c,c)).join('')}</div>${immig}</div>
+      <div class="field" style="margin-bottom:0"><span class="lab">When are you thinking of moving?</span>
+        <div class="pills">${TIMELINE.map(t=>pillBtn('timeline',t,t)).join('')}</div></div>
+    </div>`;
+  }
+  function dealbreakers(){
+    const warn = S.deals.length>=1 ? `<div class="warn"><b>Dealbreakers are hard filters.</b>
+      <span>Cities that don't match will be removed from your results entirely — not just ranked lower. Add only true non-negotiables.</span></div>` : '';
+    return `<div class="field" style="margin-bottom:0"><span class="lab">Hard dealbreakers</span>
+      <div class="pills">${DEALS.map(d=>multiBtn('deals',d,(S.deals.includes(d)?'🚫 ':'')+d)).join('')}</div>${warn}</div>`;
+  }
+  function reconcile(){
+    const A="Affordability", B="Lifestyle & culture";
+    return `<div style="border-left:3px solid var(--accent);background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px">
+      <span class="lab">We noticed something</span>
+      <div class="q" style="font-size:24px">You love ${A.toLowerCase()} and ${B.toLowerCase()}.</div>
+      <p class="qsub">These sometimes pull in different directions. If you had to lean one way, which wins?</p>
+      <div class="pills" style="margin-top:18px;gap:10px">
+        <button class="pill ${S.tiebreaker===A?'on':''}" data-act="pill" data-key="tiebreaker" data-val="${A}" style="flex:1;justify-content:center;padding:14px">${A}</button>
+        <button class="pill ${S.tiebreaker===B?'on':''}" data-act="pill" data-key="tiebreaker" data-val="${B}" style="flex:1;justify-content:center;padding:14px">${B}</button>
+      </div>
+      <p style="font-size:12px;color:var(--faint);margin-top:14px">This helps us rank cities that balance both — and flag the ones that can't.</p>
+    </div>`;
+  }
+
+  // ---------- primitive renderers ----------
+  const pillBtn=(key,val,label)=>`<button class="pill ${S[key]===val||S[key]===''+val?'on':''}" data-act="pill" data-key="${key}" data-val="${val}">${label}</button>`;
+  const multiBtn=(key,val,label)=>`<button class="pill ${S[key].includes(val)?'on':''}" data-act="multi" data-key="${key}" data-val="${val}">${label}</button>`;
+  function renderField(f){
+    if(f.t==='custom') return f.fn();
+    if(f.t==='profgroup'){
+      const cats=Object.entries(PROFS).map(([c,ps])=>`<div class="cat">${c}</div><div class="pills">${ps.map(p=>pillBtn('profession',p,p)).join('')}</div>`).join('');
+      return `<div class="field"><span class="lab">What's your field?</span>${cats}</div>`;
+    }
+    if(f.t==='pills') return `<div class="field"><span class="lab">${f.label}</span><div class="pills">${f.opts.map(([v,l])=>pillBtn(f.key,v,l)).join('')}</div></div>`;
+    if(f.t==='multi'){ const cap=f.max&&S[f.key].length>=f.max;
+      return `<div class="field"><span class="lab">${f.label}</span><div class="pills">${f.opts.map(([v,l])=>multiBtn(f.key,v,l)).join('')}</div></div>`; }
+    if(f.t==='tiles') return `<div class="field"><span class="lab">${f.label}</span><div class="grid2">${f.opts.map(([ic,l])=>`<button class="tile ${S[f.key].includes(l)?'on':''}" data-act="multi" data-key="${f.key}" data-val="${l}"><span>${ic}</span> ${l}</button>`).join('')}</div></div>`;
+    if(f.t==='slider'){ const v=S[f.key]; const fmt = f.fmt==='money'||f.fmt==='money-neg'?money(v):(f.fmt==='open'?opennessLabel(v):v);
+      const neg=f.fmt==='money-neg'&&v>0;
+      const ends=f.labels?`<div class="ends"><span>${f.labels[0]}</span><span>${f.labels[1]}</span></div>`:'';
+      return `<div class="field"><span class="lab">${f.label} <span class="val ${neg?'neg':''}">${fmt}</span></span>
+        <input type="range" class="${neg?'neg':''}" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}" data-act="slider" data-key="${f.key}" data-fmt="${f.fmt}">${ends}</div>`; }
+    if(f.t==='text') return `<div class="field"><span class="lab">${f.label}</span><input type="text" data-act="text" data-key="${f.key}" value="${S[f.key]||''}" placeholder="${f.ph}"></div>`;
+    if(f.t==='toggle'){ const on=S[f.key]; const kids=on&&f.children?f.children.map(renderField).join(''):'';
+      return `<div class="field"><div class="togrow"><span class="lab" style="margin:0">${f.label}</span>
+        <button class="pill ${on?'on':''}" data-act="toggle" data-key="${f.key}">${on?'✓ Yes':'No'}</button></div>
+        ${on?`<div style="margin-top:14px">${kids}</div>`:''}</div>`; }
+    if(f.t==='rank') return `<div class="field"><span class="lab">${f.label}</span><div class="ranklist">${
+      S.rank.map((it,i)=>`<div class="rank"><span class="n">#${i+1}</span><div class="rbody"><span>${it}</span><span>
+        ${i>0?`<button class="arrow" data-act="rank" data-dir="up" data-i="${i}">↑</button>`:''}
+        ${i<S.rank.length-1?`<button class="arrow" data-act="rank" data-dir="down" data-i="${i}">↓</button>`:''}</span></div></div>`).join('')}</div></div>`;
+    return '';
+  }
+  const renderFields=step=>step.fields.map(renderField).join('');
+
+  // ===================== FORMATS =====================
+  let format='stepper', idx=0;
+  const FORMATS=[['stepper','Stepper card'],['focus','Immersive focus'],['split','Split / sidebar'],['scroll','Single scroll']];
+  const ctaLabel=i=> i>=STEPS.length-1 ? 'Show Me My Potential →' : 'Continue →';
+
+  function dotProgress(){ return STEPS.map((_,i)=>`<i class="${i<=idx?'on':''}"></i>`).join(''); }
+
+  function render(){
+    if(format==='stepper') renderStepper();
+    else if(format==='focus') renderFocus();
+    else if(format==='split') renderSplit();
+    else renderScroll();
+    document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.f===format));
+  }
+
+  function renderStepper(){
+    const s=STEPS[idx];
+    app.innerHTML=`<div class="f-stepper">
+      <div class="topnav">
+        ${idx>0?`<button class="ghost" data-act="back">←</button>`:''}
+        <div class="progress">${dotProgress()}</div>
+        <span class="count">${idx+1}/${STEPS.length}</span>
+      </div>
+      <h2 class="q">${s.h}</h2>${s.sub?`<p class="qsub">${s.sub}</p>`:''}
+      <div class="fields">${renderFields(s)}</div>
+      <div class="foot"><button class="cta" data-act="next">${ctaLabel(idx)}</button></div>
+    </div>`;
+  }
+  function renderFocus(){
+    const s=STEPS[idx];
+    app.innerHTML=`<div class="f-focus">
+      <div class="dots">${dotProgress()}</div>
+      ${idx>0?`<button class="backarrow" data-act="back">←</button>`:''}
+      <div class="inner">
+        <h2 class="q">${s.h}</h2>${s.sub?`<p class="qsub">${s.sub}</p>`:''}
+        <div class="fields">${renderFields(s)}</div>
+        <div class="foot"><button class="cta" data-act="next">${ctaLabel(idx)}</button>
+          ${idx>0?`<button class="ghost" data-act="back">Back</button>`:''}</div>
+      </div>
+    </div>`;
+  }
+  function renderSplit(){
+    const s=STEPS[idx];
+    const items=STEPS.map((st,i)=>`<div class="sitem ${i===idx?'on':''} ${i<idx?'done':''}" data-act="goto" data-i="${i}">
+      <span class="dot">${i<idx?'✓':i+1}</span><span>${st.h}</span></div>`).join('');
+    app.innerHTML=`<div class="f-split">
+      <aside class="rail">
+        <h3>Build your profile</h3>
+        <p class="railsub">Eight quick steps. The more honest you are, the sharper your matches.</p>
+        <div class="steplist">${items}</div>
+      </aside>
+      <div class="pane">
+        <span class="count">Step ${idx+1} of ${STEPS.length}</span>
+        <h2 class="q" style="margin-top:8px">${s.h}</h2>${s.sub?`<p class="qsub">${s.sub}</p>`:''}
+        <div class="fields">${renderFields(s)}</div>
+        <div class="foot">${idx>0?`<button class="ghost" data-act="back">← Back</button>`:''}
+          <button class="cta" data-act="next">${ctaLabel(idx)}</button></div>
+      </div>
+    </div>`;
+  }
+  function renderScroll(){
+    const secs=STEPS.map((s,i)=>`<section id="sec${i}">
+      <div class="snum">${String(i+1).padStart(2,'0')} / ${STEPS.length}</div>
+      <h2 class="q">${s.h}</h2>${s.sub?`<p class="qsub">${s.sub}</p>`:''}
+      <div class="fields">${renderFields(s)}</div>
+      ${i<STEPS.length-1?`<button class="cta submit" data-act="scrollnext" data-i="${i}">${ctaLabel(i)}</button>`
+        :`<button class="cta submit" data-act="next">${ctaLabel(i)}</button>`}
+    </section>`).join('');
+    app.innerHTML=`<div class="f-scroll">
+      <div class="stickybar"><div class="progress" id="sprog">${STEPS.map(()=>'<i></i>').join('')}</div><span class="count" id="scount">01</span></div>
+      ${secs}
+    </div>`;
+    // light scroll-spy
+    const prog=[...document.querySelectorAll('#sprog i')], cnt=$('#scount');
+    const io=new IntersectionObserver(es=>{es.forEach(e=>{ if(e.isIntersecting){ const n=+e.target.id.slice(3);
+      prog.forEach((p,k)=>p.classList.toggle('on',k<=n)); cnt.textContent=String(n+1).padStart(2,'0'); }});},{rootMargin:'-45% 0px -45% 0px'});
+    STEPS.forEach((_,i)=>io.observe($('#sec'+i)));
+  }
+
+  // ===================== events =====================
+  function setVal(key,val){ S[key]=isNaN(+val)||typeof S[key]==='boolean'?val:(/^\d+$/.test(val)?+val:val); }
+  app.addEventListener('click',e=>{
+    const t=e.target.closest('[data-act]'); if(!t) return; const a=t.dataset.act;
+    if(a==='next'){ if(idx<STEPS.length-1){ idx++; render(); window.scrollTo({top:0,behavior:'smooth'}); } else alert('→ Profile complete. Hands off to Phase 3: Matching & Financials.'); return; }
+    if(a==='back'){ if(idx>0){ idx--; render(); window.scrollTo({top:0,behavior:'smooth'}); } return; }
+    if(a==='goto'){ idx=+t.dataset.i; render(); return; }
+    if(a==='scrollnext'){ const n=+t.dataset.i+1; document.getElementById('sec'+n)?.scrollIntoView({behavior:'smooth'}); return; }
+    if(a==='pill'){ const k=t.dataset.key,v=t.dataset.val; S[k]=(S[k]===v)?'':v;
+      if(k==='citizenship'&&v==='US Citizen') S.immigration=''; render(); return; }
+    if(a==='multi'){ const k=t.dataset.key,v=t.dataset.val; const arr=S[k]; const i=arr.indexOf(v);
+      if(i>=0)arr.splice(i,1); else { const f=STEPS[idx]; /*max*/ const mf=findMulti(k); if(mf&&mf.max&&arr.length>=mf.max){} else arr.push(v); } render(); return; }
+    if(a==='toggle'){ const k=t.dataset.key; S[k]=!S[k]; render(); return; }
+    if(a==='rank'){ const i=+t.dataset.i, d=t.dataset.dir, j=d==='up'?i-1:i+1; const r=S.rank; [r[i],r[j]]=[r[j],r[i]]; render(); return; }
+  });
+  function findMulti(key){ for(const s of STEPS) for(const f of s.fields){ if(f.t==='multi'&&f.key===key) return f; } return null; }
+  app.addEventListener('input',e=>{
+    const t=e.target.closest('[data-act]'); if(!t) return;
+    if(t.dataset.act==='slider'){ const k=t.dataset.key,v=+t.value,fmt=t.dataset.fmt; S[k]=v;
+      // live-update the readout + any conditional annotation without full re-render where possible
+      const lab=t.previousElementSibling?.querySelector?.('.val')||t.parentElement.querySelector('.val');
+      if(lab){ lab.textContent = fmt==='money'||fmt==='money-neg'?money(v):(fmt==='open'?opennessLabel(v):v);
+        lab.classList.toggle('neg', fmt==='money-neg'&&v>0); }
+      if(k==='openness'){ render(); } // re-render to toggle the exclusion annotation
+    }
+    else if(t.dataset.act==='text'){ S[t.dataset.key]=t.value; }
+  });
+
+  // tabs + palette
+  const tabs=$('#tabs'); FORMATS.forEach(([f,l])=>{ const b=document.createElement('button'); b.className='tab'; b.dataset.f=f; b.dataset.act='fmt'; b.textContent=l; b.onclick=()=>{ format=f; render(); }; tabs.appendChild(b); });
+  $('#palette').addEventListener('click',e=>{ const b=e.target.closest('[data-th]'); if(!b) return;
+    document.body.classList.toggle('mint', b.dataset.th==='mint');
+    $('#palette').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
+
+  render();
+})();
+</script>
+</body>
+</html>
