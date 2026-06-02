@@ -53,7 +53,12 @@ Plans:
   5. User can set a target move timeline (or select "exploring / no timeline")
   6. The quiz adapts based on prior answers (conditional/branching follow-ups), not a fixed linear sequence
   7. When answers reveal conflicting priorities, the quiz surfaces a reconciling follow-up and stores the resolution (a tiebreaker/weight) on the Profile preference output
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 02-01-PLAN.md — Test runner + extended Profile/PreferenceProfile contract + City dealbreaker fields + pure tested derive-preferences/conflict-detection/branching engines
+- [ ] 02-02-PLAN.md — Quiz reducer migration + steps 1–5 (Career/Finances/Background/Going Global/Lifestyle) with branching, openness slider, citizenship + auto/declared status, move timeline
+- [ ] 02-03-PLAN.md — Motivations step, hard dealbreakers + capture-time warning, tension reconciliation panel, submit wiring that emits the derived PreferenceProfile
+- [ ] 02-04-PLAN.md — Profile-completeness assertion + tests, and the full-quiz human-verify checkpoint
 **UI hint**: yes
 
 ### Phase 3: Matching & US Financial Spine
@@ -174,7 +179,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold & Port | 3/3 | Complete | 2026-05-30 |
-| 2. Quiz & Profile Capture | 0/TBD | Not started | - |
+| 2. Quiz & Profile Capture | 0/4 | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
 | 5. Proxy, Live AI & Golden-Path Cache | 0/TBD | Not started | - |
