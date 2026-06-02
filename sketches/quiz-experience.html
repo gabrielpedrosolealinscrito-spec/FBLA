@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Quiz (prototype)</title>
+<!-- THROWAWAY PROTOTYPE — Phase 2 Quiz & Profile Capture, cinematic aesthetic
+     cohesive with the landing experience. Self-contained, offline, vanilla JS.
+     Adds Phase-2 fields: citizenship/immigration, openness-to-abroad,
+     move timeline, hard deal-breakers, and a branching tension-reconciliation. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --night-1:#070a11; --night-2:#0d1119;
+    --gold:#e2b56b; --gold-soft:#d2a45a; --gold-deep:#13100a;
+    --ivory:#f3ede1; --ivory-dim:rgba(243,237,225,.55); --ivory-faint:rgba(243,237,225,.16);
+    --card:rgba(255,255,255,.035); --card-2:rgba(255,255,255,.06);
+    --border:rgba(243,237,225,.12); --border-2:rgba(243,237,225,.22);
+    --neg:#e0816a;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--night-1); color:var(--ivory);
+    font-family:'Manrope',sans-serif; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(120% 80% at 50% -10%, #141b27 0%, var(--night-2) 42%, var(--night-1) 80%),
+      radial-gradient(70% 50% at 50% 118%, rgba(226,181,107,.10), transparent 70%);
+    background-attachment:fixed;
+  }
+  /* film grain */
+  .grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.045;mix-blend-mode:overlay}
+
+  .brand{position:fixed;top:26px;left:32px;z-index:20;
+    font-family:'Instrument Serif',serif;font-size:24px;letter-spacing:.5px;opacity:.85}
+  .brand small{font-style:italic;opacity:.6;font-size:14px}
+
+  .wrap{max-width:600px;margin:0 auto;padding:104px 24px 120px;position:relative;z-index:10}
+
+  /* top bar / progress */
+  .top{display:flex;align-items:center;gap:14px;margin-bottom:44px}
+  .back{background:none;border:none;color:var(--ivory-dim);cursor:pointer;font-size:20px;
+    width:34px;height:34px;border-radius:50%;transition:.3s var(--ease);flex:none}
+  .back:hover{color:var(--gold);background:var(--card)}
+  .segs{flex:1;display:flex;gap:5px}
+  .seg{flex:1;height:3px;border-radius:2px;background:var(--border);transition:.5s var(--ease)}
+  .seg.on{background:var(--gold);box-shadow:0 0 8px rgba(226,181,107,.5)}
+  .count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ivory-dim)}
+
+  /* step host */
+  #host{transition:opacity .35s var(--ease), transform .35s var(--ease);will-change:opacity,transform}
+  .q{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(30px,5.4vw,46px);
+    line-height:1.04;letter-spacing:-.01em;margin-bottom:8px}
+  .q em{font-style:italic;color:var(--gold)}
+  .sub{color:var(--ivory-dim);font-size:15px;font-weight:300;margin-bottom:34px;line-height:1.5}
+
+  .group{margin-bottom:26px}
+  .label{display:block;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-soft);font-weight:500;margin-bottom:13px}
+  .label .val{font-family:'JetBrains Mono',monospace;color:var(--gold);letter-spacing:0;text-transform:none}
+  .label .val.neg{color:var(--neg)}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-family:inherit;font-size:13.5px;color:var(--ivory-dim);
+    background:var(--card);border:1px solid var(--border);border-radius:100px;
+    padding:9px 16px;cursor:pointer;transition:.25s var(--ease);user-select:none}
+  .pill:hover{border-color:var(--border-2);color:var(--ivory)}
+  .pill.on{color:var(--ivory);border-color:var(--gold);
+    background:linear-gradient(0deg, rgba(226,181,107,.14), rgba(226,181,107,.07));
+    box-shadow:0 0 0 1px rgba(226,181,107,.25), 0 8px 24px rgba(226,181,107,.10)}
+
+  .cat{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-faint);
+    margin:18px 0 9px;font-weight:600}
+  .cat:first-child{margin-top:0}
+
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{font-family:inherit;text-align:left;color:var(--ivory-dim);background:var(--card);
+    border:1px solid var(--border);border-radius:14px;padding:15px 16px;cursor:pointer;
+    transition:.25s var(--ease);font-size:14px;display:flex;align-items:center;gap:10px}
+  .tile:hover{border-color:var(--border-2);color:var(--ivory)}
+  .tile.on{color:var(--ivory);border-color:var(--gold);
+    background:linear-gradient(0deg, rgba(226,181,107,.13), rgba(226,181,107,.05))}
+  .tile .ic{font-size:19px;flex:none}
+
+  .rowtoggle{display:flex;justify-content:space-between;align-items:center;gap:12px}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(90deg, var(--gold) var(--p,40%), rgba(243,237,225,.14) var(--p,40%));
+    outline:none;cursor:pointer;margin:6px 0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--gold);cursor:pointer;box-shadow:0 0 0 4px rgba(226,181,107,.18), 0 2px 8px rgba(0,0,0,.4);
+    transition:.2s}
+  input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 6px rgba(226,181,107,.22)}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:var(--gold)}
+  .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--ivory-faint);margin-top:5px}
+
+  input[type=text]{width:100%;font-family:inherit;font-size:15px;color:var(--ivory);
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;
+    transition:.25s var(--ease)}
+  input[type=text]::placeholder{color:var(--ivory-faint)}
+  input[type=text]:focus{outline:none;border-color:var(--gold);background:var(--card-2)}
+
+  .ranklist{display:flex;flex-direction:column;gap:8px}
+  .rank{display:flex;align-items:center;gap:11px}
+  .rank .n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);width:18px}
+  .rank .body{flex:1;display:flex;justify-content:space-between;align-items:center;
+    padding:13px 15px;background:var(--card);border:1px solid var(--border);border-radius:11px;font-size:14px}
+  .arrow{background:none;border:1px solid var(--border);border-radius:7px;color:var(--ivory-dim);
+    cursor:pointer;padding:2px 8px;font-size:13px;transition:.2s}
+  .arrow:hover{border-color:var(--gold);color:var(--gold)}
+
+  .seg2{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* footer cta */
+  .foot{margin-top:38px}
+  .cta{width:100%;font-family:inherit;font-size:14px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gold-deep);background:var(--gold);border:none;border-radius:100px;padding:17px;
+    cursor:pointer;transition:.4s var(--ease);font-weight:600}
+  .cta:hover{box-shadow:0 14px 40px rgba(226,181,107,.28);transform:translateY(-2px)}
+  .cta:disabled{background:var(--card);color:var(--ivory-faint);cursor:not-allowed;
+    box-shadow:none;transform:none;border:1px solid var(--border)}
+
+  /* reconcile + done special cards */
+  .flag{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft);
+    margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .flag::before{content:"";width:26px;height:1px;background:var(--gold-soft)}
+  .choices{display:flex;flex-direction:column;gap:12px;margin-top:30px}
+  .choice{font-family:inherit;text-align:left;color:var(--ivory);background:var(--card);
+    border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:.25s var(--ease)}
+  .choice:hover{border-color:var(--gold);background:var(--card-2);transform:translateY(-2px)}
+  .choice b{font-family:'Instrument Serif',serif;font-weight:400;font-size:21px;display:block;margin-bottom:4px}
+  .choice span{font-size:13px;color:var(--ivory-dim);font-weight:300}
+
+  .summary{display:flex;flex-direction:column;gap:1px;background:var(--border);
+    border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:28px 0}
+  .srow{display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:14px 18px;background:var(--night-1);font-size:14px}
+  .srow .k{color:var(--ivory-dim);font-weight:300}
+  .srow .v{color:var(--ivory);text-align:right;font-weight:500}
+  .srow .v.mono{font-family:'JetBrains Mono',monospace;color:var(--gold)}
+
+  @media (max-width:480px){ .tiles{grid-template-columns:1fr} .wrap{padding-top:88px} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+  <svg class="grain"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+  <div class="brand">Potential <small>°</small></div>
+
+  <div class="wrap">
+    <div class="top">
+      <button class="back" data-nav="back" aria-label="Back">←</button>
+      <div class="segs" id="segs"></div>
+      <span class="count" id="count">1/5</span>
+    </div>
+    <div id="host"></div>
+  </div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const host = $('#host');
+
+  // ---------- data ----------
+  const PROFS = {
+    "Tech": ["Software Engineer","Data Scientist","Product Designer","IT / DevOps"],
+    "Healthcare": ["Nurse","Physician","Therapist","Pharmacist"],
+    "Business": ["Marketing","Finance","Sales","Operations"],
+    "Creative": ["Writer","Artist","Musician","Filmmaker"],
+    "Trades & Service": ["Electrician","Chef","Mechanic","Teacher"]
+  };
+  const LIFE = [
+    ["outdoors","🏔","Outdoors & nature"],["nightlife","🌃","Nightlife & energy"],
+    ["food","🍜","Food scene"],["arts","🎭","Arts & culture"],
+    ["quiet","🌾","Quiet & slow"],["fitness","🧘","Fitness & wellness"],
+    ["beach","🏖","Beach & sun"],["walkable","🚶","Walkable & transit"],
+    ["community","🤝","Tight community"],["careerhub","🚀","Career hub"]
+  ];
+  const DEALS = ["Harsh winters","High crime","Car-dependent","No transit","Far from family",
+    "Too expensive","No nature access","Extreme heat","Poor healthcare"];
+  const CITIZEN = [["🇺🇸","United States"],["🇨🇦","Canada"],["🇪🇺","EU"],["🇬🇧","UK"],
+    ["🇵🇭","Philippines"],["🇮🇳","India"],["🌍","Other"]];
+  const STATUS = ["Citizen","Permanent resident","Work visa","Student visa","Other"];
+  const EDU = [["highschool","High School"],["associates","Associate's"],["bachelors","Bachelor's"],
+    ["masters","Master's"],["doctorate","Doctorate"],["trade","Trade / Vocational"]];
+  const TIMELINE = [["asap","As soon as I can"],["year","Within a year"],["1to3","1–3 years"],["explore","Just exploring"]];
+  const RANK_LABELS = {cost:"💰 Affordability",career:"💼 Career growth",lifestyle:"🎭 Lifestyle & culture",safety:"🛡️ Safety & stability"};
+
+  // ---------- state ----------
+  const P = {
+    profession:"", customProfession:"", hasRemote:false,
+    income:55000, savings:15000, debt:0, housing:"rent",
+    hasPartner:false, partnerIncome:0, hasDependents:false, numDependents:1,
+    age:28, education:"bachelors", currentCity:"", citizenship:"", status:"", hasPets:false, petType:"",
+    lifestyle:[], openness:30,
+    rank:["cost","career","lifestyle","safety"], timeline:"", deals:[], tradeoff:null
+  };
+
+  const STEPS = ["career","finances","background","lifestyle","priorities"];
+  let idx = 0;            // 0..4
+  let view = "quiz";      // quiz | reconcile | done
+
+  // ---------- helpers ----------
+  const f$ = n => "$" + n.toLocaleString();
+  const opennessLabel = v => v<20?"Set in my country":v<45?"Open to nearby":v<70?"Open to abroad":v<90?"Drawn to abroad":"Anywhere on earth";
+  const pct = (v,min,max) => ((v-min)/(max-min)*100);
+
+  const pill = (key,val,label,multi=false) =>
+    `<button class="pill ${ (multi?P[key].includes(val):P[key]===val)?'on':'' }"
+      data-${multi?'multi':'pill'}="${key}|${val}">${label}</button>`;
+  const slider = (key,min,max,step,fmt) => {
+    const v=P[key];
+    return `<input type="range" min="${min}" max="${max}" step="${step}" value="${v}"
+      data-slider="${key}|${min}|${max}|${fmt||''}" style="--p:${pct(v,min,max)}%">`;
+  };
+  const toggle = (key,label,extra='') =>
+    `<div class="group"><div class="rowtoggle"><span class="label" style="margin:0">${label}</span>
+      <button class="pill ${P[key]?'on':''}" data-toggle="${key}">${P[key]?'✓ Yes':'No'}</button></div>${extra}</div>`;
+
+  // ---------- step builders ----------
+  function career(){
+    let cats = Object.entries(PROFS).map(([c,ps])=>
+      `<div class="cat">${c}</div><div class="pills">${ps.map(p=>pill('profession',p,p)).join('')}</div>`).join('');
+    return `
+      <h2 class="q">What do you <em>do?</em></h2>
+      <p class="sub">It sets your salary range and the job matches we'll surface.</p>
+      <div class="group">${cats}</div>
+      <div class="group"><span class="label">Or write your own</span>
+        <input type="text" data-text="customProfession" value="${P.customProfession}" placeholder="e.g. Marine Biologist"></div>
+      ${toggle('hasRemote','Can you work fully remote?')}`;
+  }
+  function finances(){
+    return `
+      <h2 class="q">Your <em>finances</em></h2>
+      <p class="sub">Be honest — this is what makes the numbers real.</p>
+      <div class="group"><span class="label">Annual income <span class="val" data-readout="income">${f$(P.income)}</span></span>
+        ${slider('income',20000,250000,5000,'$')}<div class="ends"><span>$20K</span><span>$250K</span></div></div>
+      <div class="group"><span class="label">Savings available <span class="val" data-readout="savings">${f$(P.savings)}</span></span>
+        ${slider('savings',0,200000,2500,'$')}</div>
+      <div class="group"><span class="label">Total debt <span class="val ${P.debt>0?'neg':''}" data-readout="debt">${f$(P.debt)}</span></span>
+        ${slider('debt',0,200000,2500,'$')}</div>
+      <div class="group"><span class="label">Housing</span><div class="pills">
+        ${pill('housing','rent','🏢 Renting')}${pill('housing','buy','🏠 Buying')}</div></div>
+      ${toggle('hasPartner','Partner or spouse?', P.hasPartner?`
+        <div style="margin-top:14px"><span class="label">Partner's income <span class="val" data-readout="partnerIncome">${f$(P.partnerIncome)}</span></span>
+        ${slider('partnerIncome',0,200000,5000,'$')}</div>`:'')}
+      ${toggle('hasDependents','Kids or dependents?', P.hasDependents?`
+        <div class="seg2" style="margin-top:14px">${[1,2,3,4].map(n=>pill('numDependents',n,n)).join('')}</div>`:'')}`;
+  }
+  function background(){
+    return `
+      <h2 class="q">A bit <em>about you</em></h2>
+      <p class="sub">These sharpen your matches — and decide which doors are even open.</p>
+      <div class="group"><span class="label">Age <span class="val" data-readout="age">${P.age}</span></span>
+        ${slider('age',18,70,1,'')}</div>
+      <div class="group"><span class="label">Education</span><div class="pills">
+        ${EDU.map(([k,l])=>pill('education',k,l)).join('')}</div></div>
+      <div class="group"><span class="label">Where do you live now?</span>
+        <input type="text" data-text="currentCity" value="${P.currentCity}" placeholder="e.g. Springfield, MO"></div>
+      <div class="group"><span class="label">Citizenship</span><div class="pills">
+        ${CITIZEN.map(([fl,n])=>pill('citizenship',n,fl+' '+n)).join('')}</div></div>
+      <div class="group"><span class="label">Current status</span><div class="pills">
+        ${STATUS.map(s=>pill('status',s,s)).join('')}</div></div>
+      ${toggle('hasPets','Pets?', P.hasPets?`
+        <div class="seg2" style="margin-top:14px">${["Dog","Cat","Both","Other"].map(t=>pill('petType',t,t)).join('')}</div>`:'')}`;
+  }
+  function lifestyle(){
+    return `
+      <h2 class="q">Your ideal <em>life</em></h2>
+      <p class="sub">Pick everything that matters — at least one.</p>
+      <div class="group"><div class="tiles">
+        ${LIFE.map(([id,ic,l])=>`<button class="tile ${P.lifestyle.includes(id)?'on':''}" data-multi="lifestyle|${id}">
+          <span class="ic">${ic}</span> ${l}</button>`).join('')}</div></div>
+      <div class="group"><span class="label">How open are you to living abroad?
+        <span class="val" data-readout="openness">${opennessLabel(P.openness)}</span></span>
+        ${slider('openness',0,100,1,'')}
+        <div class="ends"><span>Stay in my country</span><span>Anywhere on earth</span></div></div>`;
+  }
+  function priorities(){
+    return `
+      <h2 class="q">Priorities & <em>deal-breakers</em></h2>
+      <p class="sub">What matters most — and what's truly non-negotiable.</p>
+      <div class="group"><span class="label">Rank what matters most</span><div class="ranklist">
+        ${P.rank.map((it,i)=>`<div class="rank"><span class="n">#${i+1}</span>
+          <div class="body"><span>${RANK_LABELS[it]}</span><span>
+            ${i>0?`<button class="arrow" data-rank="up|${i}">↑</button>`:''}
+            ${i<3?`<button class="arrow" data-rank="down|${i}">↓</button>`:''}</span></div></div>`).join('')}
+      </div></div>
+      <div class="group"><span class="label">Target timeline</span><div class="seg2">
+        ${TIMELINE.map(([k,l])=>pill('timeline',k,l)).join('')}</div></div>
+      <div class="group"><span class="label">Hard deal-breakers — these eliminate a place, not just dock points</span>
+        <div class="pills">${DEALS.map(d=>pill('deals',d,(P.deals.includes(d)?'🚫 ':'')+d,true)).join('')}</div></div>`;
+  }
+  const BUILDERS = {career,finances,background,lifestyle,priorities};
+
+  // ---------- conflict detection (tension reconciliation) ----------
+  function conflict(){
+    if(P.tradeoff) return null;
+    if(P.rank[0]==='cost' && (P.lifestyle.includes('nightlife')||P.lifestyle.includes('careerhub')))
+      return {key:'budget_vs_buzz', title:`You put <em>affordability first</em> — but you also crave a big, buzzing city.`,
+        line:`Those usually pull in opposite directions. When they collide, which one wins?`,
+        a:["Protect my budget","Keep me somewhere I can actually save, even if it's quieter."],
+        b:["Worth paying for the buzz","I'll stretch the budget for energy, culture, and opportunity."]};
+    if(P.openness>=65 && P.deals.includes("Far from family"))
+      return {key:'abroad_vs_family', title:`You're <em>drawn to living abroad</em> — but "far from family" is a deal-breaker.`,
+        line:`Both can't fully win. Which one anchors the search?`,
+        a:["Stay near family","Keep me within reach of home, even if it limits the map."],
+        b:["Chase the bigger life","Open the whole world; I'll make the distance work."]};
+    return null;
+  }
+
+  function reconcile(c){
+    return `
+      <div class="flag">One more thing</div>
+      <h2 class="q">${c.title}</h2>
+      <p class="sub">${c.line}</p>
+      <div class="choices">
+        <button class="choice" data-reconcile="${c.key}|a"><b>${c.a[0]}</b><span>${c.a[1]}</span></button>
+        <button class="choice" data-reconcile="${c.key}|b"><b>${c.b[0]}</b><span>${c.b[1]}</span></button>
+      </div>`;
+  }
+
+  function done(){
+    const prof = P.customProfession || P.profession || "—";
+    const hh = P.income + (P.hasPartner?P.partnerIncome:0);
+    const tl = (TIMELINE.find(t=>t[0]===P.timeline)||[,'—'])[1];
+    const trade = P.tradeoff ? P.tradeoff.replace(/_/g,' ') : "none needed";
+    return `
+      <div class="flag">Profile captured</div>
+      <h2 class="q">We've got <em>your shape.</em></h2>
+      <p class="sub">Everything below feeds the matching engine — your cities, your real numbers, your roadmap.</p>
+      <div class="summary">
+        <div class="srow"><span class="k">Work</span><span class="v">${prof}${P.hasRemote?' · remote':''}</span></div>
+        <div class="srow"><span class="k">Household income</span><span class="v mono">${f$(hh)}</span></div>
+        <div class="srow"><span class="k">Openness to abroad</span><span class="v">${opennessLabel(P.openness)}</span></div>
+        <div class="srow"><span class="k">Citizenship · status</span><span class="v">${P.citizenship||'—'}${P.status?' · '+P.status:''}</span></div>
+        <div class="srow"><span class="k">Top priority</span><span class="v">${RANK_LABELS[P.rank[0]]}</span></div>
+        <div class="srow"><span class="k">Timeline</span><span class="v">${tl}</span></div>
+        <div class="srow"><span class="k">Hard deal-breakers</span><span class="v">${P.deals.length||'none'}</span></div>
+        <div class="srow"><span class="k">Tie-breaker</span><span class="v">${trade}</span></div>
+      </div>
+      <div class="foot"><button class="cta" data-nav="finish">See my matches →</button></div>`;
+  }
+
+  // ---------- validation ----------
+  const canProceed = () => {
+    if(view!=="quiz") return true;
+    if(STEPS[idx]==="career") return !!(P.profession||P.customProfession);
+    if(STEPS[idx]==="lifestyle") return P.lifestyle.length>=1;
+    return true;
+  };
+
+  // ---------- render ----------
+  function render(){
+    let html;
+    if(view==="quiz"){
+      html = BUILDERS[STEPS[idx]]();
+      const last = idx===STEPS.length-1;
+      html += `<div class="foot"><button class="cta" data-nav="next" ${canProceed()?'':'disabled'}>
+        ${last?'Review my profile →':'Continue →'}</button></div>`;
+    } else if(view==="reconcile"){
+      html = reconcile(view._c);
+    } else { html = done(); }
+    host.innerHTML = html;
+
+    // progress
+    const segs = $('#segs'), count = $('#count');
+    segs.innerHTML = STEPS.map((_,i)=>`<div class="seg ${i<=idx&&view!=='done'||view==='done'?'on':''}"></div>`).join('');
+    count.textContent = view==='done' ? '✓' : `${idx+1}/${STEPS.length}`;
+    $('.back').style.visibility = (idx===0 && view==='quiz') ? 'hidden' : 'visible';
+  }
+  function go(fn){ host.style.opacity=0; host.style.transform='translateY(12px)';
+    setTimeout(()=>{ fn(); render(); host.style.opacity=1; host.style.transform='none';
+      window.scrollTo({top:0,behavior:'smooth'}); }, 240); }
+
+  // ---------- navigation ----------
+  function next(){
+    if(view==="reconcile") return; // handled by choice
+    if(idx < STEPS.length-1){ go(()=>idx++); return; }
+    // finished last quiz step -> maybe reconcile, else done
+    const c = conflict();
+    if(c){ go(()=>{ view="reconcile"; view._c=c; }); }
+    else { go(()=>view="done"); }
+  }
+  function back(){
+    if(view==="done"){ go(()=>{ view="quiz"; idx=STEPS.length-1; }); return; }
+    if(view==="reconcile"){ go(()=>{ view="quiz"; }); return; }
+    if(idx>0) go(()=>idx--);
+  }
+
+  // ---------- events (delegation) ----------
+  host.addEventListener('click', e=>{
+    const t = e.target.closest('[data-pill],[data-multi],[data-toggle],[data-rank],[data-reconcile],[data-nav]');
+    if(!t) return;
+    if(t.dataset.nav){ const n=t.dataset.nav;
+      if(n==='next') next(); else if(n==='back') back();
+      else if(n==='finish') alert('→ Profile complete. Hands off to the Matching engine (Phase 3).');
+      return; }
+    if(t.dataset.pill){ const [k,v]=t.dataset.pill.split('|'); P[k]=isNaN(+v)?v:+v; render(); return; }
+    if(t.dataset.multi){ const [k,v]=t.dataset.multi.split('|');
+      const i=P[k].indexOf(v); i>=0?P[k].splice(i,1):P[k].push(v); render(); return; }
+    if(t.dataset.toggle){ const k=t.dataset.toggle; P[k]=!P[k]; render(); return; }
+    if(t.dataset.rank){ const [d,i]=t.dataset.rank.split('|'); const j=+i, r=P.rank;
+      const s=d==='up'?j-1:j+1; [r[j],r[s]]=[r[s],r[j]]; render(); return; }
+    if(t.dataset.reconcile){ const [key,ch]=t.dataset.reconcile.split('|');
+      P.tradeoff = key+': '+ch; go(()=>view="done"); return; }
+  });
+  host.addEventListener('input', e=>{
+    const t=e.target;
+    if(t.dataset.slider){ const [k,min,max,fmt]=t.dataset.slider.split('|'); const v=+t.value; P[k]=v;
+      t.style.setProperty('--p', pct(v,+min,+max)+'%');
+      const out=host.querySelector(`[data-readout="${k}"]`);
+      if(out) out.textContent = k==='openness'?opennessLabel(v):(fmt==='$'?f$(v):v);
+      if(k==='debt'&&out) out.classList.toggle('neg',v>0);
+      // keep Continue enabled-state fresh if a slider gates a step (none currently, but safe)
+    }
+    else if(t.dataset.text){ P[t.dataset.text]=t.value; }
+  });
+  // keyboard: Enter advances
+  addEventListener('keydown', e=>{ if(e.key==='Enter' && canProceed()) next(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
