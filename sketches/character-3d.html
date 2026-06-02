@@ -249,11 +249,15 @@ let fly, flyBase=[];
 }
 
 /* ============================ THE AVATAR ============================ */
-const SKIN=0xe0ad84, HAIR=0x3a2c22;
-const mat = (c,opts={}) => new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:0,flatShading:true},opts));
+// diverse, warm palette (flat-illustration vibe)
+const SKINS=[0xf3caa6,0xeab489,0xd49a6a,0xbe8456,0x9c6a44,0x7a4f30,0x5e3a24];
+const HAIRS=[0x231812,0x3a2c22,0x5a3a22,0x7a5a30,0x141414,0x6b6660,0x4a2e1c];
+let SKIN=SKINS[1], HAIR=HAIRS[1];
+// soft, smooth shading by default (illustrative, not faceted)
+const mat = (c,opts={}) => new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.92,metalness:0,flatShading:false},opts));
 
 const avatar = new THREE.Group(); scene.add(avatar);
-const matCoat = mat(0xcdd2db), matPants = mat(0x3a4256), matSkin = mat(SKIN,{flatShading:false,roughness:.6});
+const matCoat = mat(0x5f7d8c), matPants = mat(0x6a5a48), matSkin = mat(SKIN,{roughness:.6});
 const matHair = mat(HAIR);
 
 // pivots we animate
@@ -293,25 +297,15 @@ let hair; const EYES=[];
   // hair (top dome) — hidden when a hat covers the crown
   hair=new THREE.Mesh(new THREE.SphereGeometry(0.168,18,14,0,Math.PI*2,0,Math.PI*0.62), matHair);
   hair.position.y=0.012; hair.scale.set(1,1.05,1.02); headPiv.add(hair);
-  // ---- FACE ----
-  const white=mat(0xf6f4ee,{flatShading:false,roughness:.4}), pupil=mat(0x241c16,{flatShading:false});
+  // ---- FACE (minimal, flat-illustration style: just soft eyes + a tiny mouth) ----
+  const eyeMat=mat(0x2b211c,{roughness:.5});
   const eyeL=new THREE.Group(), eyeR=new THREE.Group(); headPiv.add(eyeL,eyeR);
-  eyeL.position.set(-0.06,0.02,0.145); eyeR.position.set(0.06,0.02,0.145);
-  [eyeL,eyeR].forEach(g=>{
-    const w=new THREE.Mesh(new THREE.SphereGeometry(0.032,12,10), white); w.scale.set(1,1.15,0.5); g.add(w);
-    const p=new THREE.Mesh(new THREE.SphereGeometry(0.017,10,8), pupil); p.position.z=0.02; g.add(p);
-    const gl=new THREE.Mesh(new THREE.SphereGeometry(0.006,6,6), white); gl.position.set(0.007,0.008,0.03); g.add(gl);
-  });
+  eyeL.position.set(-0.062,0.005,0.146); eyeR.position.set(0.062,0.005,0.146);
+  [eyeL,eyeR].forEach(g=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.019,10,10), eyeMat); e.scale.set(0.82,1.25,0.5); g.add(e); });
   EYES.push(eyeL,eyeR);
-  // brows
-  const brow=mat(HAIR);
-  [-0.06,0.06].forEach(x=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.012,0.02),brow); b.position.set(x,0.075,0.15); b.rotation.z=x<0?0.12:-0.12; headPiv.add(b); });
-  // nose
-  const nose=new THREE.Mesh(new THREE.ConeGeometry(0.022,0.05,6),matSkin); nose.position.set(0,-0.01,0.165); nose.rotation.x=Math.PI/2; headPiv.add(nose);
-  // mouth (gentle smile = two angled little boxes)
-  const lip=mat(0xb56a5a,{flatShading:false});
-  [[-0.028,-0.075,0.15,0.18],[0.028,-0.075,0.15,-0.18]].forEach(([x,y,z,rz])=>{
-    const mo=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.013,0.02),lip); mo.position.set(x,y,z); mo.rotation.z=rz; headPiv.add(mo); });
+  // tiny soft mouth — no nose, no brows; keep it understated
+  const mouth=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.011,0.02), mat(0xae7460,{roughness:.6}));
+  mouth.position.set(0,-0.072,0.151); headPiv.add(mouth);
 
   headPiv.add(headGear);
 })();
@@ -414,7 +408,13 @@ const PCFG = {
   "Mechanic":{coat:0x3a6e5a,pants:0x2b4a3c,hat:'cap',prop:'wrench'},
   "Teacher":{coat:0x7a6ea3,pants:0x332f44,glasses:1,prop:'book'}
 };
-const BASE = {coat:0xcdd2db, pants:0x3a4256};   // clean modern avatar
+const CASUAL=[0xb5613a,0xc99a3a,0x7a7d4a,0x4a6a8a,0x9a4b54,0x3f6f63,0xb08a5a]; // casual jacket tones
+const BASE = {coat:0x5f7d8c, pants:0x6a5a48};   // casual avatar (re-rolled by randomizeLook)
+const rpick = a => a[(Math.random()*a.length)|0];
+function randomizeLook(){
+  SKIN=rpick(SKINS); HAIR=rpick(HAIRS); BASE.coat=rpick(CASUAL);
+  matSkin.color.setHex(SKIN); matHair.color.setHex(HAIR);
+}
 const tCoat=new THREE.Color(), tPants=new THREE.Color();
 let hasProp=false;
 
@@ -440,8 +440,8 @@ const PROFS = {
   "Trades":["Electrician","Chef","Mechanic","Teacher"]
 };
 const dock=document.getElementById('dock');
-{ const reset=document.createElement('button'); reset.className='pill reset'; reset.textContent='✦ Blank'; reset.dataset.name='';
-  reset.onclick=()=>dress(null); dock.appendChild(reset); }
+{ const reset=document.createElement('button'); reset.className='pill reset'; reset.textContent='🎲 New person'; reset.dataset.name='';
+  reset.onclick=()=>{ randomizeLook(); dress(null); }; dock.appendChild(reset); }
 Object.entries(PROFS).forEach(([cat,list])=>{
   const sep=document.createElement('span'); sep.className='sep'; dock.appendChild(sep);
   const lbl=document.createElement('span'); lbl.className='catlbl'; lbl.textContent=cat; dock.appendChild(lbl);
@@ -449,7 +449,7 @@ Object.entries(PROFS).forEach(([cat,list])=>{
     b.onclick=()=>dress(n); dock.appendChild(b); });
 });
 
-dress(null);   // start blank
+randomizeLook(); dress(null);   // start blank, with a randomized look
 
 /* ============================ animation ============================ */
 const clock = new THREE.Clock();
