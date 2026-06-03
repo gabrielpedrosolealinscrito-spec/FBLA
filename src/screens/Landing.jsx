@@ -204,10 +204,34 @@ export default function Landing({ onEnter }) {
 
     let started = false;
     function onScroll() { const max = document.documentElement.scrollHeight - innerHeight; targetProg = max > 0 ? Math.min(1, scrollY / max) : 0; const seg = Math.min(railDots.length - 1, Math.round(targetProg * (railDots.length - 1))); railDots.forEach((d, i) => d.classList.toggle("on", i <= seg)); cue.classList.toggle("show", started && targetProg < .12); }
+
+    // slow, eased scroll into the first pane (native smooth + snap are too fast/abrupt)
+    function smoothScrollTo(targetY, dur) {
+      const startY = window.scrollY, dist = targetY - startY, t0 = performance.now();
+      const html = document.documentElement, prevSnap = html.style.scrollSnapType, prevBeh = html.style.scrollBehavior;
+      html.style.scrollSnapType = "none"; html.style.scrollBehavior = "auto"; // don't fight the tween
+      function frame(now) {
+        if (!running) { html.style.scrollSnapType = prevSnap; html.style.scrollBehavior = prevBeh; return; }
+        const t = Math.min(1, (now - t0) / dur);
+        const e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+        window.scrollTo(0, startY + dist * e);
+        if (t < 1) requestAnimationFrame(frame);
+        else { html.style.scrollSnapType = prevSnap; html.style.scrollBehavior = prevBeh; }
+      }
+      requestAnimationFrame(frame);
+    }
     const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) e.target.classList.add("in"); }), { threshold: .4 });
     scenes.forEach(sc => io.observe(sc));
 
-    function begin() { if (started) return; started = true; document.body.classList.remove("lp-locked"); q("#lpStory").classList.add("show"); rail.style.opacity = 1; startAudio(); root.querySelector('.scene[data-i="1"]').scrollIntoView({ behavior: "smooth" }); setTimeout(onScroll, 50); }
+    function begin() {
+      if (started) return; started = true;
+      document.body.classList.remove("lp-locked"); q("#lpStory").classList.add("show"); rail.style.opacity = 1; startAudio();
+      const sc = root.querySelector('.scene[data-i="1"]');
+      const targetY = sc.getBoundingClientRect().top + window.scrollY;
+      if (motionOff) window.scrollTo(0, targetY);
+      else smoothScrollTo(targetY, 2000); // ~2s slow cinematic glide
+      setTimeout(onScroll, 50);
+    }
     q("#lpEnterBtn").addEventListener("click", begin);
     q("#lpBeginBtn").addEventListener("click", () => { const b = q("#lpBeginBtn"); b.style.transform = "scale(.96)"; setTimeout(() => { b.style.transform = ""; onEnterRef.current && onEnterRef.current(); }, 150); });
 
