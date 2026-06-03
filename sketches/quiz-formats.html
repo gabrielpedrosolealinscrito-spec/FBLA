@@ -93,9 +93,11 @@
 
   .q{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-height:1.06}
   .qsub{color:var(--dim);font-size:14px;font-weight:300;line-height:1.6;margin-top:6px}
-  .cta{width:100%;font-family:inherit;font-size:15px;font-weight:700;letter-spacing:.03em;color:var(--accent-ink);
-    background:var(--accent);border:none;border-radius:14px;padding:16px;cursor:pointer;transition:.3s var(--ease)}
-  .cta:hover{transform:translateY(-2px);box-shadow:0 14px 36px -12px color-mix(in srgb,var(--accent) 60%,transparent)}
+  .cta{width:100%;font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.03em;color:var(--accent);
+    background:var(--accent-dim);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+    border-radius:14px;padding:16px;cursor:pointer;transition:.3s var(--ease)}
+  .cta:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--accent) 16%,transparent);
+    border-color:color-mix(in srgb,var(--accent) 70%,transparent);color:var(--ink)}
   .ghost{background:none;border:none;color:var(--faint);font-family:inherit;font-size:13px;cursor:pointer}
   .ghost:hover{color:var(--accent)}
   .progress{display:flex;gap:4px;flex:1}
