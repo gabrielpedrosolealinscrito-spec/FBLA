@@ -40,10 +40,14 @@ const MARKUP = `
   .lp .rail i.on{background:var(--gold);box-shadow:0 0 10px var(--gold)}
   .lp .loader{position:fixed;inset:0;z-index:60;background:var(--night-1);display:grid;place-items:center;transition:opacity 1.1s var(--ease)}
   .lp .loader.hide{opacity:0;pointer-events:none}
-  .lp .rosette{width:130px;height:130px;animation:lpspin 9s linear infinite;opacity:.85}
+  .lp .loader-disc{position:relative;display:grid;place-items:center;width:160px;height:160px}
+  .lp .rosette{position:absolute;inset:20px;animation:lpspin 9s linear infinite;opacity:.45}
   .lp .rosette circle,.lp .rosette path{fill:none;stroke:var(--gold);stroke-width:.5}
   @keyframes lpspin{to{transform:rotate(360deg)}}
-  .lp .loader-pct{position:absolute;font-family:'Instrument Serif',serif;font-size:28px;color:var(--gold)}
+  .lp .pring{position:absolute;inset:0;width:160px;height:160px}
+  .lp .pring-track{fill:none;stroke:rgba(243,237,225,.12);stroke-width:2}
+  .lp .pring-bar{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(226,181,107,.55))}
+  .lp .loader-pct{position:relative;z-index:1;font-family:'Instrument Serif',serif;font-size:32px;color:var(--gold)}
   .lp .gate{position:relative;z-index:20;height:100vh;display:grid;place-items:center;text-align:center;scroll-snap-align:start;scroll-snap-stop:always}
   .lp .gate-inner{opacity:0;transform:translateY(18px);transition:1.4s var(--ease);transition-delay:.3s}
   .lp .gate-inner.in{opacity:1;transform:none}
@@ -109,7 +113,11 @@ const MARKUP = `
   <div class="row">Reduced motion <div class="sw" id="lpSwMotion"></div></div>
   <div class="row" style="border-top:1px solid var(--ivory-faint);margin-top:6px;padding-top:14px;font-size:11px;line-height:1.5;color:var(--ivory-faint)">Prototype experience. Runs fully offline.</div>
 </div>
-<div class="loader" id="lpLoader"><svg class="rosette" viewBox="0 0 100 100" id="lpRosette"></svg><div class="loader-pct" id="lpPct">0</div></div>
+<div class="loader" id="lpLoader"><div class="loader-disc">
+  <svg class="rosette" viewBox="0 0 100 100" id="lpRosette"></svg>
+  <svg class="pring" viewBox="0 0 160 160"><circle class="pring-track" cx="80" cy="80" r="70"></circle><circle class="pring-bar" id="lpRing" cx="80" cy="80" r="70" transform="rotate(-90 80 80)"></circle></svg>
+  <div class="loader-pct" id="lpPct">0</div>
+</div></div>
 <section class="gate">
   <div class="gate-inner" id="lpGateInner">
     <div class="kicker">A life simulator</div>
@@ -154,14 +162,17 @@ export default function Landing({ onEnter }) {
     for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2, x = 50 + Math.cos(a) * 30, y = 50 + Math.sin(a) * 30; petals += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9"/>`; }
     ros.innerHTML = `<circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="22"/>${petals}`;
 
-    // preloader
-    const loader = q("#lpLoader"), pct = q("#lpPct");
+    // preloader — count every integer 0→100 with a circular progress ring
+    const loader = q("#lpLoader"), pct = q("#lpPct"), ring = q("#lpRing");
+    const RC = 2 * Math.PI * 70; // ring circumference (r=70)
+    ring.style.strokeDasharray = RC; ring.style.strokeDashoffset = RC;
     let p = 0;
     tickId = setInterval(() => {
-      p += Math.random() * 16;
-      if (p >= 100) { p = 100; clearInterval(tickId); pct.textContent = ""; setTimeout(() => { loader.classList.add("hide"); q("#lpGateInner").classList.add("in"); }, 350); }
-      pct.textContent = Math.floor(p);
-    }, 140);
+      p += 1;
+      pct.textContent = p;
+      ring.style.strokeDashoffset = RC * (1 - p / 100);
+      if (p >= 100) { clearInterval(tickId); setTimeout(() => { loader.classList.add("hide"); q("#lpGateInner").classList.add("in"); }, 350); }
+    }, 22);
 
     // canvas
     const cv = q("#stage"), ctx = cv.getContext("2d");
