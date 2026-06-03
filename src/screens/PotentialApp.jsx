@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { PROFESSION_CATEGORIES, BASE_SALARIES, LIFESTYLE_TAGS, DEAL_BREAKERS } from '../../shared/data/constants.js';
+import Landing from './Landing.jsx';
+import Quiz from './Quiz.jsx';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
@@ -72,39 +74,40 @@ export default function Potential() {
     });
   };
 
-  // ── Scoring ──
-  const getSalary = (city) => {
-    const base = BASE_SALARIES[profile.profession] || 55000;
+  // ── Scoring (accept an explicit profile so a freshly-submitted quiz can score
+  //    before React state settles; default to current profile for the results UI) ──
+  const getSalary = (city, prof = profile) => {
+    const base = BASE_SALARIES[prof.profession] || 55000;
     return Math.round(base * (city.costIndex / 100));
   };
-  const getTakeHome = (city) => {
-    const sal = profile.hasRemote ? profile.income : getSalary(city);
-    const totalSal = sal + (profile.hasPartner ? profile.partnerIncome : 0);
+  const getTakeHome = (city, prof = profile) => {
+    const sal = prof.hasRemote ? prof.income : getSalary(city, prof);
+    const totalSal = sal + (prof.hasPartner ? prof.partnerIncome : 0);
     const fed = totalSal * 0.22;
     const state = totalSal * (city.stateTax / 100);
     const fica = totalSal * 0.0765;
     return Math.round((totalSal - fed - state - fica) / 12);
   };
-  const getExpenses = (city) => {
+  const getExpenses = (city, prof = profile) => {
     const m = city.costIndex / 100;
-    const rent = profile.housing === "rent" ? city.medianRent : Math.round(city.medianHome * 0.006);
-    const food = Math.round((profile.hasDependents ? 600 + profile.numDependents * 200 : 400) * m);
+    const rent = prof.housing === "rent" ? city.medianRent : Math.round(city.medianHome * 0.006);
+    const food = Math.round((prof.hasDependents ? 600 + prof.numDependents * 200 : 400) * m);
     const transport = Math.round(250 * m);
     const utilities = Math.round(160 * m);
     const insurance = Math.round(350 * m);
     const personal = Math.round(300 * m);
-    const childcare = profile.hasDependents ? Math.round(800 * profile.numDependents * m) : 0;
-    const pets = profile.hasPets ? Math.round(100 * m) : 0;
-    const debtPay = Math.round(profile.debt * 0.01);
+    const childcare = prof.hasDependents ? Math.round(800 * prof.numDependents * m) : 0;
+    const pets = prof.hasPets ? Math.round(100 * m) : 0;
+    const debtPay = Math.round(prof.debt * 0.01);
     const total = rent + food + transport + utilities + insurance + personal + childcare + pets + debtPay;
     return { rent, food, transport, utilities, insurance, personal, childcare, pets, debtPay, total };
   };
-  const getSavings = (city) => getTakeHome(city) - getExpenses(city).total;
+  const getSavings = (city, prof = profile) => getTakeHome(city, prof) - getExpenses(city, prof).total;
 
-  const getMatchScore = (city) => {
+  const getMatchScore = (city, prof = profile) => {
     let score = 50;
-    const tags = profile.lifestyleTags;
-    const rank = profile.importanceRank;
+    const tags = prof.lifestyleTags;
+    const rank = prof.importanceRank;
 
     // Weight by importance rank
     const w = (cat) => { const i = rank.indexOf(cat); return i === 0 ? 4 : i === 1 ? 3 : i === 2 ? 2 : 1; };
@@ -114,7 +117,7 @@ export default function Potential() {
 
     // Career
     score += city.jobGrowth * 2 * w("career");
-    if (profile.hasRemote) score += 8 * w("career"); // remote = less dependent on local jobs
+    if (prof.hasRemote) score += 8 * w("career"); // remote = less dependent on local jobs
 
     // Lifestyle
     if (tags.includes("nightlife") || tags.includes("music")) score += (city.vibe.includes("Nightlife") ? 12 : 0) * w("lifestyle") * 0.3;
@@ -130,7 +133,7 @@ export default function Potential() {
     score += city.safetyIndex * 0.08 * w("safety");
 
     // Deal breakers
-    const db = profile.dealBreakers;
+    const db = prof.dealBreakers;
     if (db.includes("No extreme cold") && city.avgTemp < 45) score -= 25;
     if (db.includes("No extreme heat") && city.avgTemp > 72) score -= 25;
     if (db.includes("Must have public transit") && city.transitScore < 40) score -= 25;
@@ -187,260 +190,23 @@ export default function Potential() {
   const sectionGap = { marginBottom: 28 };
 
   // ═══════════════════════════════════════════
-  // LANDING
+  // LANDING (cinematic, ported prototype)
   // ═══════════════════════════════════════════
-  if (step === 0) return (
-    <div style={{ ...css, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32, textAlign:"center" }}>
-      <div style={fadeIn}>
-        <div style={{ width:48, height:48, border:"2px solid var(--accent)", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 28px", fontSize:22, color:"var(--accent)", transform:"rotate(45deg)" }}>
-          <span style={{ transform:"rotate(-45deg)" }}>◆</span>
-        </div>
-        <h1 style={{ ...heading, fontSize:"clamp(48px,10vw,72px)", fontWeight:400, lineHeight:1, marginBottom:12, background:"linear-gradient(135deg, #EEF2F7 20%, #6EE7B7 60%, #FBBF24 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-          potential
-        </h1>
-        <p style={{ fontSize:19, color:"var(--text2)", lineHeight:1.6, maxWidth:460, margin:"0 auto 8px", fontWeight:300 }}>
-          See what your life could look like — somewhere else.
-        </p>
-        <p style={{ fontSize:13, color:"var(--text3)", lineHeight:1.6, maxWidth:400, margin:"0 auto 44px" }}>
-          Build your profile. Explore real cities. Real jobs. Real apartments. Real places. Personalized to who you actually are.
-        </p>
-        <button onClick={() => goStep(1)} style={{ ...btnPrimary, width:"auto", padding:"16px 56px", borderRadius:40, boxShadow:"0 0 60px rgba(110,231,183,0.15)" }}>
-          Start Exploring
-        </button>
-        <div style={{ marginTop:56, display:"flex", gap:28, justifyContent:"center", flexWrap:"wrap" }}>
-          {["12 cities","Real job listings","Live housing data","AI day-in-the-life"].map(t => (
-            <span key={t} style={{ fontSize:11, color:"var(--text3)", textTransform:"uppercase", letterSpacing:"0.1em" }}>{t}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  if (step === 0) return <Landing onEnter={() => goStep(1)} />;
 
   // ═══════════════════════════════════════════
-  // PROFILE (multi-step)
+  // QUIZ (Phase 2 — gold split-sidebar capture)
   // ═══════════════════════════════════════════
   if (step === 1) {
-    const totalSteps = 5;
-    const canProceed = [
-      () => profile.profession !== "",
-      () => true,
-      () => true,
-      () => profile.lifestyleTags.length >= 1,
-      () => true,
-    ][profileStep]?.() ?? true;
-
-    const nextProfile = () => {
-      if (profileStep < totalSteps - 1) goProfile(profileStep + 1);
-      else {
-        const scored = CITIES_DATA.map(c => ({ ...c, matchScore: getMatchScore(c), salary: getSalary(c), monthlySavings: getSavings(c) }));
-        setResults(scored);
-        goStep(2);
-      }
+    const handleComplete = (p) => {
+      setProfile(prev => ({ ...prev, ...p }));
+      const scored = CITIES_DATA.map(c => ({ ...c, matchScore: getMatchScore(c, p), salary: getSalary(c, p), monthlySavings: getSavings(c, p) }));
+      setResults(scored);
+      goStep(2);
     };
-
-    return (
-      <div style={{ ...css, padding:"32px 24px" }}>
-        <div style={{ maxWidth:560, margin:"0 auto", ...fadeIn }}>
-          {/* Progress */}
-          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:36 }}>
-            <button onClick={() => profileStep > 0 ? goProfile(profileStep - 1) : goStep(0)} style={{ background:"none", border:"none", color:"var(--text3)", cursor:"pointer", fontSize:13, fontFamily:"inherit" }}>←</button>
-            <div style={{ flex:1, display:"flex", gap:4 }}>
-              {Array.from({length:totalSteps}).map((_,i) => (
-                <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i <= profileStep ? "var(--accent)" : "var(--border)", transition:"all 0.3s" }} />
-              ))}
-            </div>
-            <span style={{ fontSize:12, color:"var(--text3)", ...mono }}>{profileStep + 1}/{totalSteps}</span>
-          </div>
-
-          {/* STEP 0: Career */}
-          {profileStep === 0 && (
-            <div>
-              <h2 style={{ ...heading, fontSize:32, marginBottom:4 }}>What do you do?</h2>
-              <p style={{ color:"var(--text3)", fontSize:14, marginBottom:32 }}>This determines salary estimates and job matches.</p>
-              {Object.entries(PROFESSION_CATEGORIES).map(([cat, profs]) => (
-                <div key={cat} style={sectionGap}>
-                  <div style={label}>{cat}</div>
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-                    {profs.map(p => (
-                      <button key={p} onClick={() => upd("profession", p)} style={pill(profile.profession === p)}>{p}</button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <div style={sectionGap}>
-                <label style={label}>Or type your own</label>
-                <input value={profile.customProfession} onChange={e => { upd("customProfession", e.target.value); upd("profession", e.target.value); }} placeholder="e.g. Marine Biologist" style={inputStyle} />
-              </div>
-              <div style={sectionGap}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                  <label style={{ ...label, marginBottom:0 }}>Can you work fully remote?</label>
-                  <button onClick={() => upd("hasRemote", !profile.hasRemote)} style={{ ...pill(profile.hasRemote), padding:"6px 16px" }}>
-                    {profile.hasRemote ? "✓ Yes" : "No"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 1: Finances */}
-          {profileStep === 1 && (
-            <div>
-              <h2 style={{ ...heading, fontSize:32, marginBottom:4 }}>Your finances</h2>
-              <p style={{ color:"var(--text3)", fontSize:14, marginBottom:32 }}>Be honest — this is what makes the results real.</p>
-              <div style={sectionGap}>
-                <label style={label}>Current annual income — <span style={{ ...mono, color:"var(--accent)" }}>{fmtFull(profile.income)}</span></label>
-                <input type="range" min={20000} max={250000} step={5000} value={profile.income} onChange={e => upd("income", +e.target.value)} style={{ width:"100%", accentColor:"#6EE7B7" }} />
-                <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:"var(--text3)", marginTop:4 }}>
-                  <span>$20K</span><span>$250K</span>
-                </div>
-              </div>
-              <div style={sectionGap}>
-                <label style={label}>Savings available — <span style={{ ...mono, color:"var(--accent)" }}>{fmtFull(profile.savings)}</span></label>
-                <input type="range" min={0} max={200000} step={2500} value={profile.savings} onChange={e => upd("savings", +e.target.value)} style={{ width:"100%", accentColor:"#6EE7B7" }} />
-              </div>
-              <div style={sectionGap}>
-                <label style={label}>Total debt (student loans, car, etc.) — <span style={{ ...mono, color: profile.debt > 0 ? "var(--neg)" : "var(--text3)" }}>{fmtFull(profile.debt)}</span></label>
-                <input type="range" min={0} max={200000} step={2500} value={profile.debt} onChange={e => upd("debt", +e.target.value)} style={{ width:"100%", accentColor:"#F87171" }} />
-              </div>
-              <div style={sectionGap}>
-                <label style={label}>Housing preference</label>
-                <div style={{ display:"flex", gap:10 }}>
-                  <button onClick={() => upd("housing","rent")} style={{ ...pill(profile.housing === "rent"), flex:1, justifyContent:"center", padding:14 }}>🏢 Renting</button>
-                  <button onClick={() => upd("housing","buy")} style={{ ...pill(profile.housing === "buy"), flex:1, justifyContent:"center", padding:14 }}>🏠 Buying</button>
-                </div>
-              </div>
-              <div style={sectionGap}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                  <label style={{ ...label, marginBottom:0 }}>Do you have a partner/spouse?</label>
-                  <button onClick={() => upd("hasPartner", !profile.hasPartner)} style={{ ...pill(profile.hasPartner), padding:"6px 16px" }}>{profile.hasPartner ? "✓ Yes" : "No"}</button>
-                </div>
-                {profile.hasPartner && (
-                  <div>
-                    <label style={label}>Partner's annual income — <span style={{ ...mono, color:"var(--accent)" }}>{fmtFull(profile.partnerIncome)}</span></label>
-                    <input type="range" min={0} max={200000} step={5000} value={profile.partnerIncome} onChange={e => upd("partnerIncome", +e.target.value)} style={{ width:"100%", accentColor:"#6EE7B7" }} />
-                  </div>
-                )}
-              </div>
-              <div style={sectionGap}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                  <label style={{ ...label, marginBottom:0 }}>Kids / Dependents?</label>
-                  <button onClick={() => upd("hasDependents", !profile.hasDependents)} style={{ ...pill(profile.hasDependents), padding:"6px 16px" }}>{profile.hasDependents ? "✓ Yes" : "No"}</button>
-                </div>
-                {profile.hasDependents && (
-                  <div style={{ display:"flex", gap:8 }}>
-                    {[1,2,3,4].map(n => (
-                      <button key={n} onClick={() => upd("numDependents", n)} style={{ ...pill(profile.numDependents === n), padding:"10px 18px" }}>{n}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: Background */}
-          {profileStep === 2 && (
-            <div>
-              <h2 style={{ ...heading, fontSize:32, marginBottom:4 }}>A bit more about you</h2>
-              <p style={{ color:"var(--text3)", fontSize:14, marginBottom:32 }}>These details sharpen your matches.</p>
-              <div style={sectionGap}>
-                <label style={label}>Your age — <span style={{ ...mono, color:"var(--accent)" }}>{profile.age}</span></label>
-                <input type="range" min={18} max={70} value={profile.age} onChange={e => upd("age", +e.target.value)} style={{ width:"100%", accentColor:"#6EE7B7" }} />
-              </div>
-              <div style={sectionGap}>
-                <label style={label}>Education</label>
-                <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-                  {[["highschool","High School"],["associates","Associate's"],["bachelors","Bachelor's"],["masters","Master's"],["doctorate","Doctorate"],["trade","Trade/Vocational"]].map(([k,l]) => (
-                    <button key={k} onClick={() => upd("education", k)} style={pill(profile.education === k)}>{l}</button>
-                  ))}
-                </div>
-              </div>
-              <div style={sectionGap}>
-                <label style={label}>Where do you live now?</label>
-                <input value={profile.currentCity} onChange={e => upd("currentCity", e.target.value)} placeholder="e.g. Springfield, MO" style={inputStyle} />
-              </div>
-              <div style={sectionGap}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: profile.hasPets ? 12 : 0 }}>
-                  <label style={{ ...label, marginBottom:0 }}>Pets?</label>
-                  <button onClick={() => upd("hasPets", !profile.hasPets)} style={{ ...pill(profile.hasPets), padding:"6px 16px" }}>{profile.hasPets ? "✓ Yes" : "No"}</button>
-                </div>
-                {profile.hasPets && (
-                  <div style={{ display:"flex", gap:8 }}>
-                    {["Dog","Cat","Both","Other"].map(t => (
-                      <button key={t} onClick={() => upd("petType", t)} style={pill(profile.petType === t)}>{t}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Lifestyle */}
-          {profileStep === 3 && (
-            <div>
-              <h2 style={{ ...heading, fontSize:32, marginBottom:4 }}>Your ideal lifestyle</h2>
-              <p style={{ color:"var(--text3)", fontSize:14, marginBottom:32 }}>Pick everything that matters to you (at least 1).</p>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-                {LIFESTYLE_TAGS.map(tag => {
-                  const active = profile.lifestyleTags.includes(tag.id);
-                  return (
-                    <button key={tag.id} onClick={() => toggleArr("lifestyleTags", tag.id)} style={{
-                      ...pill(active), padding:"14px 16px", textAlign:"left", borderRadius:12
-                    }}>
-                      <span style={{ fontSize:18 }}>{tag.icon}</span> {tag.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4: Priorities & Dealbreakers */}
-          {profileStep === 4 && (
-            <div>
-              <h2 style={{ ...heading, fontSize:32, marginBottom:4 }}>Priorities & deal-breakers</h2>
-              <p style={{ color:"var(--text3)", fontSize:14, marginBottom:32 }}>What matters most? What's non-negotiable?</p>
-              <div style={sectionGap}>
-                <label style={label}>Rank what matters most (tap to reorder)</label>
-                <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                  {profile.importanceRank.map((item, i) => {
-                    const labels = { cost:"💰 Affordability", career:"💼 Career Growth", lifestyle:"🎭 Lifestyle & Culture", safety:"🛡️ Safety & Stability" };
-                    return (
-                      <div key={item} style={{ display:"flex", alignItems:"center", gap:10 }}>
-                        <span style={{ ...mono, fontSize:12, color:"var(--text3)", width:20 }}>#{i+1}</span>
-                        <div style={{ flex:1, padding:"12px 16px", background:"var(--card)", border:"1px solid var(--border)", borderRadius:10, color:"var(--text)", fontSize:14, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                          <span>{labels[item]}</span>
-                          <div style={{ display:"flex", gap:4 }}>
-                            {i > 0 && <button onClick={() => { const r = [...profile.importanceRank]; [r[i],r[i-1]] = [r[i-1],r[i]]; upd("importanceRank", r); }} style={{ background:"none", border:"1px solid var(--border)", borderRadius:6, color:"var(--text3)", cursor:"pointer", padding:"2px 8px", fontSize:14 }}>↑</button>}
-                            {i < 3 && <button onClick={() => { const r = [...profile.importanceRank]; [r[i],r[i+1]] = [r[i+1],r[i]]; upd("importanceRank", r); }} style={{ background:"none", border:"1px solid var(--border)", borderRadius:6, color:"var(--text3)", cursor:"pointer", padding:"2px 8px", fontSize:14 }}>↓</button>}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <div style={sectionGap}>
-                <label style={label}>Deal-breakers (optional)</label>
-                <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-                  {DEAL_BREAKERS.map(db => (
-                    <button key={db} onClick={() => toggleArr("dealBreakers", db)} style={{ ...pill(profile.dealBreakers.includes(db)), fontSize:12 }}>
-                      {profile.dealBreakers.includes(db) ? "🚫 " : ""}{db}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div style={{ marginTop:32 }}>
-            <button onClick={nextProfile} disabled={!canProceed} style={canProceed ? btnPrimary : btnDisabled}>
-              {profileStep < totalSteps - 1 ? "Continue →" : "Show Me My Potential →"}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <Quiz onComplete={handleComplete} onExit={() => goStep(0)} />;
   }
+
 
   // ═══════════════════════════════════════════
   // RESULTS
