@@ -73,8 +73,16 @@
   .tile.on{color:var(--accent);border:1.5px solid var(--accent);background:var(--accent-dim);
     box-shadow:0 0 16px -5px var(--glow);text-shadow:0 0 10px var(--glow)}
   .togrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0;cursor:pointer}
-  input[type=range].neg{accent-color:var(--neg)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:6px;margin:9px 0;cursor:pointer;
+    background:linear-gradient(90deg, var(--accent) var(--p,40%), var(--card2) var(--p,40%))}
+  input[type=range].neg{background:linear-gradient(90deg, var(--neg) var(--p,40%), var(--card2) var(--p,40%))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-dim), 0 0 14px -2px var(--glow);cursor:pointer;transition:transform .15s}
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+  input[type=range].neg::-webkit-slider-thumb{background:var(--neg);box-shadow:0 0 0 4px rgba(224,129,106,.18)}
+  input[type=range]::-moz-range-track{background:transparent;height:5px;border-radius:6px}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:var(--accent);box-shadow:0 0 14px -2px var(--glow)}
+  input[type=range].neg::-moz-range-thumb{background:var(--neg)}
   .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:2px}
   input[type=text]{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);
     border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:.2s var(--ease)}
@@ -284,7 +292,7 @@
           <div class="pills">${IMMIG.map(i=>pillBtn('immigration',i,i)).join('')}</div></div>` : '';
     return `<div class="acc">
       <div class="field"><span class="lab">Open to living abroad <span class="val">${opennessLabel(v)}</span></span>
-        <input type="range" min="0" max="100" step="5" value="${v}" data-act="slider" data-key="openness" data-fmt="open">
+        <input type="range" min="0" max="100" step="5" value="${v}" style="--p:${v}%" data-act="slider" data-key="openness" data-fmt="open">
         ${annot}</div>
       <div class="field"><span class="lab">Citizenship</span>
         <div class="pills">${CITIZEN.map(c=>pillBtn('citizenship',c,c)).join('')}</div>${immig}</div>
@@ -328,8 +336,9 @@
     if(f.t==='slider'){ const v=S[f.key]; const fmt = f.fmt==='money'||f.fmt==='money-neg'?money(v):(f.fmt==='open'?opennessLabel(v):v);
       const neg=f.fmt==='money-neg'&&v>0;
       const ends=f.labels?`<div class="ends"><span>${f.labels[0]}</span><span>${f.labels[1]}</span></div>`:'';
+      const pp=((v-f.min)/(f.max-f.min)*100).toFixed(1);
       return `<div class="field"><span class="lab">${f.label} <span class="val ${neg?'neg':''}">${fmt}</span></span>
-        <input type="range" class="${neg?'neg':''}" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}" data-act="slider" data-key="${f.key}" data-fmt="${f.fmt}">${ends}</div>`; }
+        <input type="range" class="${neg?'neg':''}" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}" style="--p:${pp}%" data-act="slider" data-key="${f.key}" data-fmt="${f.fmt}">${ends}</div>`; }
     if(f.t==='text') return `<div class="field"><span class="lab">${f.label}</span><input type="text" data-act="text" data-key="${f.key}" value="${S[f.key]||''}" placeholder="${f.ph}"></div>`;
     if(f.t==='toggle'){ const on=S[f.key]; const kids=on&&f.children?f.children.map(renderField).join(''):'';
       return `<div class="field"><div class="togrow"><span class="lab" style="margin:0">${f.label}</span>
@@ -441,6 +450,7 @@
   app.addEventListener('input',e=>{
     const t=e.target.closest('[data-act]'); if(!t) return;
     if(t.dataset.act==='slider'){ const k=t.dataset.key,v=+t.value,fmt=t.dataset.fmt; S[k]=v;
+      t.style.setProperty('--p', ((v-+t.min)/(+t.max-+t.min)*100)+'%');
       // live-update the readout + any conditional annotation without full re-render where possible
       const lab=t.previousElementSibling?.querySelector?.('.val')||t.parentElement.querySelector('.val');
       if(lab){ lab.textContent = fmt==='money'||fmt==='money-neg'?money(v):(fmt==='open'?opennessLabel(v):v);
