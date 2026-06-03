@@ -17,12 +17,14 @@
     --bg:#070a11; --bg2:#0d1119; --card:rgba(255,255,255,.035); --card2:rgba(255,255,255,.06);
     --border:rgba(243,237,225,.12); --border2:rgba(243,237,225,.24);
     --accent:#cf9a45; --accent-ink:#13100a; --accent-dim:rgba(207,154,69,.13);
+    --glow:rgba(226,181,107,.55); /* landing-page gold */
     --ink:#f3ede1; --dim:rgba(243,237,225,.56); --faint:rgba(243,237,225,.30);
     --neg:#e0816a; --warn:#e2b56b; --warn-dim:rgba(226,181,107,.08);
     --serif:'Instrument Serif',serif; --mono:'JetBrains Mono',monospace;
     --ease:cubic-bezier(.22,.61,.36,1);
   }
   body.mint{
+    --glow:rgba(110,231,183,.5);
     --bg:#08090C; --bg2:#111318; --card:#171B22; --card2:#1C2029;
     --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.14);
     --accent:#6EE7B7; --accent-ink:#08090C; --accent-dim:rgba(110,231,183,.1);
@@ -95,9 +97,11 @@
   .qsub{color:var(--dim);font-size:14px;font-weight:300;line-height:1.6;margin-top:6px}
   .cta{width:100%;font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.03em;color:var(--accent);
     background:var(--accent-dim);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
-    border-radius:14px;padding:16px;cursor:pointer;transition:.3s var(--ease)}
+    border-radius:14px;padding:16px;cursor:pointer;transition:.3s var(--ease);
+    box-shadow:0 0 22px -6px var(--glow), inset 0 0 14px -8px var(--glow)}
   .cta:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--accent) 16%,transparent);
-    border-color:color-mix(in srgb,var(--accent) 70%,transparent);color:var(--ink)}
+    border-color:color-mix(in srgb,var(--accent) 70%,transparent);color:var(--ink);
+    box-shadow:0 6px 30px -6px var(--glow), inset 0 0 16px -6px var(--glow)}
   .ghost{background:none;border:none;color:var(--faint);font-family:inherit;font-size:13px;cursor:pointer}
   .ghost:hover{color:var(--accent)}
   .progress{display:flex;gap:4px;flex:1}
