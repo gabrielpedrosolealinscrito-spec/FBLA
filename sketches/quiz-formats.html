@@ -16,7 +16,7 @@
     /* GOLD cinematic (default) */
     --bg:#070a11; --bg2:#0d1119; --card:rgba(255,255,255,.035); --card2:rgba(255,255,255,.06);
     --border:rgba(243,237,225,.12); --border2:rgba(243,237,225,.24);
-    --accent:#e2b56b; --accent-ink:#13100a; --accent-dim:rgba(226,181,107,.12);
+    --accent:#cf9a45; --accent-ink:#13100a; --accent-dim:rgba(207,154,69,.13);
     --ink:#f3ede1; --dim:rgba(243,237,225,.56); --faint:rgba(243,237,225,.30);
     --neg:#e0816a; --warn:#e2b56b; --warn-dim:rgba(226,181,107,.08);
     --serif:'Instrument Serif',serif; --mono:'JetBrains Mono',monospace;
@@ -338,7 +338,7 @@
   const renderFields=step=>step.fields.map(renderField).join('');
 
   // ===================== FORMATS =====================
-  let format='stepper', idx=0;
+  let format='split', idx=0;
   const FORMATS=[['stepper','Stepper card'],['focus','Immersive focus'],['split','Split / sidebar'],['scroll','Single scroll']];
   const ctaLabel=i=> i>=STEPS.length-1 ? 'Show Me My Potential →' : 'Continue →';
 
