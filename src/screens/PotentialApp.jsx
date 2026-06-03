@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { scoreProfile } from '../lib/matchEngine.js';
 import Landing from './Landing.jsx';
 import Quiz from './Quiz.jsx';
+import ResultsMap from './ResultsMap.jsx';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
@@ -132,64 +133,18 @@ export default function Potential() {
 
 
   // ═══════════════════════════════════════════
-  // RESULTS
+  // RESULTS — cinematic map with a pin per city
   // ═══════════════════════════════════════════
   if (step === 2 && !selectedCity) {
-    const sorted = [...results].sort((a, b) => {
-      if (sortBy === "match") return b.matchScore - a.matchScore;
-      if (sortBy === "savings") return b.monthlySavings - a.monthlySavings;
-      if (sortBy === "salary") return b.salary - a.salary;
-      if (sortBy === "cost") return a.costIndex - b.costIndex;
-      return 0;
-    });
-
     return (
-      <div style={{ ...css, padding:0 }}>
-        <div style={{ padding:"20px 24px", borderBottom:"1px solid var(--border)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <span style={{ color:"var(--accent)", fontSize:18 }}>◆</span>
-            <span style={{ ...heading, fontSize:20 }}>potential</span>
-          </div>
-          <button onClick={() => { goStep(1); setProfileStep(0); }} style={{ background:"var(--card)", border:"1px solid var(--border)", color:"var(--text2)", padding:"6px 14px", borderRadius:8, fontSize:12, cursor:"pointer", fontFamily:"inherit" }}>Edit Profile</button>
-        </div>
-        <div style={{ maxWidth:700, margin:"0 auto", padding:"24px 24px 60px", ...fadeIn }}>
-          <h2 style={{ ...heading, fontSize:30, marginBottom:4 }}>Your matches</h2>
-          <p style={{ color:"var(--text3)", fontSize:13, marginBottom:20 }}>
-            {profile.profession} · {fmtFull(profile.income)}/yr{profile.hasRemote ? " · Remote" : ""}{profile.hasPartner ? " · Dual income" : ""}
-          </p>
-          <div style={{ display:"flex", gap:8, marginBottom:24, flexWrap:"wrap" }}>
-            {[["match","Best match"],["savings","Most savings"],["salary","Top salary"],["cost","Lowest cost"]].map(([k,l]) => (
-              <button key={k} onClick={() => setSortBy(k)} style={pill(sortBy === k)}>{l}</button>
-            ))}
-          </div>
-          <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-            {sorted.map((city, i) => (
-              <div key={city.name} onClick={() => { setSelectedCity(city); setAnim(false); setTimeout(() => setAnim(true), 60); }} style={{
-                background:"var(--card)", borderRadius:14, padding:"18px 20px", cursor:"pointer",
-                border:"1px solid var(--border)", transition:"all 0.15s",
-                display:"grid", gridTemplateColumns:"auto 1fr auto", alignItems:"center", gap:16,
-              }}>
-                <div style={{ fontSize:34, width:44, textAlign:"center" }}>{city.emoji}</div>
-                <div>
-                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:3 }}>
-                    <span style={{ fontSize:16, fontWeight:700 }}>{city.name}</span>
-                    <span style={{ fontSize:11, color:city.color, fontWeight:700, background:`${city.color}15`, padding:"2px 8px", borderRadius:6, ...mono }}>{city.matchScore}%</span>
-                  </div>
-                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                    {city.vibe.slice(0,3).map(v => <span key={v} style={{ fontSize:10, color:"var(--text3)", background:"var(--surface)", padding:"2px 8px", borderRadius:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{v}</span>)}
-                  </div>
-                </div>
-                <div style={{ textAlign:"right" }}>
-                  <div style={{ fontSize:15, ...mono, fontWeight:600 }}>{fmt(city.salary)}<span style={{ fontSize:10, color:"var(--text3)", fontWeight:400 }}>/yr</span></div>
-                  <div style={{ fontSize:13, ...mono, color: city.monthlySavings >= 0 ? "var(--pos)" : "var(--neg)", fontWeight:600 }}>
-                    {city.monthlySavings >= 0 ? "+" : ""}{fmt(Math.abs(city.monthlySavings))}<span style={{ fontSize:10, fontWeight:400 }}>/mo</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <ResultsMap
+        results={results}
+        profile={profile}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        onSelect={(city) => { setSelectedCity(city); setAnim(false); setTimeout(() => setAnim(true), 60); }}
+        onEdit={() => { goStep(1); setProfileStep(0); }}
+      />
     );
   }
 
