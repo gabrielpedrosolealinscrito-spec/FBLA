@@ -108,7 +108,9 @@ const CSS = `
   .sitem.on .dot{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;box-shadow:0 0 8px -5px var(--glow-sel)}
   .sitem.done .dot{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);box-shadow:0 0 7px -5px var(--glow-sel)}
   .railfoot{margin-top:26px;font-family:var(--mono);font-size:11px;color:var(--faint)}
-  .pane{padding:64px 56px 60px;max-width:620px;width:100%;animation:qzfade .5s var(--ease)}
+  .pane{padding:64px 56px 60px;max-width:620px;width:100%}
+  .pane.fwd{animation:paneUp .58s cubic-bezier(.16,1,.3,1)}
+  .pane.back{animation:paneDown .58s cubic-bezier(.16,1,.3,1)}
   .q.step{font-size:32px;margin-top:8px}
   .fields{margin-top:28px}
   .foot{margin-top:34px;display:flex;gap:14px;align-items:center}
@@ -119,7 +121,8 @@ const CSS = `
   .srow .v{font-size:14px;color:var(--ink)}
   .srow .v.mono{font-family:var(--mono);color:var(--accent)}
 }
-@keyframes qzfade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes paneUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes paneDown{from{opacity:0;transform:translateY(-40px)}to{opacity:1;transform:none}}
 @media(max-width:760px){
   .qz .split{grid-template-columns:1fr}
   .qz .rail{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:22px}
@@ -169,6 +172,7 @@ export default function Quiz({ onComplete, onExit }) {
   const [idx, setIdx] = useState(0);
   const [view, setView] = useState("quiz"); // quiz | reconcile | done
   const [conflict, setConflict] = useState(null);
+  const [dir, setDir] = useState("fwd"); // pane transition direction: fwd = rise up, back = drop down
 
   const set = (k, v) => setS(p => ({ ...p, [k]: v }));
   const setPill = (k, v) => setS(p => ({ ...p, [k]: p[k] === v ? "" : v, ...(k === "citizenship" ? { immigrationStatus: v === "US Citizen" ? "citizen" : "" } : {}) }));
@@ -216,21 +220,23 @@ export default function Quiz({ onComplete, onExit }) {
     tiebreaker: s.tiebreaker,
   });
 
-  const finish = () => { const p = buildProfile(); console.log("[Potential] Profile captured →", p); setView("done"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const finish = () => { const p = buildProfile(); console.log("[Potential] Profile captured →", p); setDir("fwd"); setView("done"); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const next = () => {
     if (!valid()) return;
+    setDir("fwd");
     if (!isLast) { setIdx(idx + 1); setView("quiz"); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
     const c = detectConflict();
     if (c && !s.tiebreaker) { setConflict(c); setView("reconcile"); window.scrollTo({ top: 0, behavior: "smooth" }); }
     else finish();
   };
   const back = () => {
+    setDir("back");
     if (view === "done") { setView("quiz"); setIdx(STEPS.length - 1); return; }
     if (view === "reconcile") { setView("quiz"); setIdx(STEPS.length - 1); return; }
     if (idx > 0) { setIdx(idx - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
     else if (onExit) onExit();
   };
-  const goto = (i) => { setView("quiz"); setIdx(i); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const goto = (i) => { setDir(i >= idx ? "fwd" : "back"); setView("quiz"); setIdx(i); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const stepBody = () => {
     const id = STEPS[idx].id;
@@ -340,7 +346,7 @@ export default function Quiz({ onComplete, onExit }) {
   if (view === "reconcile") {
     const [A, B] = conflict;
     pane = (
-      <div className="pane" key="reconcile">
+      <div className={`pane ${dir}`} key="reconcile">
         <div className="count">Almost there</div>
         <div style={{ borderLeft: "3px solid var(--accent)", background: "var(--card)", border: "1px solid var(--border2)", borderRadius: 16, padding: 22, marginTop: 14 }}>
           <span className="lab">We noticed something</span>
@@ -360,7 +366,7 @@ export default function Quiz({ onComplete, onExit }) {
     const p = buildProfile(); const hh = p.income + (p.hasPartner ? p.partnerIncome : 0);
     const Row = ({ k, v, mono }) => <div className="srow"><div className="k">{k}</div><div className={`v ${mono ? "mono" : ""}`}>{v}</div></div>;
     pane = (
-      <div className="pane" key="done">
+      <div className={`pane ${dir}`} key="done">
         <div className="count">Profile captured</div>
         <h2 className="q step">We've got your <em style={{ fontStyle: "italic", color: "var(--accent)" }}>shape</em>.</h2>
         <p className="qsub">Everything below feeds the matching engine — your cities, your real numbers, your roadmap.</p>
@@ -383,7 +389,7 @@ export default function Quiz({ onComplete, onExit }) {
   } else {
     const st = STEPS[idx]; const ok = valid(); const rm = reqMsg();
     pane = (
-      <div className="pane" key={st.id}>
+      <div className={`pane ${dir}`} key={st.id}>
         <div className="count">Step {idx + 1} of {STEPS.length}</div>
         <h2 className="q step">{st.h}</h2>{st.sub && <p className="qsub">{st.sub}</p>}
         <div className="fields">{stepBody()}</div>
