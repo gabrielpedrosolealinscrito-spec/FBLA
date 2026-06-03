@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { PROFESSION_CATEGORIES, BASE_SALARIES, LIFESTYLE_TAGS, DEAL_BREAKERS } from '../../shared/data/constants.js';
+import { scoreProfile } from '../lib/matchEngine.js';
 import Landing from './Landing.jsx';
 import Quiz from './Quiz.jsx';
 
@@ -10,20 +10,9 @@ import Quiz from './Quiz.jsx';
 // AI fetch stubbed — live data arrives Phase 5.
 // ═══════════════════════════════════════════
 
-const CITIES_DATA = [
-  { name: "Austin, TX", emoji: "🎸", color: "#E8712B", lat: 30.27, lng: -97.74, pop: "2.3M metro", climate: "Hot summers, mild winters", costIndex: 103, stateTax: 0, medianRent: 1450, medianHome: 425000, avgTemp: 68, vibe: ["Creative","Tech","Outdoorsy","Nightlife"], walkScore: 41, transitScore: 32, safetyIndex: 72, jobGrowth: 4.2, topIndustries: ["Tech","Government","Healthcare","Music"] },
-  { name: "Brooklyn, NY", emoji: "🌉", color: "#7B1FA2", lat: 40.68, lng: -73.94, pop: "2.7M", climate: "Four seasons, cold winters", costIndex: 187, stateTax: 10.9, medianRent: 2800, medianHome: 850000, avgTemp: 55, vibe: ["Creative","Diverse","Nightlife","Walkable"], walkScore: 95, transitScore: 89, safetyIndex: 65, jobGrowth: 2.1, topIndustries: ["Finance","Media","Tech","Fashion"] },
-  { name: "Denver, CO", emoji: "⛰️", color: "#1565C0", lat: 39.74, lng: -104.99, pop: "2.9M metro", climate: "300 days sun, snowy winters", costIndex: 112, stateTax: 4.4, medianRent: 1600, medianHome: 520000, avgTemp: 50, vibe: ["Outdoorsy","Tech","Healthy","Growing"], walkScore: 60, transitScore: 45, safetyIndex: 68, jobGrowth: 3.1, topIndustries: ["Tech","Aerospace","Healthcare","Energy"] },
-  { name: "Miami, FL", emoji: "🌴", color: "#00ACC1", lat: 25.76, lng: -80.19, pop: "6.1M metro", climate: "Tropical year-round", costIndex: 123, stateTax: 0, medianRent: 2100, medianHome: 520000, avgTemp: 77, vibe: ["Diverse","Nightlife","Tropical","International"], walkScore: 78, transitScore: 57, safetyIndex: 62, jobGrowth: 3.5, topIndustries: ["Tourism","Finance","Real Estate","Trade"] },
-  { name: "Pittsburgh, PA", emoji: "🏗️", color: "#F9A825", lat: 40.44, lng: -79.99, pop: "2.4M metro", climate: "Four seasons, grey winters", costIndex: 82, stateTax: 3.07, medianRent: 1050, medianHome: 230000, avgTemp: 50, vibe: ["Affordable","Tech","Historic","Growing"], walkScore: 62, transitScore: 52, safetyIndex: 74, jobGrowth: 2.4, topIndustries: ["Tech/AI","Healthcare","Education","Robotics"] },
-  { name: "Raleigh, NC", emoji: "🔬", color: "#00897B", lat: 35.78, lng: -78.64, pop: "1.4M metro", climate: "Mild winters, warm summers", costIndex: 95, stateTax: 4.5, medianRent: 1350, medianHome: 380000, avgTemp: 60, vibe: ["Tech","Family","Growing","Affordable"], walkScore: 30, transitScore: 17, safetyIndex: 78, jobGrowth: 4.5, topIndustries: ["Tech","Biotech","Education","Finance"] },
-  { name: "Portland, OR", emoji: "🌲", color: "#558B2F", lat: 45.52, lng: -122.68, pop: "2.5M metro", climate: "Rainy winters, dry summers", costIndex: 108, stateTax: 9.9, medianRent: 1400, medianHome: 475000, avgTemp: 53, vibe: ["Creative","Outdoorsy","Walkable","Progressive"], walkScore: 65, transitScore: 51, safetyIndex: 64, jobGrowth: 2.0, topIndustries: ["Tech","Outdoor/Athletic","Creative","Mfg"] },
-  { name: "Boise, ID", emoji: "🏔️", color: "#2E7D32", lat: 43.62, lng: -116.21, pop: "870K metro", climate: "Four seasons, dry summers", costIndex: 94, stateTax: 5.8, medianRent: 1100, medianHome: 390000, avgTemp: 51, vibe: ["Outdoorsy","Growing","Affordable","Family"], walkScore: 38, transitScore: 16, safetyIndex: 81, jobGrowth: 3.8, topIndustries: ["Tech","Agriculture","Healthcare","Mfg"] },
-  { name: "Nashville, TN", emoji: "🎵", color: "#D84315", lat: 36.16, lng: -86.78, pop: "2.0M metro", climate: "Hot summers, mild winters", costIndex: 97, stateTax: 0, medianRent: 1500, medianHome: 400000, avgTemp: 59, vibe: ["Creative","Nightlife","Growing","Affordable"], walkScore: 28, transitScore: 22, safetyIndex: 70, jobGrowth: 3.9, topIndustries: ["Healthcare","Music","Tech","Tourism"] },
-  { name: "Salt Lake City, UT", emoji: "🏂", color: "#5C6BC0", lat: 40.76, lng: -111.89, pop: "1.3M metro", climate: "Dry, snowy winters, warm summers", costIndex: 99, stateTax: 4.65, medianRent: 1300, medianHome: 460000, avgTemp: 52, vibe: ["Outdoorsy","Tech","Growing","Family"], walkScore: 57, transitScore: 39, safetyIndex: 76, jobGrowth: 4.0, topIndustries: ["Tech","Finance","Outdoor Rec","Healthcare"] },
-  { name: "Chicago, IL", emoji: "🏙️", color: "#C62828", lat: 41.88, lng: -87.63, pop: "9.4M metro", climate: "Cold winters, hot summers", costIndex: 107, stateTax: 4.95, medianRent: 1700, medianHome: 320000, avgTemp: 50, vibe: ["Diverse","Nightlife","Walkable","Creative"], walkScore: 78, transitScore: 65, safetyIndex: 58, jobGrowth: 1.8, topIndustries: ["Finance","Food/Bev","Tech","Manufacturing"] },
-  { name: "San Diego, CA", emoji: "🏖️", color: "#0288D1", lat: 32.72, lng: -117.16, pop: "3.3M metro", climate: "Mediterranean, mild year-round", costIndex: 146, stateTax: 13.3, medianRent: 2200, medianHome: 820000, avgTemp: 64, vibe: ["Outdoorsy","Diverse","Healthy","Tropical"], walkScore: 51, transitScore: 35, safetyIndex: 73, jobGrowth: 2.6, topIndustries: ["Biotech","Military","Tourism","Tech"] },
-];
+// City data + scoring now come from the real engine (shared/engine via
+// src/lib/matchEngine.js). The old inline CITIES_DATA array and prototype
+// scoring were removed in the engine graft.
 
 const fmt = (n) => n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1000 ? `$${Math.round(n/1000)}K` : `$${n}`;
 const fmtFull = (n) => `$${n.toLocaleString()}`;
@@ -74,75 +63,9 @@ export default function Potential() {
     });
   };
 
-  // ── Scoring (accept an explicit profile so a freshly-submitted quiz can score
-  //    before React state settles; default to current profile for the results UI) ──
-  const getSalary = (city, prof = profile) => {
-    const base = BASE_SALARIES[prof.profession] || 55000;
-    return Math.round(base * (city.costIndex / 100));
-  };
-  const getTakeHome = (city, prof = profile) => {
-    const sal = prof.hasRemote ? prof.income : getSalary(city, prof);
-    const totalSal = sal + (prof.hasPartner ? prof.partnerIncome : 0);
-    const fed = totalSal * 0.22;
-    const state = totalSal * (city.stateTax / 100);
-    const fica = totalSal * 0.0765;
-    return Math.round((totalSal - fed - state - fica) / 12);
-  };
-  const getExpenses = (city, prof = profile) => {
-    const m = city.costIndex / 100;
-    const rent = prof.housing === "rent" ? city.medianRent : Math.round(city.medianHome * 0.006);
-    const food = Math.round((prof.hasDependents ? 600 + prof.numDependents * 200 : 400) * m);
-    const transport = Math.round(250 * m);
-    const utilities = Math.round(160 * m);
-    const insurance = Math.round(350 * m);
-    const personal = Math.round(300 * m);
-    const childcare = prof.hasDependents ? Math.round(800 * prof.numDependents * m) : 0;
-    const pets = prof.hasPets ? Math.round(100 * m) : 0;
-    const debtPay = Math.round(prof.debt * 0.01);
-    const total = rent + food + transport + utilities + insurance + personal + childcare + pets + debtPay;
-    return { rent, food, transport, utilities, insurance, personal, childcare, pets, debtPay, total };
-  };
-  const getSavings = (city, prof = profile) => getTakeHome(city, prof) - getExpenses(city, prof).total;
-
-  const getMatchScore = (city, prof = profile) => {
-    let score = 50;
-    const tags = prof.lifestyleTags;
-    const rank = prof.importanceRank;
-
-    // Weight by importance rank
-    const w = (cat) => { const i = rank.indexOf(cat); return i === 0 ? 4 : i === 1 ? 3 : i === 2 ? 2 : 1; };
-
-    // Cost
-    score += (140 - city.costIndex) * 0.2 * w("cost");
-
-    // Career
-    score += city.jobGrowth * 2 * w("career");
-    if (prof.hasRemote) score += 8 * w("career"); // remote = less dependent on local jobs
-
-    // Lifestyle
-    if (tags.includes("nightlife") || tags.includes("music")) score += (city.vibe.includes("Nightlife") ? 12 : 0) * w("lifestyle") * 0.3;
-    if (tags.includes("outdoors") || tags.includes("snow")) score += (city.vibe.includes("Outdoorsy") ? 12 : 0) * w("lifestyle") * 0.3;
-    if (tags.includes("arts")) score += (city.vibe.includes("Creative") ? 10 : 0) * w("lifestyle") * 0.3;
-    if (tags.includes("walkable")) score += city.walkScore * 0.1 * w("lifestyle");
-    if (tags.includes("diversity")) score += (city.vibe.includes("Diverse") ? 10 : 0) * w("lifestyle") * 0.3;
-    if (tags.includes("family")) score += city.safetyIndex * 0.08 * w("lifestyle");
-    if (tags.includes("beach")) score += (city.vibe.includes("Tropical") ? 14 : 0) * w("lifestyle") * 0.3;
-    if (tags.includes("startup")) score += city.jobGrowth * 1.5 * w("lifestyle");
-
-    // Safety
-    score += city.safetyIndex * 0.08 * w("safety");
-
-    // Deal breakers
-    const db = prof.dealBreakers;
-    if (db.includes("No extreme cold") && city.avgTemp < 45) score -= 25;
-    if (db.includes("No extreme heat") && city.avgTemp > 72) score -= 25;
-    if (db.includes("Must have public transit") && city.transitScore < 40) score -= 25;
-    if (db.includes("Must be walkable") && city.walkScore < 50) score -= 25;
-    if (db.includes("No state income tax") && city.stateTax > 0) score -= 30;
-    if (db.includes("Low crime only") && city.safetyIndex < 70) score -= 20;
-
-    return Math.min(99, Math.max(5, Math.round(score)));
-  };
+  // Scoring lives in the real engine now — see src/lib/matchEngine.js
+  // (scoreProfile → shared/engine rankCities). handleComplete calls it once;
+  // both the results list and the city detail read from those scored rows.
 
   // ── AI Fetch — stubbed for Phase 1; live data wired in Phase 5 ──
   const fetchCityAI = useCallback(async (city, category) => {
@@ -200,7 +123,7 @@ export default function Potential() {
   if (step === 1) {
     const handleComplete = (p) => {
       setProfile(prev => ({ ...prev, ...p }));
-      const scored = CITIES_DATA.map(c => ({ ...c, matchScore: getMatchScore(c, p), salary: getSalary(c, p), monthlySavings: getSavings(c, p) }));
+      const scored = scoreProfile(p); // real tested engine (shared/engine) — was inline prototype scoring
       setResults(scored);
       goStep(2);
     };
@@ -275,10 +198,12 @@ export default function Potential() {
   // ═══════════════════════════════════════════
   if (step === 2 && selectedCity) {
     const c = selectedCity;
-    const salary = getSalary(c);
-    const takeHome = getTakeHome(c);
-    const expenses = getExpenses(c);
-    const savings = getSavings(c);
+    // c is a scored row from results (see matchEngine.scoreProfile) — read the
+    // engine's numbers directly so list and detail can never disagree.
+    const salary = c.salary;
+    const takeHome = c.monthlyTakeHome;
+    const expenses = c.expenses;
+    const savings = c.monthlySavings;
     const homeAfford = salary * 5;
 
     const Section = ({ id, icon, title, children }) => {
