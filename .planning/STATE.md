@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 10
-current_plan: Not started
-status: executing
+current_phase: 2
+current_plan: Not started (4 plans ready)
+status: ready-to-execute
 last_updated: "2026-06-02T15:33:34.316Z"
 last_activity: 2026-06-02
 progress:
@@ -19,21 +19,21 @@ progress:
 
 ## Current Position
 
-Phase: 10 (pitch-deck-rehearsal-protocol) — EXECUTING
-Plan: 1 of 3
+Phase: 2 (quiz-profile-capture) — READY TO EXECUTE
+Plan: 0 of 4 (4 plans ready)
 **Status:** Ready to execute
-**Current Phase:** 10
+**Current Phase:** 2
 **Last Activity:** 2026-06-02
 **Last Activity Description:** Phase 02 planning complete — 4 plans ready
 
-> **Parallel product track:** Phase 2 (Quiz & Profile Capture) context gathered 2026-05-30 — reshaped into a full rebuild of the capture layer (richer + adaptive quiz, branching tension-detection, structured preference profile; matching stays Phase 3), ready to plan. See `.planning/phases/02-quiz-profile-capture/02-CONTEXT.md`.
+> **Pitch track: COMPLETE.** Phases 9 (Business Substance) and 10 (Deck, Rehearsal & Protocol) both done 2026-05-31. All business-substance deliverables, deck outline, Q&A bank, and protocol checklist authored, source-tagged, and goal-verified under `pitch/`. Phase 10's timed rehearsals are specified but gated on Phase 8 (live demo, not yet built).
 
-> **Parallel pitch track:** Phase 9 (Pitch — Business Substance) COMPLETE 2026-05-31 — six sourced, Q&A-defensible deliverables authored and verified under `pitch/` (market-research, business-model, financials). Next: Phase 10 (deck, rehearsal & protocol).
+> **Product track is the critical path.** Phase 1 shipped (walking skeleton, live on Vercel). Phase 2 (Quiz & Profile Capture) reshaped into a full rebuild of the capture layer (adaptive/branching quiz, tension reconciliation, structured preference profile; city scoring deferred to Phase 3) — 4 plans ready to execute. See `.planning/phases/02-quiz-profile-capture/`. Phases 3–8 remain.
 
 ## Progress
 
-**Phases Complete:** 2 — Phase 1 (product track) + Phase 9 (pitch track) · Phase 2 context gathered (product track, ready to plan)
-**Current Plan:** Not started
+**Phases Complete:** 3 — Phase 1 (product track) + Phases 9 & 10 (pitch track, both complete 2026-05-31) · Phase 2 planned, ready to execute (product track)
+**Current Plan:** Not started (Phase 2, 0 of 4)
 
 ## Decisions
 
@@ -58,8 +58,8 @@ Plan: 1 of 3
 ## Session Continuity
 
 **Stopped At:** Phase 2 UI-SPEC approved
-**Resume File (product track):** .planning/phases/02-quiz-profile-capture/02-CONTEXT.md
-**Resume File (pitch track):** None — Phase 9 complete; next is /gsd-discuss-phase 10
+**Resume File (product track):** .planning/phases/02-quiz-profile-capture/ — execute Phase 2 (0 of 4 plans)
+**Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
 **Live URL:** https://fbla-ruddy.vercel.app
 **Walking Skeleton:** proven end-to-end (local npm run dev + public Vercel deploy + /api/health 200)
 
