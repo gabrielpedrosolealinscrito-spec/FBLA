@@ -133,6 +133,30 @@ const CSS = `
 
 const sp = (v, min, max) => ({ "--p": ((v - min) / (max - min) * 100) + "%" });
 
+// ── render helpers at MODULE scope (not inside Quiz) so React never remounts
+//    them on state change — this keeps slider drags smooth ──
+function Pill({ on, dis, onClick, children }) {
+  return <button className={`pill ${on ? "on" : ""} ${dis ? "dis" : ""}`} onClick={dis ? undefined : onClick}>{children}</button>;
+}
+function Slider({ label, valueText, neg, min, max, step, value, onChange, ends }) {
+  return (
+    <div className="field">
+      <span className="lab">{label} <span className={`val ${neg ? "neg" : ""}`}>{valueText}</span></span>
+      <input type="range" className={neg ? "neg" : ""} min={min} max={max} step={step} value={value} style={sp(value, min, max)} onChange={e => onChange(+e.target.value)} />
+      {ends && <div className="ends"><span>{ends[0]}</span><span>{ends[1]}</span></div>}
+    </div>
+  );
+}
+function Toggle({ label, on, onToggle, children }) {
+  return (
+    <div className="field">
+      <div className="togrow"><span className="lab" style={{ margin: 0 }}>{label}</span>
+        <button className={`pill ${on ? "on" : ""}`} onClick={onToggle}>{on ? "✓ Yes" : "No"}</button></div>
+      {on && <div style={{ marginTop: 14 }}>{children}</div>}
+    </div>
+  );
+}
+
 export default function Quiz({ onComplete, onExit }) {
   const [s, setS] = useState({
     profession:"", customProfession:"", hasRemote:false,
@@ -208,25 +232,6 @@ export default function Quiz({ onComplete, onExit }) {
   };
   const goto = (i) => { setView("quiz"); setIdx(i); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
-  // ── small render helpers ──
-  const Pill = ({ on, dis, onClick, children }) => (
-    <button className={`pill ${on ? "on" : ""} ${dis ? "dis" : ""}`} onClick={dis ? undefined : onClick}>{children}</button>
-  );
-  const Slider = ({ label, valueText, neg, min, max, step, value, onChange, ends }) => (
-    <div className="field">
-      <span className="lab">{label} <span className={`val ${neg ? "neg" : ""}`}>{valueText}</span></span>
-      <input type="range" className={neg ? "neg" : ""} min={min} max={max} step={step} value={value} style={sp(value, min, max)} onChange={e => onChange(+e.target.value)} />
-      {ends && <div className="ends"><span>{ends[0]}</span><span>{ends[1]}</span></div>}
-    </div>
-  );
-  const Toggle = ({ k, label, children }) => (
-    <div className="field">
-      <div className="togrow"><span className="lab" style={{ margin: 0 }}>{label}</span>
-        <button className={`pill ${s[k] ? "on" : ""}`} onClick={() => toggle(k)}>{s[k] ? "✓ Yes" : "No"}</button></div>
-      {s[k] && <div style={{ marginTop: 14 }}>{children}</div>}
-    </div>
-  );
-
   const stepBody = () => {
     const id = STEPS[idx].id;
     if (id === "career") return (<>
@@ -237,7 +242,7 @@ export default function Quiz({ onComplete, onExit }) {
         ))}</div>
       <div className="field"><span className="lab">Or write your own</span>
         <input type="text" value={s.customProfession} placeholder="e.g. Marine Biologist" onChange={e => set("customProfession", e.target.value)} /></div>
-      <Toggle k="hasRemote" label="Can you work fully remote?" />
+      <Toggle label="Can you work fully remote?" on={s.hasRemote} onToggle={() => toggle("hasRemote")} />
     </>);
     if (id === "finances") return (<>
       <Slider label="Annual income" valueText={money(s.income)} min={20000} max={250000} step={5000} value={s.income} onChange={v => set("income", v)} ends={["$20K", "$250K"]} />
@@ -246,10 +251,10 @@ export default function Quiz({ onComplete, onExit }) {
       <div className="field"><span className="lab">Housing</span><div className="pills">
         <Pill on={s.housing === "rent"} onClick={() => setPill("housing", "rent")}>🏢 Renting</Pill>
         <Pill on={s.housing === "buy"} onClick={() => setPill("housing", "buy")}>🏠 Buying</Pill></div></div>
-      <Toggle k="hasPartner" label="Partner or spouse?">
+      <Toggle label="Partner or spouse?" on={s.hasPartner} onToggle={() => toggle("hasPartner")}>
         <Slider label="Partner's income" valueText={money(s.partnerIncome)} min={0} max={200000} step={5000} value={s.partnerIncome} onChange={v => set("partnerIncome", v)} />
       </Toggle>
-      <Toggle k="hasDependents" label="Kids or dependents?">
+      <Toggle label="Kids or dependents?" on={s.hasDependents} onToggle={() => toggle("hasDependents")}>
         <div className="pills">{[1, 2, 3, 4].map(n => <Pill key={n} on={s.numDependents === n} onClick={() => set("numDependents", n)}>{n}</Pill>)}</div>
       </Toggle>
     </>);
@@ -259,7 +264,7 @@ export default function Quiz({ onComplete, onExit }) {
         {EDU.map(([k, l]) => <Pill key={k} on={s.education === k} onClick={() => setPill("education", k)}>{l}</Pill>)}</div></div>
       <div className="field"><span className="lab">Where do you live now?</span>
         <input type="text" value={s.currentCity} placeholder="e.g. Springfield, MO" onChange={e => set("currentCity", e.target.value)} /></div>
-      <Toggle k="hasPets" label="Pets?">
+      <Toggle label="Pets?" on={s.hasPets} onToggle={() => toggle("hasPets")}>
         <div className="pills">{["Dog", "Cat", "Both", "Other"].map(t => <Pill key={t} on={s.petType === t} onClick={() => setPill("petType", t)}>{t}</Pill>)}</div>
       </Toggle>
     </>);
