@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Quiz</title>
+<!-- Phase-2 Quiz & Profile Capture — Split/sidebar format, gold cinematic theme.
+     Content + copy from 02-UI-SPEC.md. Wired: per-step validation, conditional
+     branches (partner/dependents/pets, citizenship->immigration, openness=0),
+     hard-dealbreaker warning, conditional tension reconciliation, and a captured
+     Profile emitted to the console for Phase 3 (matching). Offline, vanilla JS. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070a11; --bg2:#0d1119; --card:rgba(255,255,255,.035); --card2:rgba(255,255,255,.06);
+    --border:rgba(243,237,225,.12); --border2:rgba(243,237,225,.24);
+    --accent:#e2b56b; --accent-ink:#13100a; --accent-dim:rgba(226,181,107,.13);
+    --glow:rgba(226,181,107,.6);           /* CTA / slider */
+    --glow-sel:rgba(226,181,107,.3);       /* subtle glow for selected items */
+    --ink:#f3ede1; --dim:rgba(243,237,225,.56); --faint:rgba(243,237,225,.30);
+    --neg:#e0816a; --warn:#e2b56b; --warn-dim:rgba(226,181,107,.08);
+    --serif:'Instrument Serif',serif; --mono:'JetBrains Mono',monospace;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Manrope',sans-serif;color:var(--ink);background:var(--bg);
+    -webkit-font-smoothing:antialiased;min-height:100vh;
+    background-image:radial-gradient(120% 80% at 50% -10%, var(--bg2), var(--bg) 60%)}
+
+  /* ---------- shared field primitives ---------- */
+  .lab{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);font-weight:600;margin-bottom:9px}
+  .lab .val{font-family:var(--mono);text-transform:none;letter-spacing:0;color:var(--accent);font-weight:600;text-shadow:0 0 7px var(--glow-sel)}
+  .lab .val.neg{color:var(--neg)}
+  .req{color:var(--accent);margin-left:2px}
+  .field{margin-bottom:24px}
+  .cat{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin:14px 0 8px}
+  .cat:first-child{margin-top:0}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-family:inherit;font-size:13px;color:var(--dim);background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:8px 16px;cursor:pointer;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:6px}
+  .pill:hover{color:var(--ink);border-color:var(--border2)}
+  .pill.on{color:var(--accent);border:1.5px solid var(--accent);background:var(--accent-dim);font-weight:600;box-shadow:0 0 7px -4px var(--glow-sel)}
+  .pill.dis{opacity:.4;cursor:not-allowed}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{font-family:inherit;font-size:13.5px;color:var(--dim);background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:13px 14px;cursor:pointer;transition:.2s var(--ease);display:flex;align-items:center;gap:9px;text-align:left}
+  .tile:hover{color:var(--ink);border-color:var(--border2)}
+  .tile.on{color:var(--accent);border:1.5px solid var(--accent);background:var(--accent-dim);box-shadow:0 0 7px -4px var(--glow-sel)}
+  .togrow{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:6px;margin:9px 0;cursor:pointer;
+    background:linear-gradient(90deg, var(--accent) var(--p,40%), var(--card2) var(--p,40%))}
+  input[type=range].neg{background:linear-gradient(90deg, var(--neg) var(--p,40%), var(--card2) var(--p,40%))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-dim), 0 0 14px -2px var(--glow);cursor:pointer;transition:transform .15s}
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+  input[type=range].neg::-webkit-slider-thumb{background:var(--neg);box-shadow:0 0 0 4px rgba(224,129,106,.18)}
+  input[type=range]::-moz-range-track{background:transparent;height:5px;border-radius:6px}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:var(--accent);box-shadow:0 0 14px -2px var(--glow)}
+  input[type=range].neg::-moz-range-thumb{background:var(--neg)}
+  .ends{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:2px}
+  input[type=text]{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);
+    border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:.2s var(--ease)}
+  input[type=text]:focus{outline:none;border-color:var(--border2)}
+  input[type=text]::placeholder{color:var(--faint)}
+  .annot{font-size:12px;color:var(--neg);background:rgba(224,129,106,.08);padding:6px 12px;border-radius:8px;margin-top:8px;display:inline-block}
+  .warn{margin-top:12px;background:var(--warn-dim);border:1px solid color-mix(in srgb,var(--warn) 22%,transparent);border-radius:12px;padding:12px 16px}
+  .warn b{display:block;font-size:13px;font-weight:600;color:var(--warn);margin-bottom:3px}
+  .warn span{font-size:13px;color:var(--dim);line-height:1.6}
+  .hint{font-size:13px;color:var(--faint);margin-top:8px}
+  .ranklist{display:flex;flex-direction:column;gap:8px}
+  .rank{display:flex;align-items:center;gap:11px}
+  .rank .n{font-family:var(--mono);font-size:12px;color:var(--accent);width:18px;text-shadow:0 0 6px var(--glow-sel)}
+  .rank .rbody{flex:1;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:11px;font-size:14px}
+  .arrow{background:none;border:1px solid var(--border);border-radius:7px;color:var(--dim);cursor:pointer;padding:2px 8px;font-size:12px}
+  .arrow:hover{border-color:var(--accent);color:var(--accent)}
+  .acc{border-left:3px solid var(--accent);padding-left:16px}
+
+  .q{font-family:var(--serif);font-weight:400;letter-spacing:-.01em;line-height:1.06}
+  .qsub{color:var(--dim);font-size:14px;font-weight:300;line-height:1.6;margin-top:6px}
+  .cta{font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.03em;color:var(--accent);
+    background:var(--accent-dim);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+    border-radius:14px;padding:16px 28px;cursor:pointer;transition:.3s var(--ease);
+    box-shadow:0 0 22px -6px var(--glow), inset 0 0 14px -8px var(--glow)}
+  .cta:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--accent) 16%,transparent);
+    border-color:color-mix(in srgb,var(--accent) 70%,transparent);color:var(--ink);
+    box-shadow:0 6px 30px -6px var(--glow), inset 0 0 16px -6px var(--glow)}
+  .cta:disabled{color:var(--faint);background:var(--card);border-color:var(--border);box-shadow:none;cursor:not-allowed;transform:none}
+  .ghost{background:none;border:none;color:var(--faint);font-family:inherit;font-size:13px;cursor:pointer}
+  .ghost:hover{color:var(--accent)}
+  .count{font-family:var(--mono);font-size:12px;color:var(--faint)}
+
+  /* ---------- split layout ---------- */
+  .split{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+  .rail{border-right:1px solid var(--border);padding:38px 28px;position:sticky;top:0;align-self:start;height:100vh;overflow:auto}
+  .rail .brand{font-family:var(--serif);font-size:24px;letter-spacing:.5px;margin-bottom:30px}
+  .rail .brand small{font-style:italic;opacity:.55;font-size:14px}
+  .rail h3{font-family:var(--serif);font-size:24px;margin-bottom:6px}
+  .rail .railsub{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:24px}
+  .steplist{display:flex;flex-direction:column;gap:2px}
+  .sitem{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--dim);font-size:14px;transition:.2s}
+  .sitem.click{cursor:pointer}
+  .sitem.click:hover{background:var(--card)}
+  .sitem.on{color:var(--ink);background:var(--card)}
+  .sitem .dot{width:22px;height:22px;border-radius:50%;border:1px solid var(--border2);display:grid;place-items:center;font-family:var(--mono);font-size:11px;flex:none}
+  .sitem.on .dot{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;box-shadow:0 0 8px -5px var(--glow-sel)}
+  .sitem.done .dot{background:var(--accent-dim);color:var(--accent);border-color:var(--accent);box-shadow:0 0 7px -5px var(--glow-sel)}
+  .railfoot{margin-top:26px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+  .pane-wrap{display:flex;flex-direction:column}
+  .pane{padding:64px 56px 60px;max-width:620px;width:100%;animation:fade .5s var(--ease)}
+  @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .q.step{font-size:32px;margin-top:8px}
+  .fields{margin-top:28px}
+  .foot{margin-top:34px;display:flex;gap:14px;align-items:center}
+  .foot .grow{flex:1}
+
+  /* ---------- summary ---------- */
+  .summary{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:26px 0}
+  .srow{background:var(--bg);padding:14px 18px}
+  .srow .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:4px}
+  .srow .v{font-size:14px;color:var(--ink)}
+  .srow .v.mono{font-family:var(--mono);color:var(--accent)}
+
+  @media(max-width:760px){
+    .split{grid-template-columns:1fr}
+    .rail{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:22px}
+    .rail h3,.rail .railsub{display:none}
+    .steplist{flex-direction:row;overflow:auto;gap:6px}
+    .sitem span:not(.dot){display:none}
+    .pane{padding:36px 22px 60px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="split">
+    <aside class="rail">
+      <div class="brand">Potential <small>°</small></div>
+      <h3>Build your profile</h3>
+      <p class="railsub">A few honest steps. The more real your answers, the sharper your matches.</p>
+      <div class="steplist" id="steplist"></div>
+      <div class="railfoot" id="railfoot"></div>
+    </aside>
+    <div class="pane-wrap"><div class="pane" id="pane"></div></div>
+  </div>
+
+<script>
+(() => {
+  const $=s=>document.querySelector(s);
+
+  // ===================== content (02-UI-SPEC.md) =====================
+  const PROFS={
+    "Tech":["Software Engineer","Data Scientist","Product Designer","IT / DevOps"],
+    "Healthcare":["Nurse","Physician","Therapist","Pharmacist"],
+    "Business":["Marketing","Finance","Sales","Operations"],
+    "Creative":["Writer","Artist","Musician","Filmmaker"],
+    "Trades & Service":["Electrician","Chef","Mechanic","Teacher"]
+  };
+  const EDU=["High School","Associate's","Bachelor's","Master's","Doctorate","Trade / Vocational"];
+  const LIFE=[["🏔","Outdoors & nature"],["🌃","Nightlife & energy"],["🍜","Food scene"],["🎭","Arts & culture"],
+    ["🌾","Quiet & slow"],["🧘","Fitness & wellness"],["🏖","Beach & sun"],["🚶","Walkable & transit"],
+    ["🤝","Tight community"],["🚀","Career hub"]];
+  const CITIZEN=["US Citizen","Canadian","British","Australian","EU Citizen","Indian","Mexican","Filipino","Brazilian","Nigerian","Other"];
+  const IMMIG=["US Citizen","Permanent Resident","Work Visa (H-1B / O-1 / etc.)","Student Visa","Other / Not in US"];
+  const TIMELINE=["Within 6 months","6–12 months","1–2 years","2+ years","Just exploring"];
+  const MOTIV=["Better career opportunities","Lower cost of living","Adventure / experience abroad","Better quality of life",
+    "Family reasons","Climate / nature","Political / social environment","Just curious"];
+  const WORK=["Fully remote","Hybrid (office + remote)","On-site / in-person","Self-employed / freelance","Job-hunting / between roles"];
+  const COMMUNITY=["Very important","Somewhat important","I'm ready for a fresh start"];
+  const PACE=["Fast-paced / hustle","Balanced","Laid-back / slow"];
+  const RISK=["I like stability and predictability","I can handle some uncertainty","I thrive in change"];
+  const DEALS=["Harsh winters","High crime","Car-dependent","No public transit","Far from family",
+    "Too expensive","No nature access","Extreme heat","Poor healthcare","Long commutes"];
+  const RANKS=["Affordability","Career growth","Lifestyle & culture","Safety & stability"];
+
+  // ===================== state =====================
+  const S={
+    profession:"", professionCustom:"", remote:false,
+    income:60000, savings:15000, debt:0, housing:"", partner:false, partnerIncome:0, deps:false, depCount:1,
+    age:28, education:"", city:"", pets:false, petType:"",
+    openness:40, citizenship:"US Citizen", immigration:"citizen", timeline:"",
+    lifestyle:[], motivations:[], work:"", community:"", pace:"", risk:"",
+    rank:[...RANKS], deals:[], tiebreaker:null
+  };
+  const money=n=>"$"+(+n).toLocaleString();
+  const opennessLabel=v=>v==0?"Not at all":v<=30?"A little curious":v<=70?"Definitely open":"Ready to go";
+
+  // ===================== field builders =====================
+  const F={
+    profGroups:()=>({t:'profgroup'}),
+    pills:(key,label,opts,o={})=>({t:'pills',key,label,opts,...o}),
+    multi:(key,label,opts,o={})=>({t:'multi',key,label,opts,...o}),
+    tiles:(key,label,opts,o={})=>({t:'tiles',key,label,opts,...o}),
+    slider:(key,label,min,max,step,fmt,labels)=>({t:'slider',key,label,min,max,step,fmt,labels}),
+    text:(key,label,ph)=>({t:'text',key,label,ph}),
+    toggle:(key,label,children)=>({t:'toggle',key,label,children}),
+    rank:(key,label)=>({t:'rank',key,label}),
+    custom:(fn)=>({t:'custom',fn})
+  };
+
+  const STEPS=[
+    { id:'career', short:'Career', h:"What do you do?", sub:"It sets your salary range and the job matches we'll surface.",
+      fields:[ F.profGroups(), F.text('professionCustom','Or write your own',"e.g. Marine Biologist"),
+        F.toggle('remote','Can you work fully remote?') ],
+      valid:()=> !!(S.profession||S.professionCustom.trim()), reqMsg:"Pick a field or write your own to continue." },
+    { id:'finances', h:"Your finances", short:'Finances', sub:"Be honest — this is what makes the numbers real.",
+      fields:[
+        F.slider('income','Annual income',20000,250000,5000,'money',["$20K","$250K"]),
+        F.slider('savings','Savings available',0,200000,2500,'money'),
+        F.slider('debt','Total debt',0,200000,2500,'money-neg'),
+        F.pills('housing','Housing',[["rent","🏢 Renting"],["buy","🏠 Buying"]]),
+        F.toggle('partner','Partner or spouse?',[F.slider('partnerIncome',"Partner's income",0,200000,5000,'money')]),
+        F.toggle('deps','Kids or dependents?',[F.pills('depCount','How many?',[[1,"1"],[2,"2"],[3,"3"],[4,"4"]])]) ],
+      valid:()=>true },
+    { id:'background', h:"A bit about you", short:'Background', sub:"These sharpen your matches and your real numbers.",
+      fields:[
+        F.slider('age','Age',18,70,1,'plain'),
+        F.pills('education','Education',EDU.map(e=>[e,e])),
+        F.text('city','Where do you live now?',"e.g. Springfield, MO"),
+        F.toggle('pets','Pets?',[F.pills('petType','Which?',[["Dog","Dog"],["Cat","Cat"],["Both","Both"],["Other","Other"]])]) ],
+      valid:()=>true },
+    { id:'global', h:"Going Global", short:'Going Global',
+      sub:"This shapes whether international cities appear in your matches — and which visa pathways open up.",
+      fields:[ F.custom(goingGlobal) ], valid:()=> !!S.citizenship },
+    { id:'lifestyle', h:"Your ideal life", short:'Lifestyle', sub:"Pick everything that matters — at least one.",
+      fields:[ F.tiles('lifestyle','What pulls you?',LIFE) ],
+      valid:()=> S.lifestyle.length>=1, reqMsg:"Pick at least one to continue." },
+    { id:'motivations', h:"What drives you?", short:'Motivations',
+      sub:"This helps us find places that match who you actually are, not just what you earn.",
+      fields:[
+        F.multi('motivations','Why are you thinking about moving? (max 3)',MOTIV.map(m=>[m,m]),{max:3}),
+        F.pills('work','How do you work?',WORK.map(w=>[w,w])),
+        F.pills('community','Staying close to family / community?',COMMUNITY.map(c=>[c,c])),
+        F.pills('pace','Preferred pace of life',PACE.map(p=>[p,p])),
+        F.pills('risk','How do you feel about uncertainty?',RISK.map(r=>[r,r])) ],
+      valid:()=>true },
+    { id:'priorities', h:"Priorities & dealbreakers", short:'Priorities', sub:"What matters most — and what's truly non-negotiable.",
+      fields:[ F.rank('rank','Rank what matters most'), F.custom(dealbreakers) ], valid:()=>true }
+  ];
+
+  // ===================== custom renderers =====================
+  function goingGlobal(){
+    const v=S.openness;
+    const annot=v==0?`<div class="annot">🚫 International cities excluded from your results</div>`:'';
+    const immig=S.citizenship && S.citizenship!=="US Citizen"
+      ? `<div class="field" style="margin-top:18px"><span class="lab">Current immigration status (US)</span>
+          <div class="pills">${IMMIG.map(i=>pillBtn('immigration',i,i)).join('')}</div></div>` : '';
+    return `<div class="acc">
+      <div class="field"><span class="lab">Open to living abroad <span class="val">${opennessLabel(v)}</span></span>
+        <input type="range" min="0" max="100" step="5" value="${v}" style="--p:${v}%" data-act="slider" data-key="openness" data-fmt="open">${annot}</div>
+      <div class="field"><span class="lab">Citizenship <span class="req">*</span></span>
+        <div class="pills">${CITIZEN.map(c=>pillBtn('citizenship',c,c)).join('')}</div>${immig}</div>
+      <div class="field" style="margin-bottom:0"><span class="lab">When are you thinking of moving?</span>
+        <div class="pills">${TIMELINE.map(t=>pillBtn('timeline',t,t)).join('')}</div></div>
+    </div>`;
+  }
+  function dealbreakers(){
+    const warn=S.deals.length>=1?`<div class="warn"><b>Dealbreakers are hard filters.</b>
+      <span>Cities that don't match will be removed from your results entirely — not just ranked lower. Add only true non-negotiables.</span></div>`:'';
+    return `<div class="field" style="margin-bottom:0"><span class="lab">Hard dealbreakers</span>
+      <div class="pills">${DEALS.map(d=>multiBtn('deals',d,(S.deals.includes(d)?'🚫 ':'')+d)).join('')}</div>${warn}</div>`;
+  }
+
+  // ===================== conflict detection (D-14) =====================
+  const CONFLICT_PAIRS=[
+    {pair:["Affordability","Lifestyle & culture"]},
+    {pair:["Career growth","Lifestyle & culture"]},
+    {pair:["Affordability","Career growth"]}
+  ];
+  function detectConflict(){
+    const top2=S.rank.slice(0,2);
+    for(const c of CONFLICT_PAIRS){
+      if(top2.includes(c.pair[0]) && top2.includes(c.pair[1])) return c.pair;
+    }
+    return null;
+  }
+
+  // ===================== primitives =====================
+  const esc=s=>(''+s).replace(/"/g,'&quot;');
+  const pillBtn=(key,val,label)=>`<button class="pill ${S[key]===val||S[key]===''+val?'on':''}" data-act="pill" data-key="${key}" data-val="${esc(val)}">${label}</button>`;
+  const multiBtn=(key,val,label,o={})=>{ const on=S[key].includes(val); const dis=!on&&o.max&&S[key].length>=o.max;
+    return `<button class="pill ${on?'on':''} ${dis?'dis':''}" data-act="${dis?'':'multi'}" data-key="${key}" data-val="${esc(val)}" ${o.max?`data-max="${o.max}"`:''}>${label}</button>`; };
+
+  function renderField(f){
+    if(f.t==='custom') return f.fn();
+    if(f.t==='profgroup'){
+      const cats=Object.entries(PROFS).map(([c,ps])=>`<div class="cat">${c}</div><div class="pills">${ps.map(p=>pillBtn('profession',p,p)).join('')}</div>`).join('');
+      return `<div class="field"><span class="lab">What's your field? <span class="req">*</span></span>${cats}</div>`;
+    }
+    if(f.t==='pills') return `<div class="field"><span class="lab">${f.label}</span><div class="pills">${f.opts.map(([v,l])=>pillBtn(f.key,v,l)).join('')}</div></div>`;
+    if(f.t==='multi') return `<div class="field"><span class="lab">${f.label}</span><div class="pills">${f.opts.map(([v,l])=>multiBtn(f.key,v,l,{max:f.max})).join('')}</div></div>`;
+    if(f.t==='tiles') return `<div class="field"><span class="lab">${f.label} <span class="req">*</span></span><div class="grid2">${f.opts.map(([ic,l])=>`<button class="tile ${S[f.key].includes(l)?'on':''}" data-act="multi" data-key="${f.key}" data-val="${esc(l)}"><span>${ic}</span> ${l}</button>`).join('')}</div></div>`;
+    if(f.t==='slider'){ const v=S[f.key]; const fmt=f.fmt==='money'||f.fmt==='money-neg'?money(v):(f.fmt==='open'?opennessLabel(v):v);
+      const neg=f.fmt==='money-neg'&&v>0; const pp=((v-f.min)/(f.max-f.min)*100).toFixed(1);
+      const ends=f.labels?`<div class="ends"><span>${f.labels[0]}</span><span>${f.labels[1]}</span></div>`:'';
+      return `<div class="field"><span class="lab">${f.label} <span class="val ${neg?'neg':''}">${fmt}</span></span>
+        <input type="range" class="${neg?'neg':''}" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}" style="--p:${pp}%" data-act="slider" data-key="${f.key}" data-fmt="${f.fmt}">${ends}</div>`; }
+    if(f.t==='text') return `<div class="field"><span class="lab">${f.label}</span><input type="text" data-act="text" data-key="${f.key}" value="${esc(S[f.key]||'')}" placeholder="${f.ph}"></div>`;
+    if(f.t==='toggle'){ const on=S[f.key]; const kids=on&&f.children?f.children.map(renderField).join(''):'';
+      return `<div class="field"><div class="togrow"><span class="lab" style="margin:0">${f.label}</span>
+        <button class="pill ${on?'on':''}" data-act="toggle" data-key="${f.key}">${on?'✓ Yes':'No'}</button></div>
+        ${on?`<div style="margin-top:14px">${kids}</div>`:''}</div>`; }
+    if(f.t==='rank') return `<div class="field"><span class="lab">${f.label}</span><div class="ranklist">${
+      S.rank.map((it,i)=>`<div class="rank"><span class="n">#${i+1}</span><div class="rbody"><span>${it}</span><span>
+        ${i>0?`<button class="arrow" data-act="rank" data-dir="up" data-i="${i}">↑</button>`:''}
+        ${i<S.rank.length-1?`<button class="arrow" data-act="rank" data-dir="down" data-i="${i}">↓</button>`:''}</span></div></div>`).join('')}</div></div>`;
+    return '';
+  }
+
+  // ===================== flow state =====================
+  let idx=0, view='quiz';   // view: quiz | reconcile | done
+  const isLast=()=> idx===STEPS.length-1;
+  const ctaLabel=()=> isLast()? 'Show Me My Potential →' : 'Continue →';
+
+  // ===================== render =====================
+  function renderRail(){
+    const items=STEPS.map((st,i)=>{
+      const done=(view!=='quiz')||i<idx; const cur=view==='quiz'&&i===idx;
+      const clickable=done||i<=idx;
+      return `<div class="sitem ${cur?'on':''} ${(done&&!cur)?'done':''} ${clickable?'click':''}" ${clickable?`data-act="goto" data-i="${i}"`:''}>
+        <span class="dot">${(done&&!cur)?'✓':i+1}</span><span>${st.short}</span></div>`;
+    }).join('');
+    $('#steplist').innerHTML=items;
+    $('#railfoot').textContent = view==='done' ? 'profile captured ✓' : `step ${Math.min(idx+1,STEPS.length)} / ${STEPS.length}`;
+  }
+
+  function renderPane(){
+    if(view==='reconcile'){ renderReconcile(); renderRail(); return; }
+    if(view==='done'){ renderDone(); renderRail(); return; }
+    const s=STEPS[idx]; const ok=s.valid();
+    $('#pane').innerHTML=`
+      <div class="count">Step ${idx+1} of ${STEPS.length}</div>
+      <h2 class="q step">${s.h}</h2>${s.sub?`<p class="qsub">${s.sub}</p>`:''}
+      <div class="fields">${s.fields.map(renderField).join('')}</div>
+      ${!ok&&s.reqMsg?`<p class="hint">${s.reqMsg}</p>`:''}
+      <div class="foot">
+        ${idx>0?`<button class="ghost" data-act="back">← Back</button>`:''}
+        <span class="grow"></span>
+        <button class="cta" data-act="next" ${ok?'':'disabled'}>${ctaLabel()}</button>
+      </div>`;
+    renderRail();
+  }
+
+  function renderReconcile(){
+    const [A,B]=S._conflict;
+    $('#pane').innerHTML=`
+      <div class="count">Almost there</div>
+      <div style="border-left:3px solid var(--accent);background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:22px;margin-top:14px">
+        <span class="lab">We noticed something</span>
+        <div class="q" style="font-size:24px">You love ${A.toLowerCase()} and ${B.toLowerCase()}.</div>
+        <p class="qsub">These sometimes pull in different directions. If you had to lean one way, which wins?</p>
+        <div class="pills" style="margin-top:18px;gap:10px">
+          <button class="pill" data-act="reconcile" data-val="${esc(A)}" style="flex:1;justify-content:center;padding:14px">${A}</button>
+          <button class="pill" data-act="reconcile" data-val="${esc(B)}" style="flex:1;justify-content:center;padding:14px">${B}</button>
+        </div>
+        <p class="hint" style="margin-top:14px">This helps us rank cities that balance both — and flag the ones that can't.</p>
+      </div>
+      <div class="foot"><button class="ghost" data-act="back">← Back</button><span class="grow"></span>
+        <button class="ghost" data-act="skiprecon" style="text-decoration:underline">Skip — I'm equally pulled both ways</button></div>`;
+  }
+
+  function renderDone(){
+    const p=buildProfile();
+    const tl = p.moveTimeline||'—';
+    const row=(k,v,mono)=>`<div class="srow"><div class="k">${k}</div><div class="v ${mono?'mono':''}">${v}</div></div>`;
+    const hh = p.income + (p.hasPartner?p.partnerIncome:0);
+    $('#pane').innerHTML=`
+      <div class="count">Profile captured</div>
+      <h2 class="q step">We've got your <em style="font-style:italic;color:var(--accent)">shape</em>.</h2>
+      <p class="qsub">Everything below feeds the matching engine — your cities, your real numbers, your roadmap.</p>
+      <div class="summary">
+        ${row('Work',(p.professionCustom||p.profession||'—')+(p.remote?' · remote':''))}
+        ${row('Household income',money(hh),true)}
+        ${row('Home',p.housing==='buy'?'Buying':p.housing==='rent'?'Renting':'—')}
+        ${row('Openness to abroad',opennessLabel(p.opennessToAbroad))}
+        ${row('Citizenship · status',p.citizenship+(p.immigrationStatus&&p.immigrationStatus!=='citizen'?' · '+p.immigrationStatus:''))}
+        ${row('Top priority',p.importanceRank[0])}
+        ${row('Move timeline',tl)}
+        ${row('Hard dealbreakers',p.dealBreakers.length||'none')}
+        ${row('Tiebreaker',p.tiebreaker?p.tiebreaker.choice:'none needed')}
+        ${row('Lifestyle picks',p.lifestyle.length+' selected')}
+      </div>
+      <div class="foot"><button class="ghost" data-act="restart">↺ Start over</button><span class="grow"></span>
+        <button class="cta" data-act="finish">Show Me My Potential →</button></div>`;
+  }
+
+  // ===================== profile output (for Phase 3) =====================
+  function buildProfile(){
+    return {
+      profession:S.profession, professionCustom:S.professionCustom.trim(), remote:S.remote,
+      income:S.income, savings:S.savings, debt:S.debt, housing:S.housing,
+      hasPartner:S.partner, partnerIncome:S.partner?S.partnerIncome:0,
+      hasDependents:S.deps, dependents:S.deps?S.depCount:0,
+      age:S.age, education:S.education, currentCity:S.city.trim(), hasPets:S.pets, petType:S.pets?S.petType:'',
+      opennessToAbroad:S.openness, citizenship:S.citizenship, immigrationStatus:S.immigration, moveTimeline:S.timeline,
+      lifestyle:[...S.lifestyle], motivations:[...S.motivations], workStyle:S.work,
+      communityImportance:S.community, pace:S.pace, riskTolerance:S.risk,
+      importanceRank:[...S.rank], dealBreakers:[...S.deals], tiebreaker:S.tiebreaker
+    };
+  }
+
+  // ===================== navigation =====================
+  function next(){
+    const s=STEPS[idx]; if(!s.valid()) return;
+    if(!isLast()){ idx++; view='quiz'; renderPane(); scrollTop(); return; }
+    // finished last step -> conditional reconciliation, else done
+    const c=detectConflict();
+    if(c && !S.tiebreaker){ S._conflict=c; view='reconcile'; renderPane(); scrollTop(); }
+    else { finishToDone(); }
+  }
+  function back(){
+    if(view==='done'){ view='quiz'; idx=STEPS.length-1; renderPane(); return; }
+    if(view==='reconcile'){ view='quiz'; idx=STEPS.length-1; renderPane(); return; }
+    if(idx>0){ idx--; renderPane(); scrollTop(); }
+  }
+  function goto(i){ if(view!=='quiz'){ view='quiz'; } if(i<=idx || STEPS[i]) { idx=i; renderPane(); scrollTop(); } }
+  function finishToDone(){ view='done'; renderPane(); scrollTop();
+    const profile=buildProfile(); console.log('[Potential] Profile captured →', profile); window.__profile=profile; }
+  const scrollTop=()=>window.scrollTo({top:0,behavior:'smooth'});
+
+  // ===================== events =====================
+  document.addEventListener('click',e=>{
+    const t=e.target.closest('[data-act]'); if(!t) return; const a=t.dataset.act;
+    if(a==='next') return next();
+    if(a==='back') return back();
+    if(a==='goto') return goto(+t.dataset.i);
+    if(a==='restart'){ location.reload(); return; }
+    if(a==='finish'){ alert('→ Profile complete. Handing off to Phase 3: Matching & US Financial Spine.\n\n(Profile logged to console as window.__profile)'); return; }
+    if(a==='skiprecon'){ S.tiebreaker=null; finishToDone(); return; }
+    if(a==='reconcile'){ S.tiebreaker={choice:t.dataset.val, pair:S._conflict}; finishToDone(); return; }
+    if(a==='pill'){ const k=t.dataset.key,v=t.dataset.val; S[k]=(S[k]===v)?'':v;
+      if(k==='citizenship') S.immigration = v==='US Citizen' ? 'citizen' : '';
+      renderPane(); return; }
+    if(a==='multi'){ const k=t.dataset.key,v=t.dataset.val,max=+t.dataset.max||0; const arr=S[k]; const i=arr.indexOf(v);
+      if(i>=0) arr.splice(i,1); else if(!max||arr.length<max) arr.push(v); renderPane(); return; }
+    if(a==='toggle'){ S[t.dataset.key]=!S[t.dataset.key]; renderPane(); return; }
+    if(a==='rank'){ const i=+t.dataset.i,d=t.dataset.dir,j=d==='up'?i-1:i+1; const r=S.rank; [r[i],r[j]]=[r[j],r[i]]; renderPane(); return; }
+  });
+  document.addEventListener('input',e=>{
+    const t=e.target.closest('[data-act]'); if(!t) return;
+    if(t.dataset.act==='slider'){ const k=t.dataset.key,v=+t.value,fmt=t.dataset.fmt; S[k]=v;
+      t.style.setProperty('--p', ((v-+t.min)/(+t.max-+t.min)*100)+'%');
+      const lab=t.parentElement.querySelector('.val');
+      if(lab){ lab.textContent = fmt==='money'||fmt==='money-neg'?money(v):(fmt==='open'?opennessLabel(v):v);
+        lab.classList.toggle('neg', fmt==='money-neg'&&v>0); }
+      if(k==='openness'){ // toggle the exclusion annotation without full rebuild
+        const wrap=t.parentElement; const cur=wrap.querySelector('.annot');
+        if(v==0 && !cur){ wrap.insertAdjacentHTML('beforeend','<div class="annot">🚫 International cities excluded from your results</div>'); }
+        else if(v!=0 && cur){ cur.remove(); } }
+    } else if(t.dataset.act==='text'){ S[t.dataset.key]=t.value;
+      const s=STEPS[idx]; const cta=$('.cta'); if(cta&&s) cta.disabled=!s.valid(); }
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Enter' && view==='quiz' && STEPS[idx].valid()){ next(); } });
+
+  renderPane();
+})();
+</script>
+</body>
+</html>
