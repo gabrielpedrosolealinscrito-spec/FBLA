@@ -40,14 +40,14 @@ const MARKUP = `
   .lp .rail i.on{background:var(--gold);box-shadow:0 0 10px var(--gold)}
   .lp .loader{position:fixed;inset:0;z-index:60;background:var(--night-1);display:grid;place-items:center;transition:opacity 1.1s var(--ease)}
   .lp .loader.hide{opacity:0;pointer-events:none}
-  .lp .loader-disc{position:relative;display:grid;place-items:center;width:160px;height:160px}
-  .lp .rosette{position:absolute;inset:20px;animation:lpspin 9s linear infinite;opacity:.45}
-  .lp .rosette circle,.lp .rosette path{fill:none;stroke:var(--gold);stroke-width:.5}
-  @keyframes lpspin{to{transform:rotate(360deg)}}
-  .lp .pring{position:absolute;inset:0;width:160px;height:160px}
+  .lp .loader-disc{position:relative;width:160px;height:160px}
+  .lp .pring{position:absolute;top:0;left:0;width:160px;height:160px}
   .lp .pring-track{fill:none;stroke:rgba(243,237,225,.12);stroke-width:2}
   .lp .pring-bar{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(226,181,107,.55))}
-  .lp .loader-pct{position:relative;z-index:1;font-family:'Instrument Serif',serif;font-size:32px;color:var(--gold)}
+  .lp .rosette{position:absolute;top:21px;left:21px;width:118px;height:118px;animation:lpspin 9s linear infinite;opacity:.4}
+  .lp .rosette circle,.lp .rosette path{fill:none;stroke:var(--gold);stroke-width:.5}
+  @keyframes lpspin{to{transform:rotate(360deg)}}
+  .lp .loader-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;font-family:'Instrument Serif',serif;font-size:32px;color:var(--gold)}
   .lp .gate{position:relative;z-index:20;height:100vh;display:grid;place-items:center;text-align:center;scroll-snap-align:start;scroll-snap-stop:always}
   .lp .gate-inner{opacity:0;transform:translateY(18px);transition:1.4s var(--ease);transition-delay:.3s}
   .lp .gate-inner.in{opacity:1;transform:none}
