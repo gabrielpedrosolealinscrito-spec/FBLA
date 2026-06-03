@@ -15,8 +15,9 @@
 // The Austin figure here uses city-adjusted income 113300, NOT the clean unit input 110000.
 // Do NOT cross these two values.
 
-import { rankCities } from './index.js';
+import { rankCities, normalizeOpenness } from './index.js';
 import type { Profile } from '../types.js';
+import { CITIES_DATA } from '../data/cities.js';
 
 // Software Engineer profile matching the D-07 reference calculation
 // Single filer: hasPartner false, partnerIncome 0 (required for take-home to match reference)
@@ -226,5 +227,153 @@ describe('rankCities — London integration (V4)', () => {
     const austin = output.results.find((r) => r.city.name === 'Austin, TX');
     expect(austin).toBeDefined();
     expect(Math.abs(austin!.estSalary - 113300)).toBeLessThanOrEqual(2);
+  });
+});
+
+
+// ── Phase 4 (04-02): openness normalizer — V3 scale-defensive (D-06) ──
+describe('normalizeOpenness (V3 scale-defensive — D-06)', () => {
+  it('maps 0 to exactly 0 (zero-openness floor input)', () => {
+    expect(normalizeOpenness(0)).toBe(0);
+  });
+
+  it('reads a 0-100 slider scale: 100 -> ~1, 80 -> ~0.8', () => {
+    expect(normalizeOpenness(100)).toBeGreaterThanOrEqual(0.99);
+    expect(Math.abs(normalizeOpenness(80) - 0.8)).toBeLessThanOrEqual(0.01);
+  });
+
+  it('reads a 1-5 button scale: 1 -> ~0, 3 -> ~0.5, 5 -> ~1', () => {
+    expect(normalizeOpenness(1)).toBeLessThanOrEqual(0.01);
+    expect(Math.abs(normalizeOpenness(3) - 0.5)).toBeLessThanOrEqual(0.01);
+    expect(normalizeOpenness(5)).toBeGreaterThanOrEqual(0.99);
+  });
+
+  it('always returns a value in [0,1] across mixed/garbage inputs', () => {
+    [-5, 0, 1, 2, 3, 4, 5, 10, 50, 80, 100, 150].forEach((v) => {
+      const r = normalizeOpenness(v);
+      expect(r).toBeGreaterThanOrEqual(0);
+      expect(r).toBeLessThanOrEqual(1);
+    });
+  });
+
+  it('is monotonic non-decreasing within the 1-5 scale', () => {
+    for (let v = 1; v < 5; v++) {
+      expect(normalizeOpenness(v + 1)).toBeGreaterThanOrEqual(normalizeOpenness(v));
+    }
+  });
+
+  it('is monotonic non-decreasing within the 0-100 scale', () => {
+    for (let v = 6; v < 100; v += 10) {
+      expect(normalizeOpenness(v + 10)).toBeGreaterThanOrEqual(normalizeOpenness(v));
+    }
+  });
+
+  it('returns a safe default in [0,1] for NaN/undefined (documented: full openness = 1)', () => {
+    expect(normalizeOpenness(NaN)).toBe(1);
+    expect(normalizeOpenness(undefined as unknown as number)).toBe(1);
+  });
+});
+
+
+// ── Phase 4 (04-02): openness soft multiplier — V3 mechanism (MATCH-02, D-05) ──
+// London is the lone intl probe until Plan 04 adds Lisbon/Berlin/Toronto; the full
+// 4-city "all present at openness=0" assertion is completed in Plan 04 wave-completion.
+describe('rankCities — openness soft multiplier (V3 mechanism — MATCH-02, D-05)', () => {
+  const at = (openness: number): Profile => ({ ...londonNonRemoteProfile, opennessToAbroad: openness });
+  const london = (openness: number) =>
+    rankCities(at(openness)).results.find((r) => r.city.name === 'London, UK');
+
+  it('London is present and scored > 0 at openness=0 (demoted, never stranded — D-01)', () => {
+    const l = london(0);
+    expect(l).toBeDefined();
+    expect(l!.matchScore).toBeGreaterThan(0);
+  });
+
+  it('is STRICTLY demoted at openness=0 vs max openness (multiplier actually applied)', () => {
+    expect(london(0)!.matchScore).toBeLessThan(london(100)!.matchScore);
+  });
+
+  it("London's score is monotonic non-decreasing across openness 0 -> 50 -> 100", () => {
+    const s0 = london(0)!.matchScore;
+    const s50 = london(50)!.matchScore;
+    const s100 = london(100)!.matchScore;
+    expect(s50).toBeGreaterThanOrEqual(s0);
+    expect(s100).toBeGreaterThanOrEqual(s50);
+  });
+
+  it('a US city matchScore is unchanged across openness levels (multiplier is intl-only)', () => {
+    const austin0 = rankCities(at(0)).results.find((r) => r.city.name === 'Austin, TX')!;
+    const austin100 = rankCities(at(100)).results.find((r) => r.city.name === 'Austin, TX')!;
+    expect(austin100.matchScore).toBe(austin0.matchScore);
+  });
+
+  it('result set stays CITIES_DATA.length at openness 0 and max (never filters — D-01)', () => {
+    expect(rankCities(at(0)).results.length).toBe(CITIES_DATA.length);
+    expect(rankCities(at(100)).results.length).toBe(CITIES_DATA.length);
+  });
+
+  it('all matchScores stay integer in [0,99] with no NaN at openness=0', () => {
+    rankCities(at(0)).results.forEach((r) => {
+      expect(Number.isInteger(r.matchScore)).toBe(true);
+      expect(r.matchScore).toBeGreaterThanOrEqual(0);
+      expect(r.matchScore).toBeLessThanOrEqual(99);
+      expect(isNaN(r.matchScore)).toBe(false);
+    });
+  });
+});
+
+
+// ── Phase 4 (04-04): all four intl cities — V3 full + V4 wave-completion ──────
+// Completes the V3 assertion deferred by 04-02: with all four golden-path intl
+// cities present, all four must demote-but-never-strand at openness=0 (D-05/D-01).
+describe('rankCities — all 4 intl cities (V3 full + V4)', () => {
+  const at = (openness) => ({ ...londonNonRemoteProfile, opennessToAbroad: openness });
+  const INTL = ['London, UK', 'Lisbon, Portugal', 'Berlin, Germany', 'Toronto, Canada'];
+  const find = (out, name) => out.results.find((r) => r.city.name === name);
+
+  it('V4: all four intl cities appear in ranked output alongside US cities', () => {
+    const out = rankCities(at(80));
+    INTL.forEach((name) => expect(find(out, name)).toBeDefined());
+  });
+
+  it('V3 full: at openness=0 all four intl cities are present with matchScore > 0 (never stranded)', () => {
+    const out = rankCities(at(0));
+    expect(out.results.length).toBe(CITIES_DATA.length);
+    INTL.forEach((name) => {
+      const city = find(out, name);
+      expect(city).toBeDefined();
+      expect(city.matchScore).toBeGreaterThan(0);
+    });
+  });
+
+  it('V3 monotonic: each intl city matchScore is non-decreasing as openness rises 0 -> 50 -> 100', () => {
+    INTL.forEach((name) => {
+      const s0 = find(rankCities(at(0)), name).matchScore;
+      const s50 = find(rankCities(at(50)), name).matchScore;
+      const s100 = find(rankCities(at(100)), name).matchScore;
+      expect(s50).toBeGreaterThanOrEqual(s0);
+      expect(s100).toBeGreaterThanOrEqual(s50);
+    });
+  });
+
+  it('each intl estSalary sits in a plausible USD band (local-salary x FX)', () => {
+    const out = rankCities(at(80));
+    INTL.forEach((name) => {
+      const city = find(out, name);
+      expect(city.estSalary).toBeGreaterThan(30000);
+      expect(city.estSalary).toBeLessThan(160000);
+    });
+  });
+
+  it('no NaN in financial fields; matchScore integer in [0,99] with all four intl cities present', () => {
+    const out = rankCities(at(0));
+    out.results.forEach((r) => {
+      expect(Number.isInteger(r.matchScore)).toBe(true);
+      expect(r.matchScore).toBeGreaterThanOrEqual(0);
+      expect(r.matchScore).toBeLessThanOrEqual(99);
+      [r.estSalary, r.monthlyTakeHome, r.monthlySavings, r.expenses.total].forEach((v) =>
+        expect(isNaN(v)).toBe(false)
+      );
+    });
   });
 });

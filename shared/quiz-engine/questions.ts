@@ -17,6 +17,17 @@ import {
   LIFESTYLE_TAGS,
 } from '../data/constants.js';
 
+// ── Phase 11: personality + category-module question sets ─────────────────────
+// LOAD-BEARING ORDERING INVARIANT (Phase 11, Pitfall 4): PERSONALITY_QUESTIONS
+// and TRAIT_QUESTIONS MUST come before CATEGORY_MODULE_QUESTIONS in ALL_QUESTIONS.
+// Module showIf predicates key on personality answer values (e.g.
+// tradeoff_healthcare === 'healthcare_critical'). If modules appear first, those
+// answer keys are undefined at showIf evaluation time — all modules would
+// either show incorrectly or hide entirely.
+// Phase 11 Plan 02 (personality.ts) / Phase 11 Plan 03 (category-modules.ts).
+import { PERSONALITY_QUESTIONS, TRAIT_QUESTIONS } from './personality.js';
+import { CATEGORY_MODULE_QUESTIONS } from './category-modules.js';
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type QuestionType =
@@ -444,4 +455,21 @@ export const ALL_QUESTIONS: QuestionDef[] = [
       { value: 'exploring', label: 'Just exploring — no timeline' },
     ],
   },
+
+  // ── Phase 11: Personality Gate (MUST precede category modules) ──────────────
+  // D-06: Weights inferred from tradeoff scenarios, not explicit sliders/ranking.
+  // D-07: Hybrid — tradeoff scenarios anchor weights; trait statements add flavor.
+  // D-10: Adaptive — detectPersonalityTension injects a tiebreaker if >=2 "balanced".
+  // ORDERING INVARIANT: All personality questions must precede CATEGORY_MODULE_QUESTIONS
+  // so module showIf predicates find already-answered keys (trigger-before-injection).
+  ...PERSONALITY_QUESTIONS,   // 5 core tradeoff scenarios — weight-bearing (D-06/D-08)
+  ...TRAIT_QUESTIONS,         // 4 agree/disagree trait statements — flavor only (D-07)
+
+  // ── Phase 11: Deep-Dive Category Modules (AFTER personality gate) ───────────
+  // D-11: Guided-modular — modules shown when personality recommended them OR user
+  //       explicitly opted in via moduleSelected_{category}.
+  // D-13: required:false throughout — skipped modules fall back to NEUTRAL_DEFAULT
+  //       in synthesizeCategoryWeights; scoring never breaks or strands a user.
+  // showIf predicates read tradeoff_* keys answered above — ordering invariant holds.
+  ...CATEGORY_MODULE_QUESTIONS,  // healthcare, family/schools, climateRisk, demographics, parks, connectivity
 ];

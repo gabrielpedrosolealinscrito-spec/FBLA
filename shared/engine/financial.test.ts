@@ -239,3 +239,86 @@ describe('uk-2026 no-US-math invariant (V2)', () => {
     expect(localSalaryGBP).toBeGreaterThan(30000); // but a real salary
   });
 });
+
+
+// ── Phase 4 (04-04): pt-irs-2026 / de-2026 / ca-on-2026 models ────
+// V1: worked-example fixtures with documented tolerance bands (PT ±5%, DE/CA ±7%).
+// V2: no-US-math invariant + sourced local salary (not BASE_SALARIES x costIndex).
+// Worked examples from 04-RESEARCH.md country financial models section.
+
+describe('pt-irs-2026 model (V1 — standard regime, ±5%; D-09 no IFICI)', () => {
+  it('is registered in FINANCIAL_MODELS', () => {
+    expect(FINANCIAL_MODELS['pt-irs-2026']).toBeDefined();
+    expect(FINANCIAL_MODELS['pt-irs-2026'].id).toBe('pt-irs-2026');
+  });
+
+  it('computeTax(45000, 0): monthly net ~= EUR2,470 within +/-5% (standard ~34% regime)', () => {
+    // SS 11% = E4,950; taxable E40,050; IRS bracket-stack ~= E10,412; net ~= E29,638/yr = E2,470/mo
+    // Source: 04-RESEARCH pt-irs-2026 worked example; PwC Portugal PIT
+    const tax = FINANCIAL_MODELS['pt-irs-2026'].computeTax(45000, 0);
+    const monthlyNet = (45000 - tax) / 12;
+    expect(monthlyNet).toBeGreaterThanOrEqual(2347); // 2470 - 5%
+    expect(monthlyNet).toBeLessThanOrEqual(2594);     // 2470 + 5%
+  });
+
+  it('computeSalary returns a PT-sourced local salary (not US BASE x costIndex)', () => {
+    const local = FINANCIAL_MODELS['pt-irs-2026'].computeSalary(swEngProfile, testCityUK as any);
+    // PT SWE ~E42k (nextleveljobs.eu). US-scaled would be ~110000 x 0.95 = 104,500.
+    expect(local).toBeGreaterThan(25000);
+    expect(local).toBeLessThan(70000);
+  });
+});
+
+describe('de-2026 model (V1 — ±7%)', () => {
+  it('is registered in FINANCIAL_MODELS', () => {
+    expect(FINANCIAL_MODELS['de-2026']).toBeDefined();
+    expect(FINANCIAL_MODELS['de-2026'].id).toBe('de-2026');
+  });
+
+  it('computeTax(65000, 0): monthly net ~= EUR3,300-3,400 within +/-7%', () => {
+    // SS ~E13,950 (~21.4%) + progressive income tax; net ~= E3,300-3,400/mo
+    // Source: 04-RESEARCH de-2026 worked example; taxravens / how-to-germany
+    const tax = FINANCIAL_MODELS['de-2026'].computeTax(65000, 0);
+    const monthlyNet = (65000 - tax) / 12;
+    expect(monthlyNet).toBeGreaterThanOrEqual(3069); // 3300 - 7%
+    expect(monthlyNet).toBeLessThanOrEqual(3638);     // 3400 + 7%
+  });
+
+  it('computeSalary returns a DE-sourced local salary (not US BASE x costIndex)', () => {
+    const local = FINANCIAL_MODELS['de-2026'].computeSalary(swEngProfile, testCityUK as any);
+    // DE SWE ~E65k. US-scaled would be ~110000 x 0.92 = 101,200.
+    expect(local).toBeGreaterThan(35000);
+    expect(local).toBeLessThan(90000);
+  });
+});
+
+describe('ca-on-2026 model (V1 — Ontario, ±7%)', () => {
+  it('is registered in FINANCIAL_MODELS', () => {
+    expect(FINANCIAL_MODELS['ca-on-2026']).toBeDefined();
+    expect(FINANCIAL_MODELS['ca-on-2026'].id).toBe('ca-on-2026');
+  });
+
+  it('computeTax(95000, 0): monthly net ~= C$5,763 within +/-7%', () => {
+    // CPP+CPP2 ~C$4,646; EI ~C$1,123; federal ~C$13,370; ON tax+surtax+health ~C$6,700
+    // total ~C$25,840; net ~= C$69,160/yr = C$5,763/mo. Source: 04-RESEARCH ca-on-2026.
+    const tax = FINANCIAL_MODELS['ca-on-2026'].computeTax(95000, 0);
+    const monthlyNet = (95000 - tax) / 12;
+    expect(monthlyNet).toBeGreaterThanOrEqual(5360); // 5763 - 7%
+    expect(monthlyNet).toBeLessThanOrEqual(6166);     // 5763 + 7%
+  });
+
+  it('computeSalary returns a CA-sourced local salary (not US BASE x costIndex)', () => {
+    const local = FINANCIAL_MODELS['ca-on-2026'].computeSalary(swEngProfile, testCityUK as any);
+    // CA SWE ~C$95k. US-scaled (costIndex 115) would be ~110000 x 1.15 = 126,500.
+    expect(local).toBeGreaterThan(40000);
+    expect(local).toBeLessThan(110000);
+  });
+});
+
+describe('country models — no-US-math invariant (V2)', () => {
+  it('PT/DE/CA computeTax each differ materially from computeUSTax for the same gross', () => {
+    expect(FINANCIAL_MODELS['pt-irs-2026'].computeTax(45000, 0)).not.toBeCloseTo(computeUSTax(45000, 0), 0);
+    expect(FINANCIAL_MODELS['de-2026'].computeTax(65000, 0)).not.toBeCloseTo(computeUSTax(65000, 0), 0);
+    expect(FINANCIAL_MODELS['ca-on-2026'].computeTax(95000, 0)).not.toBeCloseTo(computeUSTax(95000, 0), 0);
+  });
+});

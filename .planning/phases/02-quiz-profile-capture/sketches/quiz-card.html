@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Potential — Quiz Card Sketch (dark indie-pixel)</title>
+<!-- THROWAWAY SKETCH. Not production. Purpose: react to the FEEL of the dark indie-pixel quiz card.
+     Pixel display font: Pixelify Sans. Body: Manrope. Icons: hand-built pixel SVGs (prod = pixelarticons, MIT). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08090C; --surface:#111318; --card:#171B22;
+    --border:rgba(255,255,255,0.06); --border-active:rgba(255,255,255,0.14);
+    --accent:#6EE7B7; --accent2:#FBBF24; --accent3:#818CF8; --accent-dim:rgba(110,231,183,0.10);
+    --text:#EEF2F7; --text2:#8896AB; --text3:#505C6F; --neg:#F87171;
+    --pixel:'Pixelify Sans', monospace; --body:'Manrope', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--body);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    /* DD-05: no dead empty backgrounds — dot grid + faint scanlines */
+    background-image:
+      radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 4px);
+    background-size: 22px 22px, 100% 4px;
+    padding:28px 16px 60px;
+  }
+  /* phone frame — signal mobile-first */
+  .phone{
+    width:100%; max-width:392px; background:var(--surface);
+    border:1px solid var(--border-active);
+    border-radius:26px; padding:14px 14px 18px;
+    position:relative; overflow:hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  }
+  .phone::before{ /* faint glow blob behind, textured not empty */
+    content:""; position:absolute; inset:-40% 30% auto -20%; height:300px;
+    background:radial-gradient(closest-side, rgba(110,231,183,0.10), transparent);
+    pointer-events:none;
+  }
+  .notch{width:96px; height:6px; border-radius:6px; background:var(--text3); opacity:.5; margin:2px auto 16px;}
+
+  /* top bar: back + step + segmented pixel progress */
+  .topbar{display:flex; align-items:center; gap:10px; padding:0 4px; margin-bottom:22px;}
+  .back{
+    width:34px; height:34px; flex:none; display:grid; place-items:center;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:9px; cursor:pointer; color:var(--text2);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  }
+  .back:hover{color:var(--accent); border-color:var(--border-active);}
+  .progress{flex:1; display:flex; gap:4px;}
+  .seg{height:8px; flex:1; background:var(--card); border:1px solid var(--border);}
+  .seg.on{background:var(--accent); border-color:var(--accent); box-shadow:0 0 8px rgba(110,231,183,0.45);}
+  .seg.cur{background:var(--accent2); border-color:var(--accent2); box-shadow:0 0 8px rgba(251,191,36,0.5);}
+  .step{font-family:var(--pixel); font-size:13px; color:var(--text2); letter-spacing:.06em; flex:none;}
+
+  /* question block */
+  .kicker{
+    font-family:var(--pixel); font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--accent); display:inline-flex; align-items:center; gap:7px; margin:0 4px 12px;
+  }
+  .kicker .cur{display:inline-block; width:7px; height:14px; background:var(--accent); animation:blink 1.05s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .prompt{
+    font-family:var(--pixel); font-weight:600; font-size:27px; line-height:1.18;
+    color:var(--text); margin:0 4px 8px; letter-spacing:.005em;
+  }
+  .sub{font-size:13.5px; color:var(--text2); margin:0 4px 20px; line-height:1.5;}
+
+  /* option pills with pixel icons */
+  .opts{display:flex; flex-direction:column; gap:9px; padding:0 2px;}
+  .opt{
+    display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+    background:var(--card); border:1px solid var(--border); color:var(--text2);
+    border-radius:12px; padding:13px 14px; cursor:pointer;
+    font-family:var(--body); font-size:15px; font-weight:500;
+    transition:transform .08s, border-color .15s, color .15s, background .15s;
+  }
+  .opt:hover{border-color:var(--border-active); color:var(--text); transform:translateX(2px);}
+  .opt .ico{
+    width:30px; height:30px; flex:none; display:grid; place-items:center;
+    background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text2);
+  }
+  .opt.on{
+    border-color:var(--accent); background:var(--accent-dim); color:var(--text); font-weight:600;
+    box-shadow: 3px 3px 0 rgba(110,231,183,0.18);
+  }
+  .opt.on .ico{color:var(--accent); border-color:var(--accent); background:rgba(110,231,183,0.08);}
+  .opt .chk{margin-left:auto; color:var(--accent); display:none; font-family:var(--pixel); font-size:16px;}
+  .opt.on .chk{display:block;}
+  .ico svg{width:22px; height:22px; image-rendering:pixelated;}
+
+  /* adaptive tease — the pitch moment */
+  .tension{
+    display:flex; gap:10px; align-items:flex-start; margin:16px 4px 0;
+    background:rgba(129,140,248,0.07); border:1px solid rgba(129,140,248,0.28);
+    border-left:3px solid var(--accent3); border-radius:9px; padding:11px 12px;
+  }
+  .tension .ti{width:18px; height:18px; flex:none; color:var(--accent3); margin-top:1px;}
+  .tension p{font-size:12.5px; color:#C3C9F5; line-height:1.45;}
+  .tension b{color:#fff; font-weight:700;}
+
+  /* continue button — chunky pixel */
+  .cta{
+    margin:22px 2px 4px; width:calc(100% - 4px); padding:15px; cursor:pointer;
+    background:var(--accent); color:#08090C; border:none; border-radius:13px;
+    font-family:var(--pixel); font-weight:600; font-size:17px; letter-spacing:.04em;
+    box-shadow: 0 5px 0 #3fbb8c; transition:transform .06s, box-shadow .06s;
+  }
+  .cta:active{transform:translateY(4px); box-shadow:0 1px 0 #3fbb8c;}
+  .cta:hover{filter:brightness(1.05);}
+
+  /* idle decorative sprite (kills empty corner) */
+  .sprite{position:absolute; right:14px; bottom:12px; width:30px; height:30px; opacity:.85; color:var(--accent2); animation:float 3.2s ease-in-out infinite;}
+  .sprite svg{width:100%; height:100%; image-rendering:pixelated;}
+  @keyframes float{50%{transform:translateY(-5px);}}
+
+  /* self-doc caption */
+  .caption{max-width:392px; margin:22px auto 0; color:var(--text2); font-size:12.5px; line-height:1.6;}
+  .caption h4{font-family:var(--pixel); color:var(--text); font-size:14px; letter-spacing:.05em; margin-bottom:8px;}
+  .caption code{font-family:var(--pixel); color:var(--accent); font-size:12px;}
+  .caption ul{margin:6px 0 0 16px;}
+</style>
+</head>
+<body>
+
+  <div class="phone">
+    <div class="notch"></div>
+
+    <div class="topbar">
+      <div class="back" title="Back"><svg width="16" height="16" viewBox="0 0 7 7" shape-rendering="crispEdges" fill="currentColor"><rect x="3" y="1" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="1" y="3" width="5" height="1"/></svg></div>
+      <div class="progress" id="prog"></div>
+      <div class="step">04<span style="color:var(--text3)">/</span>07</div>
+    </div>
+
+    <div class="kicker">PRIORITIES <span class="cur"></span></div>
+    <h1 class="prompt">What matters most in where you land?</h1>
+    <p class="sub">Pick up to 3 — we weight every city match around what you choose here.</p>
+
+    <div class="opts" id="opts"></div>
+
+    <div class="tension">
+      <div class="ti"><svg viewBox="0 0 7 7" shape-rendering="crispEdges" fill="currentColor"><rect x="3" y="0" width="1" height="1"/><rect x="2" y="1" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/></svg></div>
+      <p><b>Career + Nature rarely overlap.</b> Next we'll ask you to break the tie — that's how Potential ranks cities that balance both.</p>
+    </div>
+
+    <button class="cta">Continue →</button>
+
+    <div class="sprite" title="idle sprite (decorative)"><svg viewBox="0 0 7 7" shape-rendering="crispEdges" fill="currentColor"><rect x="3" y="0" width="1" height="1"/><rect x="2" y="1" width="3" height="1"/><rect x="1" y="2" width="5" height="1"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="4" width="5" height="1"/><rect x="2" y="5" width="3" height="1"/><rect x="3" y="6" width="1" height="1"/></svg></div>
+  </div>
+
+  <div class="caption">
+    <h4>▚ throwaway sketch — react to this</h4>
+    Dark indie-pixel hybrid. Display type = <code>Pixelify Sans</code>, body = <code>Manrope</code>. Icons here are hand-built pixel SVGs; production uses <code>pixelarticons</code> (800 free, MIT) + a few custom hero sprites.
+    <ul>
+      <li>Pixel chunkiness OK, or push it harder (pixel-frame card borders)?</li>
+      <li>Accent mix — mint primary, amber + indigo for moments. Right?</li>
+      <li>The indigo "tension" callout is the adaptive pitch moment. Keep it this visible?</li>
+      <li>Motion is static here — real version slides cards L/R (Framer Motion) + sprite idle loops.</li>
+    </ul>
+  </div>
+
+<script>
+  // segmented progress: 7 segments, 3 done, current = 4th
+  const prog = document.getElementById('prog');
+  for(let i=0;i<7;i++){const s=document.createElement('div');s.className='seg'+(i<3?' on':i===3?' cur':'');prog.appendChild(s);}
+
+  // hand-built pixel icons (7x7 grid). Production swaps these for pixelarticons.
+  const I = {
+    career:  [[3,1],[1,2],[2,2],[3,2],[4,2],[5,2],[1,3],[2,3],[3,3],[4,3],[5,3],[1,4],[2,4],[4,4],[5,4],[1,5],[2,5],[3,5],[4,5],[5,5]],
+    cost:    [[2,1],[3,1],[4,1],[1,2],[3,2],[5,2],[1,3],[3,3],[4,3],[5,3],[1,4],[3,4],[5,4],[2,5],[3,5],[4,5]],
+    nature:  [[3,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[0,4],[1,4],[2,4],[4,4],[5,4],[6,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5]],
+    people:  [[1,1],[5,1],[1,2],[5,2],[0,3],[1,3],[2,3],[4,3],[5,3],[6,3],[0,4],[1,4],[2,4],[4,4],[5,4],[6,4],[0,5],[2,5],[4,5],[6,5]],
+    safety:  [[1,1],[2,1],[3,1],[4,1],[5,1],[1,2],[2,2],[3,2],[4,2],[5,2],[1,3],[2,3],[3,3],[4,3],[5,3],[2,4],[3,4],[4,4],[3,5]],
+    pace:    [[2,0],[3,0],[4,0],[1,1],[5,1],[0,2],[3,2],[6,2],[0,3],[3,3],[4,3],[6,3],[0,4],[6,4],[1,5],[5,5],[2,6],[3,6],[4,6]]
+  };
+  function ico(name){
+    const cells = I[name]||[];
+    const r = cells.map(c=>`<rect x="${c[0]}" y="${c[1]}" width="1" height="1"/>`).join('');
+    return `<svg viewBox="0 0 7 7" shape-rendering="crispEdges" fill="currentColor">${r}</svg>`;
+  }
+
+  const OPTS = [
+    {k:'career', label:'Career & opportunity', on:true},
+    {k:'cost',   label:'Cost of living',       on:true},
+    {k:'nature', label:'Nature & the outdoors', on:true},
+    {k:'people', label:'Community & belonging', on:false},
+    {k:'safety', label:'Safety & stability',   on:false},
+    {k:'pace',   label:'Pace of life',          on:false},
+  ];
+  const box = document.getElementById('opts');
+  OPTS.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='opt'+(o.on?' on':'');
+    b.innerHTML=`<span class="ico">${ico(o.k)}</span><span>${o.label}</span><span class="chk">✓</span>`;
+    b.onclick=()=>b.classList.toggle('on');
+    box.appendChild(b);
+  });
+</script>
+</body>
+</html>

@@ -21,6 +21,7 @@ import { CITIES_DATA } from '../data/cities.js';
 import { FINANCIAL_MODELS } from './financial.js';
 import { toUSD, currencyForCountry } from './fx.js';
 import { scoreCity } from './scoring.js';
+import { SCORING_WEIGHTS } from './scoring-weights.js';
 import { applyPenalties, checkReconfirm } from './dealbreakers.js';
 import type { ReconfirmSignal } from './dealbreakers.js';
 
@@ -54,6 +55,35 @@ function sanitizeProfile(profile: Profile): Profile {
       safety:    clamp(profile.weights.safety,    0, 4),
     },
   };
+}
+
+/**
+ * Normalize the quiz openness signal to a 0-1 factor, SCALE-DEFENSIVELY (D-06).
+ * Phase 2 may ship opennessToAbroad as a 0-100 slider OR a 1-5 button scale, so
+ * this tolerates both (plus NaN/undefined) without hardcoding one divisor:
+ *   - non-finite (NaN/undefined): safe default 1 (full openness — never hide intl
+ *     options on a malformed signal; the demotion floor still keeps them present)
+ *   - raw <= 5: treated as a 1-5 scale -> (clamp(raw,1,5) - 1) / 4
+ *   - raw > 5:  treated as a 0-100 scale -> clamp(raw / 100, 0, 1)
+ * Always returns a value in [0,1]; non-decreasing within each scale.
+ */
+export function normalizeOpenness(raw: number): number {
+  if (!Number.isFinite(raw)) return 1;
+  if (raw <= 5) return clamp((clamp(raw, 1, 5) - 1) / 4, 0, 1);
+  return clamp(raw / 100, 0, 1);
+}
+
+/**
+ * MATCH-02 / D-05: openness soft multiplier for one city.
+ * US cities are identity (x1, untouched). International cities are scaled between
+ * OPENNESS.minMultiplier (at openness=0 — demoted but never stranded, D-01) and
+ * OPENNESS.maxMultiplier (at full openness), interpolated by normalizeOpenness.
+ */
+function opennessMultiplier(profile: Profile, city: City): number {
+  if (city.country === 'US') return 1;
+  const { minMultiplier, maxMultiplier } = SCORING_WEIGHTS.openness;
+  const factor = normalizeOpenness(profile.opennessToAbroad);
+  return minMultiplier + (maxMultiplier - minMultiplier) * factor;
 }
 
 /**
@@ -96,7 +126,10 @@ function buildRawResult(profile: Profile, city: City): MatchResult {
 
   // Scoring (D-04 two-layer config-driven formula)
   const { rawScore, scoreFactors } = scoreCity(profile, city);
-  const matchScore = clamp(Math.round(rawScore), 0, 99);
+  // MATCH-02 / D-05: soft openness multiplier on INTERNATIONAL cities only,
+  // applied to rawScore BEFORE clamp so both passes (raw + penalized) and
+  // checkReconfirm inherit it consistently. US cities are identity (x1).
+  const matchScore = clamp(Math.round(rawScore * opennessMultiplier(profile, city)), 0, 99);
 
   return {
     city,
@@ -122,9 +155,10 @@ function buildRawResult(profile: Profile, city: City): MatchResult {
  *   5. Call checkReconfirm to detect raw-#1 demotion → reconfirmSignal.
  *   6. Return { results: penalizedRanking, reconfirmSignal }.
  *
- * D-01: NEVER filter cities out — the result set is always CITIES_DATA.length.
- * opennessToAbroad === 0 is US-only; all current cities are US, so no-op now
- * (Phase 4 will add country filtering before this function if needed).
+ * D-01/D-05: NEVER filter cities out — the result set is always CITIES_DATA.length.
+ * opennessToAbroad is a SOFT MULTIPLIER on international cities' scores (applied in
+ * buildRawResult), never a filter: low openness demotes intl cities toward the
+ * OPENNESS.minMultiplier floor but always keeps them present; US cities are unaffected.
  */
 export function rankCities(profile: Profile): RankingOutput {
   // Sanitize at entry (T-3-11)

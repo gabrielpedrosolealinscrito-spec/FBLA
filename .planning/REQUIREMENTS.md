@@ -19,22 +19,27 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Quiz / Profile Capture
 
-- [ ] **QUIZ-01**: User completes a multi-step profile quiz covering career, finances, background, lifestyle, priorities, and dealbreakers
-- [ ] **QUIZ-02**: User sets an explicit "openness to living abroad" input that influences results
-- [ ] **QUIZ-03**: User declares citizenship and current immigration status (captured here so the visa roadmap can key off it later)
-- [ ] **QUIZ-04**: User applies hard dealbreaker filters that eliminate non-matching destinations (not just soft-weight them)
-- [ ] **QUIZ-05**: User sets a target move timeline (or "exploring / no timeline")
+- [x] **QUIZ-01**: User completes a multi-step profile quiz covering career, finances, background, lifestyle, priorities, and dealbreakers
+- [x] **QUIZ-02**: User sets an explicit "openness to living abroad" input that influences results
+- [x] **QUIZ-03**: User declares citizenship and current immigration status (captured here so the visa roadmap can key off it later)
+- [x] **QUIZ-04**: User applies hard dealbreaker filters that eliminate non-matching destinations (not just soft-weight them)
+- [x] **QUIZ-05**: User sets a target move timeline (or "exploring / no timeline")
+- [x] **QUIZ-06**: User completes an upfront personality/values quiz (~5 core tradeoff scenarios + trait statements, adaptive) that infers category-level weights (Phase 11)
+- [x] **QUIZ-07**: Personality result recommends which deep-dive category modules to surface; user can add others (guided-modular, Phase 11)
+- [x] **QUIZ-08**: User completes rich sub-questions for high-impact modules (healthcare, family/schools) and light sub-questions for lower-impact ones (parks, connectivity) (Phase 11)
+- [x] **QUIZ-09**: Skipped modules fall back to a neutral default weight so scoring never breaks (Phase 11)
 
 ### Matching & Results
 
-- [ ] **MATCH-01**: User receives a ranked list of matched cities scored against their profile
+- [x] **MATCH-01**: User receives a ranked list of matched cities scored against their profile
 - [ ] **MATCH-02**: Results include international destinations alongside US cities
-- [ ] **MATCH-03**: User can see why a city scored as it did (which profile factors drove the match)
-- [ ] **MATCH-04**: User can sort/filter the ranked list (match, savings, salary, cost)
+- [x] **MATCH-03**: User can see why a city scored as it did (which profile factors drove the match)
+- [x] **MATCH-04**: User can sort/filter the ranked list (match, savings, salary, cost)
+- [x] **MATCH-05**: Scoring engine receives an extended Profile with a `categoryWeights` map (additive to legacy `weights?`) + per-category explainability trace (`weightExplanations`), so Phase 12 can consume new-category scores (Phase 11 contract; Phase 12 scores)
 
 ### Financial Reality
 
-- [ ] **FIN-01**: User sees an income-adjusted financial projection per city: estimated salary, take-home after taxes, itemized expenses, monthly savings/deficit
+- [x] **FIN-01**: User sees an income-adjusted financial projection per city: estimated salary, take-home after taxes, itemized expenses, monthly savings/deficit
 - [ ] **FIN-02**: International cities use a country-correct financial/tax model (not the US model applied blindly)
 
 ### Live AI Data Layer (Plus tier centerpiece)
@@ -105,15 +110,15 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 |-------------|-------|--------|
 | FOUND-01 | Phase 1: Scaffold & Port | Complete |
 | FOUND-02 | Phase 1: Scaffold & Port | Complete |
-| QUIZ-01 | Phase 2: Quiz & Profile Capture | Pending |
-| QUIZ-02 | Phase 2: Quiz & Profile Capture | Pending |
-| QUIZ-03 | Phase 2: Quiz & Profile Capture | Pending |
-| QUIZ-04 | Phase 2: Quiz & Profile Capture | Pending |
-| QUIZ-05 | Phase 2: Quiz & Profile Capture | Pending |
-| MATCH-01 | Phase 3: Matching & US Financial Spine | Pending |
-| MATCH-03 | Phase 3: Matching & US Financial Spine | Pending |
-| MATCH-04 | Phase 3: Matching & US Financial Spine | Pending |
-| FIN-01 | Phase 3: Matching & US Financial Spine | Pending |
+| QUIZ-01 | Phase 2: Quiz & Profile Capture | Complete |
+| QUIZ-02 | Phase 2: Quiz & Profile Capture | Complete |
+| QUIZ-03 | Phase 2: Quiz & Profile Capture | Complete |
+| QUIZ-04 | Phase 2: Quiz & Profile Capture | Complete |
+| QUIZ-05 | Phase 2: Quiz & Profile Capture | Complete |
+| MATCH-01 | Phase 3: Matching & US Financial Spine | Complete |
+| MATCH-03 | Phase 3: Matching & US Financial Spine | Complete |
+| MATCH-04 | Phase 3: Matching & US Financial Spine | Complete |
+| FIN-01 | Phase 3: Matching & US Financial Spine | Complete |
 | MATCH-02 | Phase 4: International Destinations & Country Models | Pending |
 | FIN-02 | Phase 4: International Destinations & Country Models | Pending |
 | FOUND-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
@@ -141,3 +146,8 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | PITCH-07 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Complete |
 | PITCH-08 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Complete |
 | PITCH-09 | Phase 10: Pitch — Deck, Rehearsal & Protocol | Complete |
+| QUIZ-06 | Phase 11: Deep Profile | Complete |
+| QUIZ-07 | Phase 11: Deep Profile | Complete |
+| QUIZ-08 | Phase 11: Deep Profile | Complete |
+| QUIZ-09 | Phase 11: Deep Profile | Complete |
+| MATCH-05 | Phase 11: Deep Profile (contract) / Phase 12 (scoring) | Complete |

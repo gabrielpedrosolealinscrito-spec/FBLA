@@ -58,6 +58,15 @@ export const SCORING_WEIGHTS = {
     lifestyleMaxContribution: 10,
     safetyMaxContribution:     8,
   },
+  // ── OPENNESS multiplier (Phase 4, MATCH-02 / D-05) ──
+  // Soft multiplier on INTERNATIONAL cities' rawScore (US cities unaffected).
+  // openness=0 -> minMultiplier (demoted, never stranded - D-01);
+  // full openness -> maxMultiplier. Centralized here per D-03 (no inline magic
+  // numbers in index.ts).
+  openness: {
+    minMultiplier: 0.35, // demotion floor for intl scores at zero openness — visible but clearly demoted
+    maxMultiplier: 1.0,  // full weight at max openness (no boost)
+  },
 } as const;
 
 // ── Personal weight normalization scale ───────────────────────────

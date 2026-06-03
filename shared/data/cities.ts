@@ -674,4 +674,94 @@ export const CITIES_DATA: City[] = [
     nearCoast: true,                   // Thames estuary + coastal rail access within 60-min drive
     hasIntlAirport: true,              // Heathrow (LHR) + Gatwick (LGW); major international hub
   },
+  //
+  // ── Phase 4: Lisbon (pt-irs-2026) ──────────────────────────────────────────
+  //   Record + sourced fields: 04-RESEARCH.md Lisbon. medianRent/medianHome USD-canonical.
+  //   SWE local salary (PT_LOCAL_SALARIES) EUR42,000; FX EUR/USD 1.1646 (ECB 2026-06-01).
+  {
+    name: "Lisbon, Portugal",
+    country: "Portugal",
+    financialModelId: "pt-irs-2026",
+    emoji: "🚋",
+    lat: 38.72,
+    lng: -9.14,
+    pop: "2.9M metro",                 // Lisbon metropolitan area standard reference
+    climate: "Mediterranean",          // Csa; warm dry summers, mild wet winters
+    costIndex: 95,                     // [DERIVED — verify] Numbeo Lisbon rescaled to US-avg scale
+    medianRent: 1630,                  // USD-canonical: €1,400/mo 1BR centre x 1.1646 (Numbeo Lisbon, Jun 2026)
+    medianHome: 480000,                // USD-canonical: ~€412k (~€5,500/m² x ~75m²) x 1.1646 [VERIFY]
+    avgTemp: 63,                        // Lisbon annual avg ~63°F
+    stateTax: 0,                       // No US-style state tax; handled by pt-irs-2026 model
+    summerHighF: 82,                   // Lisbon avg Aug high ~82°F (TimeAndDate normals)
+    winterLowF: 46,                    // Lisbon avg Jan low ~46°F (TimeAndDate normals)
+    walkScore: 75,                     // estimate — central Lisbon walkability
+    transitScore: 72,                  // estimate — Metro + trams + buses
+    safetyIndex: 80,                   // Portugal #7 Global Peace Index (very safe) [verify rank]
+    jobGrowth: 2.0,                    // estimate — Lisbon tech/startup growth
+    vibe: ["Coastal", "Creative", "Sunny", "International", "Affordable-EU"],
+    topIndustries: ["Tech/Startups", "Tourism", "Finance", "Renewables"],
+    nearMountains: false,              // Serra de Sintra is hills, not a mountain range
+    nearCoast: true,                   // Atlantic coast + Tagus estuary beaches within reach
+    hasIntlAirport: true,              // Humberto Delgado (LIS); major international hub
+  },
+  //
+  // ── Phase 4: Berlin (de-2026) ──────────────────────────────────────────────
+  //   Record + sourced fields: 04-RESEARCH.md Berlin. medianRent/medianHome USD-canonical.
+  //   SWE local salary (DE_LOCAL_SALARIES) EUR65,000; FX EUR/USD 1.1646 (ECB 2026-06-01).
+  {
+    name: "Berlin, Germany",
+    country: "Germany",
+    financialModelId: "de-2026",
+    emoji: "🐻",
+    lat: 52.52,
+    lng: 13.40,
+    pop: "3.7M city",                  // Berlin city proper; metro ~6M
+    climate: "Temperate continental",  // Cfb/Dfb; cold winters, mild summers
+    costIndex: 92,                     // [DERIVED — verify] Numbeo Berlin rescaled to US-avg scale
+    medianRent: 1434,                  // USD-canonical: €1,231/mo 1BR centre x 1.1646 (Numbeo Berlin, Jun 2026)
+    medianHome: 571000,                // USD-canonical: ~€490k (~€7,000/m² x 70m²) x 1.1646 [VERIFY]
+    avgTemp: 50,                        // Berlin annual avg ~50°F
+    stateTax: 0,                       // No US-style state tax; handled by de-2026 model
+    summerHighF: 74,                   // Berlin avg Jul high ~74°F (TimeAndDate normals)
+    winterLowF: 28,                    // Berlin avg Jan low ~28°F (TimeAndDate normals)
+    walkScore: 75,                     // estimate — central Berlin walkability
+    transitScore: 85,                  // estimate — U-Bahn + S-Bahn + trams
+    safetyIndex: 65,                   // Numbeo Berlin safety index estimate
+    jobGrowth: 2.5,                    // estimate — Berlin tech/startup growth
+    vibe: ["Creative", "Nightlife", "Diverse", "Startup", "Affordable-capital"],
+    topIndustries: ["Tech/Startups", "Manufacturing/Auto", "Media", "Science"],
+    nearMountains: false,              // Berlin sits on a flat plain; no mountains within reach
+    nearCoast: false,                  // inland; Baltic coast ~2.5h away
+    hasIntlAirport: true,              // Berlin Brandenburg (BER); major international hub
+  },
+  //
+  // ── Phase 4: Toronto (ca-on-2026) ──────────────────────────────────────────
+  //   Record + sourced fields: 04-RESEARCH.md Toronto. medianRent/medianHome USD-canonical.
+  //   SWE local salary (CA_LOCAL_SALARIES) C$95,000; FX CAD/USD 0.7242 (ECB 2026-06-01).
+  {
+    name: "Toronto, Canada",
+    country: "Canada",
+    financialModelId: "ca-on-2026",
+    emoji: "🍁",
+    lat: 43.65,
+    lng: -79.38,
+    pop: "6.4M metro",                 // Greater Toronto Area standard reference
+    climate: "Humid continental",      // Dfa/Dfb; cold snowy winters, warm summers
+    costIndex: 115,                    // [DERIVED — verify] Numbeo Toronto rescaled to US-avg scale
+    medianRent: 1810,                  // USD-canonical: C$2,500/mo 1BR centre x 0.7242 (Numbeo Toronto, May 2026)
+    medianHome: 760000,                // USD-canonical: ~C$1.0M / condo ~C$680k blended x 0.7242 [VERIFY]
+    avgTemp: 48,                        // Toronto annual avg ~48°F
+    stateTax: 0,                       // No US-style state tax; Ontario handled by ca-on-2026 model
+    summerHighF: 81,                   // Toronto avg Jul high ~81°F (TimeAndDate normals)
+    winterLowF: 18,                    // Toronto avg Jan low ~18°F (TimeAndDate normals)
+    walkScore: 80,                     // estimate — central Toronto walkability
+    transitScore: 78,                  // estimate — TTC subway + streetcars + buses
+    safetyIndex: 75,                   // Numbeo Toronto safety index estimate
+    jobGrowth: 2.0,                    // estimate — Toronto finance/tech growth
+    vibe: ["Diverse", "Finance", "Tech", "Multicultural", "Walkable"],
+    topIndustries: ["Finance", "Tech", "Film/Media", "Healthcare"],
+    nearMountains: false,              // Toronto is flat; no mountain range within reach
+    nearCoast: true,                   // Lake Ontario waterfront + city beaches (Great Lake, not ocean)
+    hasIntlAirport: true,              // Toronto Pearson (YYZ); major international hub
+  },
 ];

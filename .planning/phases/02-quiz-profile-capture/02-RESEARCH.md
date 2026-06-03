@@ -1,220 +1,921 @@
-# Phase 2: Quiz & Profile Capture — Research
+# Phase 2: Quiz & Profile Capture - Research
 
-**Researched:** 2026-06-01
-**Researcher:** Claude (inline — gsd-phase-researcher sub-agent timed out; research conducted directly with the same source mandate)
-**Phase requirements:** QUIZ-01, QUIZ-02, QUIZ-03, QUIZ-04, QUIZ-05
+**Researched:** 2026-05-30
+**Domain:** Adaptive quiz state machine, rule-based profile synthesis, Vite + React, Framer Motion transitions, competitor filter UX
+**Confidence:** HIGH (codebase read directly; competitor research MEDIUM — web search, cross-verified)
 
 ---
 
+> **Framing note:** The orchestrator's `additional_context` block described a "Founder Profile" app with archetype types (Builder, Connector, etc.) and Next.js + localStorage. That is template boilerplate unrelated to this project. The actual project is **Potential** — a relocation/city-matching app. All research below is grounded in the actual repo files. Planner should discard any orchestrator framing referencing archetypes, idea generation, or SSR.
+
+---
+
+<user_constraints>
 ## User Constraints (from CONTEXT.md)
 
-These are LOCKED decisions the plan must honor. Research operates inside them, not around them.
+### Locked Decisions
 
-- **D-01 — Rebuild, not extend.** The prototype's 5-step quiz is *reference only*. Build a real, deeper, adaptive instrument with logic behind it.
-- **D-02 — Deeper dimensions.** Beyond career/finances/background/lifestyle/priorities, capture **motivation to move, work style, community/family needs, pace of life, risk tolerance, tradeoff tolerance.**
-- **D-03 — Branching.** Conditional follow-ups; smart tree, not a linear sequence.
-- **D-04 — Output = structured preference profile.** Raw answers **+ derived weights + tradeoff tolerances**. "The real logic lives in the profile, not the matcher." Phase 3 scores against it.
-- **D-05 — Extends `shared/types.ts` `Profile`** with new dimension fields + a derived-preference structure.
-- **D-06 — "Going Global" grouping** (openness-to-abroad + citizenship + status + timeline) as a visible demo moment.
-- **D-07/08/09 — US-first immigration capture.** Citizenship = structured shortlist (~10 + Other), **defaults to US**; `immigrationStatus` auto-set to `"citizen"` for US citizens (question hidden); only non-US users see a short status enum.
-- **D-10 — Openness slider 0–100**, `0` = hard-exclude international entirely.
-- **D-11/12/13 — Dealbreakers are hard filters** with a capture-time warning; **wire all** dealbreakers (4 are currently inert); research competitor filter UX.
-- **D-14/15 — Tension reconciliation.** Detect conflicting priorities, ask ONE reconciling follow-up, store as a tiebreaker/weight.
-- **D-16 — Move timeline buckets.**
-- **Lock (Phase 1):** port-don't-redesign visual identity; inline-style dark theme; TS for `shared/`, JSX for `src/`.
+- **D-01:** Treat this phase as a **rebuild of the capture layer**, not a bolt-on. The prototype quiz is reference, not a base to extend.
+- **D-02:** Richer + adaptive. Add deeper capture dimensions beyond the prototype's career/finances/background/lifestyle/priorities: **motivation to move, work style, community/family needs, pace of life, risk tolerance, and tradeoff tolerance.**
+- **D-03:** **Conditional / branching follow-ups** — questions adapt based on prior answers, including detecting conflicting priorities (see Tension). Linear prototype → smart tree.
+- **D-04:** **Output = structured preference profile.** Phase 2 turns answers into weights / tradeoff tolerances / derived attributes. Phase 3 consumes the profile to score cities. The "real logic" lives in the profile, not the matcher.
+- **D-05:** This **expands `shared/types.ts` `Profile`** significantly. Planner extends the contract (new dimension fields + a derived-weights/preference structure). Reconcile in-component prototype state with the TS contract as part of the rebuild.
+- **D-06:** Make the international angle a **visible demo moment** — a "Going Global" grouping for openness-to-abroad + citizenship/status + move timeline.
+- **D-07:** Primary market = US citizens. Capture flips to what a US citizen faces moving abroad.
+- **D-08:** Citizenship = curated shortlist (US + ~10 common destination-relevant citizenships + "Other"), defaults to US, stored as a structured value. Required: Phase 6 keys `ROADMAP_TEMPLATES[citizenship][country]`.
+- **D-09:** `immigrationStatus` auto-sets to `"citizen"` for US citizens (question not shown). Only non-US citizens see a short status enum.
+- **D-10:** Slider format is **locked** (0–100, per `shared/types.ts`). Bottom (0) = hard-exclude international.
+- **D-11:** Dealbreakers are **hard filters** that eliminate cities — but advisory, never stranding the user. Four guardrails: capture-time warning (Phase 2), never-empty floor (Phase 3), advisory override (Phase 3), and all current prototype dealbreakers must be wired (none inert).
+- **D-12:** Wire **all** current dealbreakers. The 4 currently listed but unimplemented in `getMatchScore` (mountains, ocean, international airport, strong job market) must not stay as no-ops.
+- **D-13 (research directive):** Research how Nomad List, WhereNext, Teleport handled hard filters vs advisory matching — findings documented below.
+- **D-14:** When the quiz detects **conflicting priorities** (e.g. loves nature + wants career growth), ask one reconciling follow-up and store the answer as a tiebreaker/weight on the preference profile.
+- **D-15:** Phase 3 uses that tiebreaker to rank balancing cities. Live-search reconciliation is Phase 5.
+- **D-16:** Capture a move timeline field (`6mo` / `12mo` / `2yr+` / `exploring — no timeline`) inside the "Going Global" grouping.
+
+### Claude's Discretion
+
+- Exact enum string values (status enum, timeline buckets), the precise shortlist of ~10 citizenships, and the internal shape of the derived-weights structure — planner finalizes against Phase 3/6/7 needs, keeping everything structured.
+
+### Deferred Ideas (OUT OF SCOPE)
+
+- PLUS/MINUS per-country analysis → Phase 4 + Phase 7.
+- Cultural-analysis add-on product → Phase 9.
+- Live-search reconciliation of competing priorities → Phase 5.
+- Full schema-driven adaptive quiz engine (config-driven question architecture, dynamic ordering) — considered and **not chosen** for Phase 2.
+</user_constraints>
+
+<phase_requirements>
+## Phase Requirements
+
+| ID | Description | Research Support |
+|----|-------------|------------------|
+| QUIZ-01 | User completes a multi-step profile quiz covering career, finances, background, lifestyle, priorities, and dealbreakers | Adaptive question graph pattern + extended Profile shape below |
+| QUIZ-02 | User sets an explicit "openness to living abroad" input that influences results | 0–100 slider locked in `shared/types.ts`; 0 = hard-exclude international |
+| QUIZ-03 | User declares citizenship and current immigration status | Citizenship shortlist + auto-status pattern (D-08/D-09) |
+| QUIZ-04 | User applies hard dealbreaker filters that eliminate non-matching destinations | Hard filter + advisory guardrails pattern (D-11/D-12) |
+| QUIZ-05 | User sets a target move timeline (or "exploring / no timeline") | Move timeline enum in "Going Global" grouping (D-16) |
+</phase_requirements>
 
 ---
 
 ## Summary
 
-The strongest external signal comes from **Teleport** (the acquired-and-shut-down competitor whose exit anchors our pitch): its onboarding was a **two-step** flow — pick the life-quality terms that matter, then enter baseline data (profession, salary) to forecast money — and it deliberately **refused to make users weight each factor** because per-factor weighting causes cognitive overload and *worse* results. This is the central design lesson and it independently validates CONTEXT **D-04**: capture *what matters* + *rank* + *forced trade-offs*, then **derive** the weights. Don't ask users to be their own algorithm.
+Phase 2 rebuilds the existing 5-step linear prototype quiz into an adaptive, branching instrument that produces a richer `Profile` object consumed by Phase 3's scoring engine. The prototype in `PotentialApp.jsx` is visual reference only — its `profile` state shape, `upd`/`toggleArr` helpers, progress bar primitives, and inline-style CSS tokens are all reusable, but the question flow and state contract are being replaced.
 
-The recommended instrument is **~6 grouped steps** kept to a perceived ~8–10 questions via **branching** (research: branching makes a 20-question survey "feel like eight" and lifts completion up to 45%). Weight derivation should use **best-worst / forced-choice logic** (MaxDiff family) for the priority ranking and the reconciliation follow-ups — forced trade-offs avoid the "everything is important" scale bias that plagues rating scales and yield clean 0–100 weights that sum to 1. The deeper dimensions (D-02) map cleanly onto the **person-environment-fit** domains the satisfaction literature identifies (stimulation↔peacefulness = *pace of life*; interaction↔solitude + homogeneity↔heterogeneity = *community/family needs*; autonomy/goals = *motivation to move*).
+The three core technical problems are: (1) how to model a branching question graph without reaching for a full adaptive engine (rejected in Deferred); (2) how to extend `shared/types.ts` `Profile` with new dimensions and a derived-weights structure that Phase 3 can score against; and (3) how to render one-question-per-card transitions without introducing Framer Motion as a dependency if it adds more risk than value for the demo timeline.
 
-The phase's real deliverable is not screens — it's a **`Profile.preferences`** structure: normalized weights + tradeoff resolutions + the Going-Global fields, emitted from a **pure, testable derivation function in `shared/`** so Phase 3 consumes a clean contract and the math is re-derivable on stage in 60 seconds.
+**Primary recommendation:** Model questions as a typed array of `QuestionDef` objects with an optional `showIf(answers)` predicate and build a pure `getVisibleQuestions(answers, allQuestions)` resolver. This is the lightweight middle between "just render all questions linearly" and "full config-driven engine." Add a pure `detectTension(answers)` function that fires when the profile contains known conflicting signals and inserts one reconciling follow-up. Both functions are pure and unit-testable. The quiz component is thin — it calls these functions, drives `currentIndex` state, and renders the current question card.
 
 ---
 
 ## Architectural Responsibility Map
 
-| Concern | Owner | Notes |
-|---|---|---|
-| Quiz UI / flow / step machine | **Phase 2** (`src/screens/`) | Reuse UI-SPEC primitives (pills, sliders, progress). Recommend `useReducer` over scattered `useState` — the profile is now large. |
-| Branching / adaptive logic | **Phase 2** (`src/`) | Simple `if-then` rules over answers (NOT a schema-driven engine — CONTEXT rejected that). |
-| Option sets (professions, lifestyle, dealbreakers, citizenship, timeline, motivations) | **Phase 2** (`shared/data/constants.js`) | Extend existing sets; add new ones. |
-| `Profile` contract + `preferences` structure | **Phase 2** (`shared/types.ts`) | The frontend↔engine handshake. Small announced commits. |
-| **Derive-weights function** (answers → normalized weights + tradeoffs) | **Phase 2** (`shared/`, e.g. `shared/engine/derive-preferences.ts`) | Pure, unit-testable. THIS is "the real logic lives in the profile." |
-| City scoring against the profile | **Phase 3** | Hard line: P2 emits weighted profile; P3 scores cities. |
-| Never-empty / advisory-override dealbreaker guardrails | **Phase 3** | P2 captures hard filters + warns at capture; P3 must never return zero cities. |
-| International cities (to make openness/abroad testable) | **Phase 4** | SC2 only verifiable downstream; P2 confirms value captured + passed. |
-| `ROADMAP_TEMPLATES[citizenship][country]` | **Phase 6** | Consumes `citizenship`. |
-| Visa eligibility / `VisaPathway` | **Phase 7** | Consumes `citizenship` + `immigrationStatus`. |
+| Capability | Primary Tier | Secondary Tier | Rationale |
+|------------|-------------|----------------|-----------|
+| Quiz question rendering + navigation | Browser / Client (`src/screens/`) | — | Pure UI; no server required |
+| Adaptive branching logic (`getVisibleQuestions`) | Browser / Client (`src/screens/quiz/` or `shared/quiz-engine/`) | — | Pure function, no network; extracting to `shared/` makes it unit-testable |
+| Profile synthesis (`synthesizeWeights`) | Browser / Client | — | Deterministic rule-based transform; runs at quiz submit; pure function |
+| Tension detection (`detectTension`) | Browser / Client | — | Pure function over answers |
+| `Profile` contract extension | `shared/types.ts` | — | Contract layer shared by Phase 3 engine; owned jointly per STRUCTURE.md |
+| Quiz state persistence for re-take | Browser / Client (React context, `useState`) | — | No cross-session persistence required this phase; re-take = reset state + confirm dialog |
+| Dealbreaker capture-time warning | Browser / Client | — | UI concern only; enforcement logic in Phase 3 |
 
 ---
 
-## Recommended Instrument (the deeper quiz)
+## Standard Stack
 
-Six grouped steps. Each field below names its **elicitation method** and its **downstream consumer**. Perceived length stays ~8–10 via branching.
+### What is actually installed (package.json, verified today)
 
-### Step 1 — Why now? (Motivation — NEW, the keystone)
-- **`motivations`** — multi-select, pick up to 3 from: *Save more money · Advance my career · Lower cost of living · Adventure & new culture · Be near family · Safety & stability · Lifestyle upgrade · Remote-work freedom.*
-  - **Method:** capped multi-select (forces prioritization, avoids "select all").
-  - **Consumer:** Phase 3 — **seeds the derived weight emphasis** (e.g. "save money" → +cost weight; "career" → +jobGrowth weight; "adventure" → +openness interpretation). Personalizes Phase 4/6/7 copy.
-  - **Why first:** motivation is the cheapest, highest-signal predictor and frames every later question. Maps to the *autonomy/goals* driver in person-environment-fit research.
+| Package | Version | Status |
+|---------|---------|--------|
+| react | ^19.2.6 | Installed |
+| react-dom | ^19.2.6 | Installed |
+| vite | ^8.0.14 | Installed (dev) |
+| @vitejs/plugin-react | ^6.0.2 | Installed (dev) |
 
-### Step 2 — Work & money
-- **`profession`** (structured pick + custom), **`hasRemote`** → Phase 3 salary (`BASE_SALARIES`) + job-market weight; remote widens geography.
-- **`workStyle`** (NEW) — `remote | hybrid | onsite`; **branch:** if not remote → **`industryHubImportance`** (low/med/high) and **`commuteTolerance`** → Phase 3 job-market weight + density.
-- **`income`, `savings`, `debt`, `housing`** (rent/buy) → Phase 3 financial model (FIN-01).
-- **`hasPartner`** → branch **`partnerIncome`**; **`hasDependents`** → branch **`numDependents`** (+ auto-bump schools/safety weight); **`hasPets`** → branch **`petType`** → Phase 3 expense model.
+**Framer Motion is NOT installed.** [VERIFIED: npm view] The prototype uses CSS transitions via inline `opacity`/`transform` + a `setTimeout`/`setAnim` pattern. Phase 1 locked "port inline styles as-is, no redesign."
 
-### Step 3 — You & your rhythm
-- **`age`, `education`, `currentCity`** → Phase 3 baseline (Teleport-style "vs. where you live now" compare) + salary adjustment.
-- **`paceOfLife`** (NEW) — slider *Slow & peaceful ↔ Fast & high-energy* → Phase 3 vibe/density match. (P-E fit: stimulation↔peacefulness.)
-- **`communityNeeds`** (NEW) — slider/pick *Tight-knit & familiar ↔ Big & diverse* + **`familyProximity`** importance → Phase 3 diversity/community vibe; feeds the "Far from family" dealbreaker conflict. (P-E fit: interaction↔solitude, homogeneity↔heterogeneity.)
-- **`riskTolerance`** (NEW) — slider *Play it safe ↔ Embrace the unknown* → modulates how aggressively bold/abroad matches surface; informs Phase 5/7 framing.
+**No test runner is installed.** No vitest, jest, or any test framework in package.json.
 
-### Step 4 — Your ideal life (lifestyle)
-- **`lifestyleTags`** — the existing 14-tag grid (≥1 required) → Phase 3 vibe match. Feeds conflict detection (e.g. nightlife/startup vs. cost).
+### Recommendation: Add for this phase
 
-### Step 5 — Going Global (D-06, the demo moment)
-- **`opennessToAbroad`** — slider 0–100, **`0` = exclude international entirely**, living label ("Set in my country → Anywhere on earth") → Phase 3 international weight (testable Phase 4).
-- **`citizenship`** — structured shortlist, **defaults to US** → Phase 6 `ROADMAP_TEMPLATES`, Phase 7 pathways.
-- **`immigrationStatus`** — **auto `"citizen"` for US**; **branch:** non-US → short enum → Phase 7.
-- **`moveTimeline`** — buckets → Phase 6 urgency, Phase 7.
-- **Branch:** if `opennessToAbroad === 0`, collapse/skip abroad-specific framing but still capture citizenship (default US) so the contract stays populated for domestic roadmaps.
+| Library | Registry Version | Purpose | Decision |
+|---------|-----------------|---------|----------|
+| framer-motion | 12.40.0 [VERIFIED: npm registry] | Direction-aware card transitions (AnimatePresence) | Optional — see "Framer Motion vs CSS pattern" below |
+| vitest | 4.1.7 [VERIFIED: npm registry] | Test runner for pure quiz logic functions | Required (nyquist_validation is enabled; pure functions are easily testable) |
+| @testing-library/react | 16.3.2 [VERIFIED: npm registry] | Component testing for quiz navigation | Required alongside vitest |
+| @testing-library/jest-dom | latest | Jest-dom matchers with vitest | Required (vitest supports jest-dom matchers) |
+| @testing-library/user-event | latest | Simulate user interactions | Recommended |
 
-### Step 6 — Priorities & deal-breakers
-- **`importanceRank`** — reorder the 4 pillars (cost/career/lifestyle/safety) → base weights via rank-order. Keep 4 top-level for demo clarity; finer weights derive from Steps 1–4.
-- **`dealBreakers`** — hard filters, **all 10 wired**, **capture-time warning** ("these can remove a lot of good options") → Phase 3 elimination + guardrails.
-- **Tension reconciliation** (D-14) — see below.
+**Installation (if adopting all):**
+```bash
+npm install framer-motion
+npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
+```
+
+Add to `vite.config.js`:
+```js
+/// <reference types="vitest" />
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test-setup.js'],
+  }
+})
+```
+
+### Framer Motion vs CSS-transition pattern
+
+The prototype uses:
+```js
+const [anim, setAnim] = useState(false);
+const goProfile = (s) => { setProfileStep(s); setAnim(false); setTimeout(() => setAnim(true), 60); };
+const fadeIn = {
+  opacity: anim ? 1 : 0, transform: anim ? "translateY(0)" : "translateY(24px)",
+  transition: "all 0.7s cubic-bezier(0.16,1,0.3,1)"
+};
+```
+
+This produces a fade-up per question. It works and requires no new dependency.
+
+**Adding Framer Motion** enables direction-aware transitions (slide left on Next, slide right on Back) via `AnimatePresence` + `custom` prop:
+
+```jsx
+// Source: https://sinja.io/blog/direction-aware-animations-in-framer-motion
+const variants = {
+  enter: (direction) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+  }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction) => ({
+    x: direction > 0 ? -300 : 300,
+    opacity: 0,
+  }),
+};
+
+<AnimatePresence custom={direction} mode="wait">
+  <motion.div
+    key={currentQuestionId}
+    custom={direction}
+    variants={variants}
+    initial="enter"
+    animate="center"
+    exit="exit"
+    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+  >
+    {/* question card */}
+  </motion.div>
+</AnimatePresence>
+```
+
+**Recommendation:** Use Framer Motion. The direction-aware transition is the adaptive quiz's most visible UX proof point — pressing Back should feel like going back, not just fading. The package is already listed in STACK.md as a planned dependency. The install is single-line and has zero configuration. If the demo timeline is tight, the CSS-transition pattern is an acceptable fallback.
+
+## Package Legitimacy Audit
+
+| Package | Registry | Downloads | Source Repo | slopcheck | Disposition |
+|---------|----------|-----------|-------------|-----------|-------------|
+| framer-motion | npm | ~12M/wk [ASSUMED] | github.com/motiondivision/motion [ASSUMED] | Could not run — slopcheck install blocked by sandbox | Flagged [ASSUMED] — planner must add checkpoint:human-verify before install |
+| vitest | npm | ~20M/wk [ASSUMED] | github.com/vitest-dev/vitest [ASSUMED] | Could not run | Flagged [ASSUMED] — planner must add checkpoint:human-verify before install |
+| @testing-library/react | npm | ~15M/wk [ASSUMED] | github.com/testing-library/react-testing-library [ASSUMED] | Could not run | Flagged [ASSUMED] — planner must add checkpoint:human-verify before install |
+
+**Packages flagged as suspicious [SUS]:** none
+**Packages removed due to slopcheck [SLOP] verdict:** none
+
+*slopcheck could not be installed (sandbox restriction). All three packages are tagged [ASSUMED]. Planner MUST gate each install behind a `checkpoint:human-verify` task before executing `npm install`. The packages are well-established in the ecosystem but provenance rule requires this gate when slopcheck cannot run.*
 
 ---
 
-## QUIZ-02 — Openness to Abroad — Findings
-- Slider format locked (D-10). `0` = hard exclude; mid/high weight international up. Behavior only testable once Phase 4 ships international cities; Phase 2 verifies the value is **captured + passed**.
-- **Recommendation:** add a `riskTolerance` cross-check — high openness + low risk tolerance is a (soft) signal to surface "easier" abroad options first (English-speaking / strong-expat-infra), a Phase 4/5 hook. Capture both here; consume later.
+## Architecture Patterns
 
-## QUIZ-03 — Citizenship & Immigration — Findings
-- **Citizenship shortlist (recommend ~10 + Other), default US:** United States · Canada · United Kingdom · Germany · India · China · Philippines · Mexico · Brazil · Nigeria · Other. Rationale: largest US-immigrant-origin populations + the destination-country passports relevant to Phase 4 golden-path cities (Portugal/Germany/Canada/UK). Planner finalizes against Phase 6/7 template coverage; unsupported combos fall back to a generic roadmap downstream.
-- **Status enum (non-US only):** `citizen` (auto for US) · `permanent_resident` · `work_visa` · `student_visa` · `other`. Keep neutral, minimal, non-judgmental wording. Store structured.
-- **SC3 satisfied** even though most users (US) never see the status question — every user *declares citizenship*; status is auto-derived for US, explicitly declared by non-US.
+### System Architecture Diagram
 
-## QUIZ-04 — Dealbreakers as Hard Filters — Findings
-- **Competitor lesson (Teleport):** users pick what matters; the system avoids overloading them with per-factor weighting. Apply the same restraint — dealbreakers are a *small* set of binary hard filters, not a weighting matrix.
-- **Wire all 10** (D-12). Today `getMatchScore` only handles 6; "near mountains," "near ocean/coast," "international airport," "strong job market in field" are selectable no-ops — none should stay inert (this requires matching `City` attributes to exist; flag as a Phase 3 contract need).
-- **Capture-time warning** (D-11) at the dealbreaker step. The never-empty floor + advisory-override ("your X dealbreaker removed your best fit — reconsider?") are **Phase 3** guardrails; Phase 2 only warns + captures.
-- Some dealbreakers imply a needed `City` field (airport, coast, mountains, no-state-income-tax). **Open question for Phase 3 contract** (see below).
+```
+User (phone/laptop)
+        |
+        v
+  QuizShell.jsx (step state, direction state, progress indicator)
+        |
+        |-- getVisibleQuestions(answers, ALL_QUESTIONS)  [pure fn, shared/quiz-engine/]
+        |        |
+        |        |-- showIf(answers) predicate per QuestionDef
+        |        |-- detectTension(answers) → optional tension Q injected
+        |
+        v
+  Question Card (renders current QuestionDef based on type)
+    SingleSelect / MultiSelect / Slider / FreeText
+        |
+        v
+  answers state (Record<questionId, AnswerValue>)
+        |
+        v
+  synthesizeProfile(answers) [pure fn, shared/quiz-engine/]
+        |
+        v
+  Extended Profile{} → AppContext → Phase 3 scoring engine
+```
 
-## QUIZ-05 — Move Timeline — Findings
-- **Recommend buckets:** `asap` (≤6 mo) · `6_12mo` · `1_2yr` · `2yr_plus` · `exploring` (no timeline). 5 options; "exploring" is the no-pressure default. → Phase 6 roadmap urgency sequencing, Phase 7 processing-time relevance.
+### Recommended Project Structure
 
-## QUIZ-01 / SC6 / SC7 — Adaptive Flow + Tension Reconciliation — Findings
+```
+src/screens/quiz/
+├── QuizShell.jsx          # Main quiz component: step state, direction, submit
+├── QuestionCard.jsx       # Routes question type → correct input component
+├── inputs/
+│   ├── SingleSelect.jsx   # Pill buttons (one active)
+│   ├── MultiSelect.jsx    # Pill buttons (multiple active, toggleArr pattern)
+│   ├── SliderInput.jsx    # Range input, accentColor, live value display
+│   └── FreeText.jsx       # Input with inputStyle
+└── ProgressBar.jsx        # Segmented progress (matches prototype's bar pattern)
 
-**Branching (SC6).** Use simple, pre-mapped `if-then` rules (research best practice; CONTEXT D-03). Concrete branches: partner→income, dependents→count, pets→type, workStyle≠remote→hub/commute, citizenship≠US→status enum, openness=0→collapse abroad framing. This keeps perceived length ~8–10 even with the deeper dimension set.
+shared/quiz-engine/        # Pure TS — testable without React
+├── questions.ts           # ALL_QUESTIONS: QuestionDef[] (the question graph)
+├── resolver.ts            # getVisibleQuestions(answers, questions): QuestionDef[]
+├── tension.ts             # detectTension(answers): TensionQuestion | null
+└── synthesizer.ts         # synthesizeProfile(answers): ExtendedProfile
 
-**Tension reconciliation (SC7, D-14)** — the adaptive showcase. Use **forced-choice (best-worst) phrasing** to resolve, which the MaxDiff literature shows beats rating scales and produces a clean weight delta.
-- **Conflict-detection heuristics (rule set, evaluated after Step 6):**
-  1. `importanceRank[0]==='cost'` **AND** lifestyle/motivation implies expensive (nightlife, startup, "lifestyle upgrade") → *budget vs. vibrancy*.
-  2. `opennessToAbroad ≥ 65` **AND** (`'Be near family'` motivation OR high `familyProximity` OR "far from family" dealbreaker) → *abroad vs. roots*.
-  3. `motivations` includes both `'Save more money'` **AND** `'Advance my career'` while `importanceRank` can't rank both top → *money vs. career runway*.
-  4. `paceOfLife` high (fast) **AND** `lifestyleTags` includes `quiet`/`outdoors` heavily → *energy vs. calm*.
-- **Mechanic:** detect → ask **one** reconciling forced-choice ("When these pull apart, which leans?") → store as `preferences.tradeoffs[conflictId] = 'a'|'b'` and apply a weight delta. Show **at most one** reconciliation to protect flow (pick highest-severity). Phase 3 uses the tiebreaker to rank cities that *balance* the competing priorities; the live-search reconciliation is Phase 5.
+shared/types.ts            # Extended with new Profile fields (D-05)
+```
 
----
+### Pattern 1: Typed Question Graph
 
-## The Derived Preference Profile (D-04 — the core deliverable)
+**What:** Questions are a flat array of `QuestionDef` objects. Branching is expressed as an optional `showIf(answers)` predicate, not a tree. The resolver filters the array in sequence on every answer change, producing the current visible list.
 
-Extend `shared/types.ts`:
+**Why not a tree:** Trees require recursive traversal and make "how many steps remain?" hard to compute for the progress indicator. A flat array with predicates is simpler, produces a clean step count, supports back navigation trivially, and is the lightweight option the team chose (deferred: "full schema-driven adaptive engine").
 
-```ts
-// added to Profile (raw capture)
-motivations: string[];
-workStyle: "remote" | "hybrid" | "onsite";
-industryHubImportance?: "low" | "med" | "high";
-commuteTolerance?: number;
-paceOfLife: number;          // 0..100  slow↔fast
-communityScale: number;      // 0..100  tight-knit↔big-diverse
-familyProximity: number;     // 0..100  importance
-riskTolerance: number;       // 0..100
-// derived (the real logic)
-preferences: PreferenceProfile;
+**When to use:** Any quiz with conditional follow-ups that don't require complex multi-path branching.
 
-export interface PreferenceProfile {
-  weights: {                 // normalized 0..1, sum ≈ 1 (MaxDiff-style)
-    cost: number; career: number; lifestyle: number; safety: number;
-    climate: number; community: number; pace: number; international: number;
-  };
-  tradeoffs: Record<string, "a" | "b">;   // resolved conflicts -> weight deltas
-  hardFilters: string[];                   // dealbreakers as filters
-  excludeInternational: boolean;           // opennessToAbroad === 0
+**Load-bearing invariant:** This pattern is correct only if every conditional/injected question appears *at or after* its trigger question in `ALL_QUESTIONS`. The `currentIndex` into the recomputed `visibleQuestions` array stays aligned because questions cannot reveal earlier than their trigger. Planner must enforce this when adding questions: never write a `showIf` whose condition depends on a question that appears *later* in the array. If complex reverse-dependencies are needed, switch to tracking current position by question `id` (a visited-id history stack) rather than a numeric index.
+
+```typescript
+// shared/quiz-engine/questions.ts
+// Source: established React adaptive quiz pattern — [ASSUMED], no single canonical source
+
+export type QuestionType = "single-select" | "multi-select" | "slider" | "free-text";
+
+export interface QuestionDef {
+  id: string;
+  type: QuestionType;
+  prompt: string;
+  subtext?: string;
+  options?: { value: string; label: string }[];  // single/multi-select
+  min?: number; max?: number; step?: number;      // slider
+  minLabel?: string; maxLabel?: string;           // slider labels
+  required?: boolean;
+  showIf?: (answers: Answers) => boolean;         // undefined = always show
+}
+
+export type Answers = Record<string, string | string[] | number>;
+
+export const ALL_QUESTIONS: QuestionDef[] = [
+  {
+    id: "profession",
+    type: "single-select",
+    prompt: "What do you do for work?",
+    options: [/* profession list from constants.js */],
+    required: true,
+  },
+  {
+    id: "hasRemote",
+    type: "single-select",
+    prompt: "Can you work fully remote?",
+    options: [{ value: "yes", label: "Yes, fully remote" }, { value: "no", label: "No, I need to be on-site" }],
+  },
+  // ... finances, background, lifestyle, priorities, dealbreakers
+  {
+    id: "opennessToAbroad",
+    type: "slider",
+    prompt: "How open are you to living outside the US?",
+    subtext: "Slide to 0 to only see US cities.",
+    min: 0, max: 100, step: 5,
+    minLabel: "US only", maxLabel: "Anywhere in the world",
+  },
+  {
+    id: "citizenship",
+    type: "single-select",
+    prompt: "What's your citizenship?",
+    options: CITIZENSHIP_SHORTLIST,  // US default, ~10 others, "Other"
+  },
+  {
+    id: "immigrationStatus",
+    type: "single-select",
+    prompt: "What's your current immigration status?",
+    options: [
+      { value: "pr", label: "Permanent Resident (Green Card)" },
+      { value: "work_visa", label: "Work visa" },
+      { value: "student", label: "Student visa" },
+      { value: "other", label: "Other" },
+    ],
+    showIf: (a) => a["citizenship"] !== "US",  // D-09: not shown for US citizens
+  },
+  {
+    id: "moveTimeline",
+    type: "single-select",
+    prompt: "When are you thinking of making a move?",
+    options: [
+      { value: "6mo", label: "In the next 6 months" },
+      { value: "12mo", label: "Within a year" },
+      { value: "2yr+", label: "2+ years out" },
+      { value: "exploring", label: "Just exploring, no timeline" },
+    ],
+  },
+  // Tension follow-up — injected by detectTension(), not statically defined
+];
+```
+
+### Pattern 2: Flat Resolver + Tension Injection
+
+```typescript
+// shared/quiz-engine/resolver.ts
+export function getVisibleQuestions(
+  answers: Answers,
+  all: QuestionDef[]
+): QuestionDef[] {
+  const base = all.filter(q => !q.showIf || q.showIf(answers));
+  const tension = detectTension(answers);
+  if (tension) {
+    // Insert tension question after the last answered question that caused it
+    const insertAt = base.findIndex(q => q.id === tension.afterId) + 1;
+    const result = [...base];
+    result.splice(insertAt, 0, tension.question);
+    return result;
+  }
+  return base;
 }
 ```
 
-**Derivation method (`shared/engine/derive-preferences.ts`, pure + tested):**
-1. **Base weights** from `importanceRank` via rank-order (e.g. 0.40 / 0.27 / 0.20 / 0.13), the simple, defensible split.
-2. **Nudges** from `motivations`, `paceOfLife`, `communityScale`, `lifestyleTags`, `opennessToAbroad` (additive deltas, capped).
-3. **Tradeoff deltas** from reconciliation answers.
-4. **Normalize** to sum 1 (the MaxDiff 0–100→0–1 convention). Keep the math linear and transparent — re-derivable on stage in 60 seconds (mirrors the pitch's "re-derive in 60s" stance).
+```typescript
+// shared/quiz-engine/tension.ts
+// Known tension pairs: nature-loving + career-growth, low-cost + walkable/transit
+export interface TensionResult {
+  afterId: string;  // inject after this question id
+  question: QuestionDef;
+}
 
----
+export function detectTension(answers: Answers): TensionResult | null {
+  const lifestyle = answers["lifestyleTags"] as string[] | undefined ?? [];
+  const rank = answers["importanceRank"] as string[] | undefined ?? [];
 
-## Validation Architecture (Nyquist)
+  // Example: outdoors-focused + career-first = known conflict
+  const lovesNature = lifestyle.includes("outdoors") || lifestyle.includes("snow");
+  const careerFirst = rank[0] === "career" || rank[1] === "career";
+  const costFirst = rank[0] === "cost";
 
-Pure functions + a state machine → highly testable. Recommended validation requirements for the plan:
+  if (lovesNature && careerFirst) {
+    return {
+      afterId: "importanceRank",
+      question: {
+        id: "tiebreaker_nature_vs_career",
+        type: "single-select",
+        prompt: "Nature access and top career markets often don't overlap. If you had to lean one way, which wins?",
+        subtext: "This helps us rank cities that try to balance both.",
+        options: [
+          { value: "nature", label: "Nature first — I'll find the career opportunities" },
+          { value: "career", label: "Career first — I'll find outdoor escapes nearby" },
+          { value: "balanced", label: "Balanced — I want both, even if neither is perfect" },
+        ],
+      },
+    };
+  }
 
-| Test | Target | Asserts |
-|---|---|---|
-| `derive-preferences` unit | `shared/engine/derive-preferences.ts` | known answers → expected normalized weights (sum≈1); motivation/pace nudges move the right weight. |
-| conflict-detection unit | branching/reconcile logic | each heuristic fires on its trigger combo and not otherwise; only highest-severity surfaces. |
-| branching unit | step machine | given answers, expected follow-ups show/hide (partner→income, citizenship≠US→status, openness=0→collapse). |
-| Profile completeness | quiz submit | every required field present; `immigrationStatus` auto-`citizen` for US; `excludeInternational` set when openness=0. |
-| contract/type | `shared/types.ts` | `Profile`+`PreferenceProfile` compile; emitted object matches the interface (the P2→P3 handshake). |
+  // Add more known tension pairs here
+  return null;
+}
+```
+
+### Pattern 3: Profile Synthesis (Rule-Based Weights)
+
+**What:** After quiz submit, a pure `synthesizeProfile(answers)` function maps raw answers to the extended `Profile` object. This is where "logic lives in the profile, not the matcher" (D-04).
+
+**How weights work:** Phase 3 needs weights, not just raw answers. The synthesizer performs deterministic transforms:
+- `importanceRank` → `weights: { cost: number, career: number, lifestyle: number, safety: number }` (e.g. rank 0 → weight 4, rank 3 → weight 1)
+- Tiebreaker answers → `tradeoffTolerance: { dimension: string, preference: "a" | "b" | "balanced" }[]`
+- `opennessToAbroad = 0` → included in the profile as a hard-exclusion signal that Phase 3 reads
+
+```typescript
+// shared/quiz-engine/synthesizer.ts
+// [ASSUMED] — no canonical source; standard deterministic mapping pattern
+
+export function synthesizeProfile(answers: Answers): ExtendedProfile {
+  const rank = (answers["importanceRank"] as string[]) ?? ["cost", "career", "lifestyle", "safety"];
+  const weights = {
+    cost:      rankToWeight(rank.indexOf("cost")),
+    career:    rankToWeight(rank.indexOf("career")),
+    lifestyle: rankToWeight(rank.indexOf("lifestyle")),
+    safety:    rankToWeight(rank.indexOf("safety")),
+  };
+
+  const tradeoffTolerance: TradeoffEntry[] = [];
+  if (answers["tiebreaker_nature_vs_career"]) {
+    tradeoffTolerance.push({
+      dimension: "nature_vs_career",
+      preference: answers["tiebreaker_nature_vs_career"] as "nature" | "career" | "balanced",
+    });
+  }
+
+  return {
+    // existing prototype fields
+    profession: String(answers["profession"] ?? ""),
+    hasRemote: answers["hasRemote"] === "yes",
+    income: Number(answers["income"] ?? 55000),
+    // ... rest of existing fields
+
+    // new dimensions (D-02)
+    motivationToMove: String(answers["motivationToMove"] ?? ""),
+    workStyle: String(answers["workStyle"] ?? ""),
+    communityNeeds: (answers["communityNeeds"] as string[]) ?? [],
+    paceOfLife: String(answers["paceOfLife"] ?? "moderate"),
+    riskTolerance: Number(answers["riskTolerance"] ?? 50),
+
+    // QUIZ-02, QUIZ-03, QUIZ-05
+    opennessToAbroad: Number(answers["opennessToAbroad"] ?? 50),
+    citizenship: String(answers["citizenship"] ?? "US"),
+    immigrationStatus: answers["citizenship"] === "US" ? "citizen" : String(answers["immigrationStatus"] ?? ""),
+    moveTimeline: String(answers["moveTimeline"] ?? "exploring"),
+
+    // QUIZ-04
+    dealBreakers: (answers["dealBreakers"] as string[]) ?? [],
+
+    // Derived (D-04)
+    weights,
+    tradeoffTolerance,
+  };
+}
+
+function rankToWeight(index: number): number {
+  // rank 0 (top priority) → weight 4, rank 3 (lowest) → weight 1
+  return [4, 3, 2, 1][index] ?? 1;
+}
+```
+
+### Pattern 4: `shared/types.ts` Extension (D-05)
+
+The current `Profile` in `shared/types.ts` already has: `profession`, `hasRemote`, `income`, `savings`, `debt`, `housing`, `hasPartner`, `partnerIncome`, `hasDependents`, `numDependents`, `hasPets`, `age`, `education`, `currentCity`, `citizenship`, `immigrationStatus`, `opennessToAbroad`, `lifestyleTags`, `dealBreakers`, `importanceRank`, `moveTimeline`.
+
+**New fields to add** (planner finalizes exact names):
+
+```typescript
+// Additions to Profile in shared/types.ts
+// D-02: deeper dimensions
+motivationToMove: string;          // e.g. "career_growth" | "cost_of_living" | "adventure" | "family" | "lifestyle"
+workStyle: string;                 // e.g. "office" | "hybrid" | "remote"
+communityNeeds: string[];          // e.g. ["family_friendly", "expat_community", "lgbtq_friendly"]
+paceOfLife: string;                // e.g. "fast_urban" | "moderate" | "slow_relaxed"
+riskTolerance: number;             // 0–100 slider: 0 = risk-averse, 100 = high tolerance
+
+// D-04: derived weights + tiebreaker (planner finalizes structure)
+weights: {
+  cost: number;      // 1–4, derived from importanceRank
+  career: number;
+  lifestyle: number;
+  safety: number;
+};
+tradeoffTolerance: {
+  dimension: string;               // "nature_vs_career", "urban_vs_suburban", etc.
+  preference: "a" | "b" | "balanced";
+}[];
+```
+
+**Off-contract prototype fields to reconcile (D-05 notes):**
+- `profile.name` — not in `types.ts`; planner decides keep or drop (not required for matching; could be UX personalization)
+- `profile.customProfession` — fold into `profession` field; drop `customProfession`
+- `profile.petType` — not in `types.ts`; Phase 3 doesn't score on it; planner decides keep or drop
+- `profile.color` — drop (was per-profession color for UI; doesn't belong in the data contract)
+
+### Anti-Patterns to Avoid
+
+- **Embedding branching logic as React `if/else` in JSX:** Makes question set untestable. Move all logic to `shared/quiz-engine/` pure functions.
+- **Storing derived weights as computed-on-the-fly inside the scoring engine:** Phase 3 should receive a fully synthesized profile. Synthesis happens once at quiz submit, not per-city scoring loop.
+- **Calling `synthesizeProfile` on every answer change:** Synthesis is expensive if all 12 cities are immediately re-scored. Call once on submit; scoring is Phase 3's concern anyway.
+- **Re-using `anim`/`setTimeout` for direction-aware transitions:** The CSS fade-up trick has no direction concept. For forward/back to feel directional, you need Framer Motion or a custom CSS class-swap approach. If not using Framer Motion, acknowledge the limitation.
 
 ---
 
 ## Don't Hand-Roll
-- **Weight derivation** — use the simple rank-order + additive-nudge + normalize recipe above; **do not** invent a black-box scorer. Transparency is a pitch asset.
-- **Adaptive engine** — do NOT build a schema/config-driven question engine (CONTEXT explicitly rejected it for build-cost). Plain `if-then` branches in a reducer.
-- **UI primitives** — reuse the existing inline-style `pill`/`slider`/`label`/progress primitives (UI-SPEC, port-don't-redesign). The cinematic prototype in `sketches/` is visual reference only; its *question content* is the shallow set being replaced.
-- **State** — prefer one `useReducer` for the now-large profile over a dozen `useState` calls.
+
+| Problem | Don't Build | Use Instead | Why |
+|---------|-------------|-------------|-----|
+| Direction-aware card transitions | Custom CSS class-swap + transition timing | Framer Motion `AnimatePresence` + `custom` prop | Managing mount/unmount + direction + spring physics in raw CSS requires 100+ lines and is brittle. AnimatePresence handles unmount animation correctly. |
+| Test runner | Any custom test infra | vitest | Zero config with Vite; reuses vite.config.js; Jest-compatible API. Not worth building custom. |
+| Form validation for each question type | Custom per-type validators | Simple inline `canProceed` predicate per `QuestionDef` | The prototype's `canProceed` array pattern is sufficient; don't reach for a form library. |
+
+**Key insight:** The adaptive logic itself (branching, tension detection, synthesis) is simple enough to hand-roll as pure TypeScript functions. Don't reach for a state-machine library (XState, etc.) — that's the "full config-driven engine" that was explicitly rejected. The complexity ceiling here is a flat array + a few predicate functions.
+
+---
+
+## Competitor Research: Hard Filters vs Advisory Matching (D-13)
+
+**Teleport (acquired/enterprise, formerly teleport.org)** [CITED: lifetips.alibaba.com/teleport]:
+Teleport used a **two-phase approach**: first users weighted preferences by importance, then baseline data (profession, salary) was added to forecast costs. Filters covered 20+ parameters. Results showed a **bar graph** with per-preference color coding showing how closely a city matched each criterion. The platform also calculated a "budget difference" vs the user's current city — surfacing the trade-off directly in the result card. **Key lesson:** Showing *why* a city scored as it did (the scoreFactors breakdown) was the product's differentiator, not just the ranking. Teleport did not expose "hard exclude" as a separate filter tier — all weights were soft (contribution to score), not eliminators.
+
+**Nomad List (nomadlist.com)** [CITED: novad.app/vs/nomadlist, nomadvibe.co]:
+Nomad List uses a **spreadsheet-style filter panel** with 50+ parameters. Users report UX friction ("fighting with 50 filters"). The filter UI is not advisory — it can easily produce zero results with aggressive combination. No empty-state guardrail is documented. **Key lesson from competitor failure:** Nomad List's power-user filter approach is exhausting for casual users. Our advisory design (dealbreaker warning, never-empty floor) is differentiated.
+
+**Novad (novad.app)** [CITED: novad.app]:
+Newer entrant using **emotional / vibe-based onboarding** ("how do you want to feel — calm, inspired, adventurous?") rather than hard data inputs. This is the opposite extreme from Nomad List. Matches on mood, not measurable criteria. **Key lesson:** Emotional matching alone risks poor credibility with a judge audience. Our hybrid (data-first + structured preferences + advisory) is the right middle.
+
+**Advisory pattern (what we should adopt):**
+
+Based on the competitor landscape, the recommended approach for Phase 2 is:
+1. **Capture-time warning when dealbreakers are selected:** "Dealbreakers remove cities entirely — the more you add, the fewer options remain." (Inline contextual, not a modal.)
+2. **Never expose an empty result (Phase 3 concern, captured here for planning context):** If all cities are eliminated, relax the most marginal dealbreaker and surface: "Your [X] dealbreaker removed all matches. We've softened it to show your closest options — reconsider?"
+3. **Advisory override for near-misses (Phase 3):** If a dealbreaker eliminated the city that would have ranked #1, surface it: "Austin would have been your top match — your [No extreme heat] dealbreaker removed it."
+
+These guardrails are the answer to judges asking "what happens when someone adds too many filters?" — it never breaks.
+
+---
 
 ## Common Pitfalls
-- **Per-factor weighting overload** (Teleport's stated failure mode) — derive weights; never ask users to tune them.
-- **Survey fatigue** — without branching, the deeper dimension set balloons; branching must hold perceived length to ~8–10.
-- **Rating-scale "everything is important" bias** — prefer pick-top / rank / forced-choice over Likert grids.
-- **Inert captures** — every field must have a named consumer; the 4 dead dealbreakers are the cautionary example.
-- **Dealbreakers wiping results** — real risk; mitigated in Phase 3 (never-empty + advisory). Phase 2 must warn at capture.
-- **Sensitive immigration questions** — keep minimal, neutral, US-fast-path; store structured, never free-text for status.
-- **Contract drift** — `src/` prototype state carries extras (`name`, `customProfession`, `color`) not in `types.ts`; reconcile explicitly (keep `customProfession` folded into `profession`; drop `color`).
 
-## Open Questions (RESOLVED)
-1. **`City` attribute gaps** — RESOLVED (Plan 02-01): wiring all dealbreakers needs `City` fields for airport / coast / mountains / state-income-tax. **Resolution:** define these fields on the `City` contract now (Plan 02-01 Task 1); Phase 3/4 populate them.
-2. **Citizenship shortlist final 10** — RESOLVED (Plan 02-01): adopt the UI-SPEC's locked citizenship shortlist (default US), with a generic-roadmap fallback acceptable for citizenships lacking a Phase 6 `ROADMAP_TEMPLATES` entry.
-3. **Priority pillars: keep 4 or expand to 6** — RESOLVED (Plan 02-03): keep the 4 visible pillars (cost/career/lifestyle/safety) and derive finer weights, to protect demo clarity.
+### Pitfall 1: Questions out of sync with `shared/types.ts`
+**What goes wrong:** A question collects a field that isn't in the `Profile` type, or a type field has no corresponding question. Phase 3 scoring reads `undefined`.
+**Why it happens:** The quiz is built UI-first; the type contract update is forgotten.
+**How to avoid:** Extend `shared/types.ts` first (D-05 says this), then write the questions. TypeScript will catch missing fields in `synthesizeProfile`.
+**Warning signs:** Any `profile.someField` in `shared/engine/scoring.ts` that would be `undefined` for a user who completed the new quiz.
+
+### Pitfall 2: The tension question breaks step count / progress
+**What goes wrong:** The progress bar shows "4 of 8" but a tension question is injected, making the total 9. The count jumps.
+**Why it happens:** Progress is `currentIndex / total` where `total` is computed at mount, not dynamically.
+**How to avoid:** Compute `visibleQuestions = getVisibleQuestions(answers, ALL_QUESTIONS)` on every answer change. Progress bar uses `visibleQuestions.length`, not a static constant. Accept that the total may shift by one when a tension question appears.
+
+### Pitfall 3: Back navigation leaves stale answers
+**What goes wrong:** User answers Q4, Q5 appears (showIf passes), user goes back to Q4 and changes their answer so Q5's condition now fails — but Q5's answer is still in the `answers` state. Phase 3 reads a value that was answered for a question the user never saw again.
+**How to avoid:** When navigating back and changing an answer that causes a previously-visible question to become hidden, clear its answer. Add a `clearHiddenAnswers(newAnswers, allQuestions)` step after each answer update:
+```ts
+function clearHiddenAnswers(answers: Answers, all: QuestionDef[]): Answers {
+  const visible = new Set(getVisibleQuestions(answers, all).map(q => q.id));
+  return Object.fromEntries(Object.entries(answers).filter(([id]) => visible.has(id)));
+}
+```
+
+### Pitfall 4: Slider renders as full-width on narrow phones but thumb is hard to tap
+**What goes wrong:** Default HTML range input thumb is 16px on many mobile browsers. Fat-finger miss rate is high.
+**Why it happens:** The prototype's sliders use `accentColor` only; no thumb size customization.
+**How to avoid:** Add CSS to increase thumb hit area:
+```css
+input[type="range"]::-webkit-slider-thumb { width: 28px; height: 28px; }
+input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; }
+```
+
+### Pitfall 5: `immigrationStatus` missing for US citizens breaks Phase 6
+**What goes wrong:** `synthesizeProfile` only sets `immigrationStatus` for non-US paths. US citizens get `undefined`. Phase 6 keying `ROADMAP_TEMPLATES[citizenship][country]` fails to match.
+**Why it happens:** D-09 says "auto-set to 'citizen' for US" but the implementation forgets to run the auto-set.
+**How to avoid:** In `synthesizeProfile`, always set: `immigrationStatus: answers["citizenship"] === "US" ? "citizen" : answers["immigrationStatus"]`. This is the exact implementation D-09 requires.
+
+### Pitfall 6: Dealbreaker warning copy is passive and ignored
+**What goes wrong:** A small gray label saying "note: dealbreakers remove cities" is ignored. User adds 6 dealbreakers, gets 0 results in Phase 3, confused.
+**Why it happens:** Inline contextual warnings are easy to skim.
+**How to avoid:** Make the warning reactive — it intensifies as more dealbreakers are added. 1–2 selected: no warning. 3+: yellow inline message. 4+: orange with count of currently-eliminated cities from a quick preview computation.
+
+---
+
+## Code Examples
+
+### QuizShell navigation with direction tracking
+
+```jsx
+// src/screens/quiz/QuizShell.jsx
+// [ASSUMED] — standard direction-aware quiz pattern; no single canonical source
+
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion"; // if using Framer Motion
+import { getVisibleQuestions, clearHiddenAnswers } from "../../shared/quiz-engine/resolver";
+import { ALL_QUESTIONS } from "../../shared/quiz-engine/questions";
+import { synthesizeProfile } from "../../shared/quiz-engine/synthesizer";
+
+export function QuizShell({ onComplete }) {
+  const [answers, setAnswers] = useState({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
+
+  const visible = getVisibleQuestions(answers, ALL_QUESTIONS);
+  const currentQuestion = visible[currentIndex];
+
+  const handleAnswer = (questionId, value) => {
+    const next = clearHiddenAnswers({ ...answers, [questionId]: value }, ALL_QUESTIONS);
+    setAnswers(next);
+  };
+
+  const goNext = () => {
+    setDirection(1);
+    if (currentIndex < visible.length - 1) {
+      setCurrentIndex(i => i + 1);
+    } else {
+      onComplete(synthesizeProfile(answers));
+    }
+  };
+
+  const goBack = () => {
+    setDirection(-1);
+    if (currentIndex > 0) setCurrentIndex(i => i - 1);
+  };
+
+  const canProceed = !currentQuestion.required || answers[currentQuestion.id] != null;
+
+  return (
+    <div style={css}>
+      {/* Progress bar — reuse prototype's segmented pattern */}
+      <ProgressBar current={currentIndex + 1} total={visible.length} onBack={goBack} />
+
+      {/* Card transition */}
+      <AnimatePresence custom={direction} mode="wait">
+        <motion.div
+          key={currentQuestion.id}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <QuestionCard
+            question={currentQuestion}
+            value={answers[currentQuestion.id]}
+            onChange={(v) => handleAnswer(currentQuestion.id, v)}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      <button onClick={goNext} disabled={!canProceed} style={canProceed ? btnPrimary : btnDisabled}>
+        {currentIndex < visible.length - 1 ? "Continue →" : "Show Me My Potential →"}
+      </button>
+    </div>
+  );
+}
+
+const slideVariants = {
+  enter: (d) => ({ x: d > 0 ? 300 : -300, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (d) => ({ x: d > 0 ? -300 : 300, opacity: 0 }),
+};
+```
+
+### "Going Global" grouping (D-06 demo moment)
+
+The three questions `opennessToAbroad`, `citizenship`, `immigrationStatus` (conditional), and `moveTimeline` should be visually grouped under a "Going Global" section header. This is a UI concern in `QuestionCard.jsx` or via a `group` field on `QuestionDef`:
+
+```typescript
+// In QuestionDef, add optional grouping metadata
+groupHeader?: {
+  label: string;
+  subtext?: string;
+};
+```
+
+Then for the `opennessToAbroad` question:
+```typescript
+{
+  id: "opennessToAbroad",
+  type: "slider",
+  groupHeader: {
+    label: "Going Global",
+    subtext: "Tell us how far you'd go — literally.",
+  },
+  prompt: "How open are you to living outside the US?",
+  // ...
+}
+```
+
+The group header renders above the first question in the group and persists across the group's questions. This creates the "visible demo moment" D-06 calls for.
+
+### Reusable primitives from PotentialApp.jsx
+
+The following can be imported or copied verbatim — they are the visual identity:
+
+```js
+// CSS token object (copy into QuizShell.jsx or extract to shared/ui-tokens.js)
+const css = {
+  "--bg":"#08090C","--surface":"#111318","--card":"#171B22",
+  "--border":"rgba(255,255,255,0.05)","--border-active":"rgba(255,255,255,0.12)",
+  "--accent":"#6EE7B7","--accent2":"#FBBF24","--accent3":"#818CF8","--accent-dim":"rgba(110,231,183,0.08)",
+  "--text":"#EEF2F7","--text2":"#8896AB","--text3":"#505C6F",
+  "--neg":"#F87171","--pos":"#6EE7B7",
+  fontFamily:"'Manrope', sans-serif", background:"var(--bg)", color:"var(--text)", minHeight:"100vh"
+};
+
+// Pill button style (single-select, multi-select options)
+const pill = (active) => ({
+  padding:"8px 16px", borderRadius:10,
+  border: active ? "1.5px solid var(--accent)" : "1px solid var(--border)",
+  background: active ? "var(--accent-dim)" : "var(--card)",
+  color: active ? "var(--accent)" : "var(--text2)",
+  fontSize:13, cursor:"pointer", fontWeight: active ? 600 : 400,
+  transition:"all 0.2s", fontFamily:"inherit",
+  display:"inline-flex", alignItems:"center", gap:6
+});
+
+// Range input (slider) — add thumb size override in index.css
+const sliderStyle = { width:"100%", accentColor:"#6EE7B7" };
+
+// Primary button
+const btnPrimary = {
+  width:"100%", padding:"16px", background:"var(--accent)", color:"#08090C",
+  border:"none", borderRadius:14, fontSize:15, fontWeight:700,
+  cursor:"pointer", fontFamily:"inherit", letterSpacing:"0.03em"
+};
+
+// Input field
+const inputStyle = {
+  width:"100%", padding:"14px 16px", background:"var(--card)",
+  border:"1px solid var(--border)", borderRadius:12,
+  color:"var(--text)", fontSize:15, fontFamily:"inherit", boxSizing:"border-box"
+};
+
+// Label style
+const label = {
+  fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em",
+  color:"var(--text2)", display:"block", marginBottom:8, fontWeight:600
+};
+
+// toggleArr helper — copy directly
+const toggleArr = (key, val, max = 99) => {
+  setAnswers(prev => {
+    const arr = (prev[key] as string[]) ?? [];
+    if (arr.includes(val)) return { ...prev, [key]: arr.filter(x => x !== val) };
+    if (arr.length >= max) return prev;
+    return { ...prev, [key]: [...arr, val] };
+  });
+};
+```
+
+---
+
+## State of the Art
+
+| Old Approach | Current Approach | When Changed | Impact |
+|--------------|------------------|--------------|--------|
+| Framer Motion 4–6 `motion.AnimatePresence` import path | Framer Motion 11+ is now published as `motion` package separately; `framer-motion` package continues as alias | 2024 | `import { AnimatePresence, motion } from "framer-motion"` still works on 12.x |
+| Vitest required separate `globals: true` config | vitest 4.x still requires `globals: true` to avoid importing `describe`/`it` in every file | Current | Add to vite.config.js test config |
+
+**Deprecated/outdated:**
+- `framer-motion` `positionTransition` prop: replaced by `layout` prop. Do not use.
+- The prototype's `setTimeout(() => setAnim(true), 60)` transition pattern: works fine for fade-up, but has no direction concept. Replace for the quiz card if Framer Motion is adopted.
+
+---
+
+## Environment Availability
+
+| Dependency | Required By | Available | Version | Fallback |
+|------------|------------|-----------|---------|----------|
+| Node.js | Vite dev server | ✓ | (already running — Phase 1 complete) | — |
+| npm | Package install | ✓ | (already running) | — |
+| framer-motion | Direction-aware transitions | ✗ (not installed) | — | CSS fade-up pattern from prototype |
+| vitest | Test runner (nyquist) | ✗ (not installed) | — | None — required for nyquist_validation |
+
+**Missing dependencies with no fallback:**
+- `vitest` + `@testing-library/react` — required by `nyquist_validation: true`. Planner must include install task in Wave 0.
+
+**Missing dependencies with fallback:**
+- `framer-motion` — CSS transition fallback exists (prototype pattern). Recommend installing; acceptable to skip if time-constrained.
+
+---
+
+## Runtime State Inventory
+
+N/A — no persistence. Quiz state lives entirely in React context (`useState`). No database, localStorage, or OS-registered state is touched by this phase. Re-taking the quiz resets in-memory state only. No migration or data cleanup required.
+
+---
+
+## Validation Architecture
+
+Nyquist validation is enabled (`workflow.nyquist_validation: true` in `.planning/config.json`).
+
+### Test Framework
+
+| Property | Value |
+|----------|-------|
+| Framework | vitest 4.1.7 (not yet installed) |
+| Config file | `vite.config.js` (add `test` block) |
+| Quick run command | `npx vitest run shared/quiz-engine/ --reporter=verbose` |
+| Full suite command | `npx vitest run --reporter=verbose` |
+
+### Phase Requirements → Test Map
+
+| Req ID | Behavior | Test Type | Automated Command | File Exists? |
+|--------|----------|-----------|-------------------|-------------|
+| QUIZ-01 | `getVisibleQuestions` returns correct question sequence | unit | `npx vitest run shared/quiz-engine/resolver.test.ts` | ❌ Wave 0 |
+| QUIZ-01 | `synthesizeProfile` maps answers to Profile correctly | unit | `npx vitest run shared/quiz-engine/synthesizer.test.ts` | ❌ Wave 0 |
+| QUIZ-01 | QuizShell renders first question on mount | component | `npx vitest run src/screens/quiz/QuizShell.test.jsx` | ❌ Wave 0 |
+| QUIZ-01 | QuizShell advances to next question on answer + Continue | component | (same file) | ❌ Wave 0 |
+| QUIZ-01 | Back navigation goes to previous question | component | (same file) | ❌ Wave 0 |
+| QUIZ-02 | opennessToAbroad slider captured in synthesized Profile | unit | `synthesizer.test.ts` | ❌ Wave 0 |
+| QUIZ-03 | US citizen → immigrationStatus auto-set to "citizen" | unit | `synthesizer.test.ts` | ❌ Wave 0 |
+| QUIZ-03 | Non-US citizen → immigrationStatus question shown | unit | `resolver.test.ts` (showIf predicate) | ❌ Wave 0 |
+| QUIZ-04 | Dealbreaker selections captured in Profile.dealBreakers | unit | `synthesizer.test.ts` | ❌ Wave 0 |
+| QUIZ-05 | moveTimeline captured in synthesized Profile | unit | `synthesizer.test.ts` | ❌ Wave 0 |
+| QUIZ-01 | `detectTension` fires on nature+career combination | unit | `npx vitest run shared/quiz-engine/tension.test.ts` | ❌ Wave 0 |
+| QUIZ-01 | Tension question injected at correct position | unit | `resolver.test.ts` | ❌ Wave 0 |
+| QUIZ-01 | Stale hidden answers are cleared on back+change | unit | `resolver.test.ts` (clearHiddenAnswers) | ❌ Wave 0 |
+
+### Sampling Rate
+- Per task commit: `npx vitest run shared/quiz-engine/ --reporter=verbose`
+- Per wave merge: `npx vitest run --reporter=verbose`
+- Phase gate: full suite green before `/gsd:verify-work`
+
+### Wave 0 Gaps
+- [ ] `shared/quiz-engine/resolver.test.ts` — covers QUIZ-01/03 showIf + tension injection + clearHiddenAnswers
+- [ ] `shared/quiz-engine/synthesizer.test.ts` — covers QUIZ-01/02/03/04/05 Profile output
+- [ ] `shared/quiz-engine/tension.test.ts` — covers tension detection pairs
+- [ ] `src/screens/quiz/QuizShell.test.jsx` — covers navigation, direction, submit callback
+- [ ] `src/test-setup.js` — vitest + jest-dom global setup
+- [ ] Framework install: `npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom`
+
+---
+
+## Security Domain
+
+`security_enforcement` is not explicitly set to `false` in config — treated as enabled.
+
+### Applicable ASVS Categories
+
+| ASVS Category | Applies | Standard Control |
+|---------------|---------|-----------------|
+| V2 Authentication | No | No auth in this phase |
+| V3 Session Management | No | Quiz state in React context (in-memory) |
+| V4 Access Control | No | No access control needed for quiz |
+| V5 Input Validation | Yes | Free-text field (profession custom input, currentCity) — sanitize before storing in Profile |
+| V6 Cryptography | No | No secrets handled |
+
+### Known Threat Patterns
+
+| Pattern | STRIDE | Standard Mitigation |
+|---------|--------|---------------------|
+| XSS via free-text input rendered in results | Tampering | React's JSX escapes by default. Never use `dangerouslySetInnerHTML` with user input. |
+| Oversized free-text input | DoS (local) | Add `maxLength={200}` to free-text inputs. localStorage has no real concern here (state is in-memory). |
+
+---
 
 ## Assumptions Log
-- A-1: Primary user = US citizen (CONTEXT D-07). Citizenship defaults US; status auto-`citizen`. [from CONTEXT]
-- A-2: ~6 grouped steps / ~8–10 perceived questions is the right depth-vs-fatigue balance. [survey-design research; ASSUMED for this audience]
-- A-3: Linear rank-order base weights (0.40/0.27/0.20/0.13) are acceptable vs. full MaxDiff elicitation. [ASSUMED — full MaxDiff is too heavy for a 9-question consumer quiz; best-worst logic reserved for the reconciliation step]
-- A-4: Deeper dimensions (motivation/pace/community/risk) measurably improve match quality. [grounded in person-environment-fit literature; not A/B-validated]
+
+| # | Claim | Section | Risk if Wrong |
+|---|-------|---------|---------------|
+| A1 | framer-motion weekly downloads ~12M/wk | Package Legitimacy Audit | Cosmetic only — the package's legitimacy is not in question |
+| A2 | vitest weekly downloads ~20M/wk | Package Legitimacy Audit | Cosmetic only |
+| A3 | @testing-library/react weekly downloads ~15M/wk | Package Legitimacy Audit | Cosmetic only |
+| A4 | `clearHiddenAnswers` is the right UX for back-navigation stale answers | Pattern 2 (resolver) | If wrong, Phase 3 may read answers from questions the user reversed; risk is scoring inaccuracy |
+| A5 | 5–7 question buckets (prototype) maps to ~8–12 actual QuestionDef nodes after branching expansion | Pattern 1 (question graph) | If the actual question count is higher, progress bar UX may feel longer than expected; adjustable |
+| A6 | Tension pair (nature-loving + career-first) is the primary demo-moment conflict | tension.ts example | Only one tension pair shown; planner should define additional pairs for risk tolerance + cost-sensitive, etc. |
+
+---
+
+## Open Questions (RESOLVED)
+
+> All five resolved during planning (Phase 02 plan-check, 2026-06-02). Each carries an adopted Recommendation the plans implement; none gate execution.
+
+1. **RESOLVED — `shared/quiz-engine/` ownership: frontend or backend track?** (frontend-owned this phase)
+   - What we know: STRUCTURE.md assigns `shared/engine/` to the backend track; quiz logic is pure TS.
+   - What's unclear: The quiz resolver and synthesizer are pure functions that the frontend quiz component needs at build time. Backend track may not move fast enough.
+   - Recommendation: Treat `shared/quiz-engine/` as frontend-owned for this phase (it contains no API calls, no Node.js-only imports). Announce the addition in a small commit per STRUCTURE.md's contract-first rule.
+
+2. **RESOLVED — Exact question list and branching rules (beyond the prototype's 5 steps)** (planner defines `ALL_QUESTIONS` in 02-02; arbitrary count supported)
+   - What we know: D-02 specifies 6 new dimensions (motivation, work style, community/family, pace, risk tolerance, tradeoff tolerance). The prototype had ~18 distinct inputs across 5 steps.
+   - What's unclear: The exact ordering, grouping, and which new dimensions trigger branching vs. are static.
+   - Recommendation: Planner defines the full `ALL_QUESTIONS` array in the first task. The code pattern above supports arbitrary question count — this is a content decision, not a code architecture decision.
+
+3. **RESOLVED — Re-takeable quiz — does resetting state need a confirm dialog? [ASSUMED — not in real CONTEXT.md]** ("Start Over" behind a confirm; no modal lib)
+   - What we know: The contaminated orchestrator framing mentioned "re-takeable with confirm-before-discard." The actual 02-CONTEXT.md does not explicitly specify this. It is a reasonable UX default.
+   - What's unclear: Is this a button in the results screen ("Retake Quiz → confirm modal → reset state") or from within the quiz?
+   - Recommendation: Add "Edit Profile" button in results screen (already exists in prototype: `goStep(1); setProfileStep(0)`) — replace with "Start Over" that clears `answers` state behind a confirm. Simple browser `confirm()` is sufficient; no modal library needed.
+
+4. **RESOLVED — Framer Motion: install or skip?** (install, gated, in 02-01)
+   - What we know: Not installed. CSS transition fallback exists. Framer Motion enables direction-aware transitions.
+   - Recommendation: Install. The direction-aware slide transition is visible proof of quiz quality. Single `npm install framer-motion` command. No configuration. Net cost: 5 minutes.
+
+5. **RESOLVED — Orchestrator framing mismatch (for orchestrator's awareness)** (research used actual repo; awareness note only)
+   - The `additional_context` passed to this research agent described a "Founder Profile / archetype / Next.js / localStorage / idea gen" app. This does not match the actual project (Potential — relocation/city-matching on Vite+React). Research was conducted against the actual repo. If the orchestrator's template is parameterized from a different project, it may need updating.
+
+---
 
 ## Sources
-- [Teleport case study — onboarding & match-score design](http://digitalwaveriding.com/teleport-case-study/)
-- [Smithsonian — how Teleport's "where should you live" works](https://www.smithsonianmag.com/innovation/where-should-you-live-app-will-tell-you-180962588/)
-- [Nomads.com (formerly Nomad List)](https://nomads.com/)
-- [MaxDiff / best-worst scaling — Displayr](https://www.displayr.com/what-is-maxdiff/)
-- [Best–worst scaling — Wikipedia](https://en.wikipedia.org/wiki/Best%E2%80%93worst_scaling)
-- [Survey branching / conditional logic best practices — Qualaroo](https://qualaroo.com/features/question-branching/)
-- [Skip logic & survey abandonment — Qualaroo](https://qualaroo.com/blog/skip-logic-survey/)
-- [16Personalities / forced-choice methodology — Soultrace](https://soultrace.app/en/blog/16-personalities-test)
-- [Person-Environment Fit & residential satisfaction — Kahana et al. (SAGE)](https://journals.sagepub.com/doi/10.1177/0013916503035003007)
-- [Person-Environment Fit on residential satisfaction & well-being (ResearchGate)](https://www.researchgate.net/publication/371721738)
-- [How to decide where to live — Redfin (factor taxonomy)](https://www.redfin.com/blog/how-to-decide-where-to-live/)
+
+### Primary (HIGH confidence)
+- `/Users/leal/FBLA/FBLA/src/screens/PotentialApp.jsx` — direct code read; prototype patterns, CSS tokens, existing quiz flow
+- `/Users/leal/FBLA/FBLA/shared/types.ts` — existing Profile interface; extension targets
+- `/Users/leal/FBLA/FBLA/shared/data/constants.js` — PROFESSION_CATEGORIES, LIFESTYLE_TAGS, DEAL_BREAKERS
+- `/Users/leal/FBLA/FBLA/package.json` — confirmed installed packages (React 19, Vite 8; no Framer Motion, no test runner)
+- `/Users/leal/FBLA/FBLA/.planning/phases/02-quiz-profile-capture/02-CONTEXT.md` — locked decisions D-01 through D-16
+- npm registry — framer-motion@12.40.0, vitest@4.1.7, @testing-library/react@16.3.2 [ASSUMED] (versions confirmed via npm view this session; packages tagged [ASSUMED] per role rule — slopcheck could not run)
+
+### Secondary (MEDIUM confidence)
+- [sinja.io — Direction-aware animations in Framer Motion](https://sinja.io/blog/direction-aware-animations-in-framer-motion) — AnimatePresence custom prop pattern; confirmed against framer.com docs
+- [lifetips.alibaba.com — Teleport city matching](https://lifetips.alibaba.com/tech-efficiency/teleport-helps-you-find-a-better-city-to-live-and-work) — Teleport's two-phase filter+score approach
+- [novad.app vs Nomad List](https://novad.app/vs/nomadlist) — Nomad List's 50-filter UX vs emotional matching; competitor landscape
+- [vitest.dev guide](https://vitest.dev/guide/browser/component-testing) — component testing pattern
+
+### Tertiary (LOW confidence)
+- WebSearch results on Nomad List empty-state UX — generalized from filter UX literature; specific Nomad List empty-state behavior not directly documented
+
+---
 
 ## Metadata
-- Phase: 02-quiz-profile-capture
-- Requirements: QUIZ-01..05
-- Consumes: CONTEXT.md (D-01..D-16), UI-SPEC.md, REQUIREMENTS.md, shared/types.ts, shared/data/constants.js, src/screens/PotentialApp.jsx
-- Produced for: gsd-planner (Phase 2 PLAN.md)
-- Research mode: inline (sub-agent timeout fallback), bounded web research (6 queries)
+
+**Confidence breakdown:**
+- Standard stack: HIGH — package.json read directly; npm registry verified
+- Architecture patterns: HIGH — grounded in codebase analysis + established React patterns
+- Competitor research: MEDIUM — web search cross-referenced with multiple sources; Teleport is acquired/deprecated so no live product to verify
+- Pitfalls: HIGH — most are directly derived from prototype code analysis
+
+**Research date:** 2026-05-30
+**Valid until:** 2026-06-30 (Framer Motion version may update; other findings are stable)

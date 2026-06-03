@@ -285,6 +285,280 @@ const UK_FINANCIAL_MODEL: FinancialModel = {
   },
 };
 
+// ── Portugal Financial Model (pt-irs-2026) ───────────────────────────────────
+// Standard-regime IRS + 11% employee Social Security (EUR). No US math.
+// D-09: the NHR/IFICI 20%-flat newcomer regime is NOT applied — standard ~34% only;
+// the IFICI upside is surfaced via the Plan 03 "i" tooltip, never baked into take-home.
+//
+// Sources:
+//   Employee SS 11%: PwC Portugal Budget 2026
+//     https://www.pwc.pt/en/pwcinforfisco/statebudget/pit-and-social-security.html
+//   IRS 2026 brackets + dedução específica (greater of EUR4,462 or actual SS):
+//     PwC Tax Summaries — Portugal PIT
+//     https://taxsummaries.pwc.com/portugal/individual/taxes-on-personal-income
+//   PT local salaries: nextleveljobs.eu Portugal SWE 2026
+//
+// Worked example (EUR45,000 gross, single, standard regime):
+//   SS 11% = EUR4,950; dedução = max(EUR4,462, EUR4,950) = EUR4,950 -> taxable EUR40,050
+//   IRS bracket-stack ~= EUR10,412; total (SS+IRS) ~= EUR15,362; net ~= EUR29,638/yr = EUR2,470/mo (~34.1%).
+
+const PT_SS_RATE = 0.11;                // employee Social Security, flat (PwC PT Budget 2026)
+const PT_SPECIFIC_DEDUCTION_MIN = 4462; // dedução específica floor (greater of this or actual SS)
+
+// IRS 2026 progressive brackets on taxable income (marginal). Source: PwC Tax Summaries PT.
+const PT_IRS_BRACKETS: Array<{ limit: number; rate: number }> = [
+  { limit: 7703,     rate: 0.1325 },
+  { limit: 11623,    rate: 0.165 },
+  { limit: 16472,    rate: 0.22 },
+  { limit: 21321,    rate: 0.25 },
+  { limit: 27146,    rate: 0.32 },
+  { limit: 39791,    rate: 0.355 },
+  { limit: 51997,    rate: 0.435 },
+  { limit: 81199,    rate: 0.45 },
+  { limit: Infinity, rate: 0.48 },
+];
+
+function computePTIncomeTax(taxableIncome: number): number {
+  let tax = 0;
+  let prev = 0;
+  for (const b of PT_IRS_BRACKETS) {
+    if (taxableIncome <= prev) break;
+    tax += (Math.min(taxableIncome, b.limit) - prev) * b.rate;
+    prev = b.limit;
+  }
+  return tax;
+}
+
+// PT local salary dataset — sourced annual medians in EUR (nextleveljobs.eu 2026).
+const PT_LOCAL_SALARIES: Record<string, number> = {
+  'Software Engineer': 42000,    // nextleveljobs.eu PT SWE 2026 (EUR35-45k median; EUR45-60k senior)
+  'Financial Analyst': 32000,    // est. PT finance/analyst median
+  'Data Analyst':      28000,    // est. PT data analyst median
+  'Product Manager':   40000,    // est. PT product manager median
+  'Marketing Manager': 28000,    // est. PT marketing professional median
+  'Nurse':             20000,    // est. PT nurse median
+  'Teacher':           20000,    // est. PT teacher median
+  'Accountant':        26000,    // est. PT accountant median
+  'Sales Representative': 22000, // est. PT sales representative median
+  'Operations Manager':   34000, // est. PT operations manager median
+};
+const PT_SALARY_FALLBACK_EUR = 22000; // conservative PT median professional salary (EUR)
+
+const PT_FINANCIAL_MODEL: FinancialModel = {
+  id: 'pt-irs-2026',
+  // Standard-regime IRS + 11% SS (EUR). No US math; NO IFICI/NHR flat rate (D-09).
+  computeTax(grossIncome: number, _stateRate: number): number {
+    const ss = Math.max(0, grossIncome) * PT_SS_RATE;
+    const deduction = Math.max(PT_SPECIFIC_DEDUCTION_MIN, ss);
+    const taxable = Math.max(0, grossIncome - deduction);
+    return ss + computePTIncomeTax(taxable);
+  },
+  computeExpenses(profile: Profile, city: City): ExpenseBreakdown {
+    return computeUSExpenses(profile, city);
+  },
+  computeSalary(profile: Profile, _city: City): number {
+    return PT_LOCAL_SALARIES[profile.profession] ?? PT_SALARY_FALLBACK_EUR;
+  },
+};
+
+// ── Germany Financial Model (de-2026) ────────────────────────────────────────
+// Progressive income tax (Grundfreibetrag + rising marginal 14%->42%->45%) on income
+// net of social security, plus ~20.6% employee social security (EUR). No US math.
+// Soli NOT applied (largely abolished for typical employees — surfaced via tooltip only).
+//
+// Sources:
+//   Grundfreibetrag EUR12,348 + progressive curve (14% from EUR12,348 -> 42% at EUR68,481
+//     -> 45% above EUR277,826): taxravens Germany 2026
+//   Employee SS ~20.6% (pension 9.3% + unemployment 1.3% [cap EUR101,400];
+//     health 7.3%+~1.25% + care ~2.3% [cap EUR69,750]): deutsche-flagge 2026
+//   DE local salaries: theemployerofrecord SWE by country 2026
+//
+// Worked example (EUR65,000 gross, single, Steuerklasse I):
+//   SS ~= EUR13,943 (~21.45%); taxable (gross - SS) ~= EUR51,057; income tax ~= EUR9,157
+//   total ~= EUR23,100; net ~= EUR41,900/yr ~= EUR3,492/mo (within RESEARCH EUR3,300-3,400 ±7%).
+//   Income tax uses a piecewise-linear approximation of the German polynomial (RESEARCH-sanctioned, ±7%).
+
+const DE_GRUNDFREIBETRAG = 12348;   // tax-free allowance, 2026 (taxravens)
+const DE_TOP_OF_RISING = 68481;     // 42% marginal reached here (taxravens)
+const DE_RATE_START = 0.14;         // marginal at Grundfreibetrag
+const DE_RATE_TOP = 0.42;           // marginal at DE_TOP_OF_RISING
+const DE_45_THRESHOLD = 277826;     // 45% marginal above here (taxravens)
+const DE_RATE_RICH = 0.45;
+// Employee social-security rates + contribution-assessment ceilings (deutsche-flagge 2026)
+const DE_SS_PENSION_UNEMP = 0.106;  // pension 9.3% + unemployment 1.3%
+const DE_SS_PENSION_UNEMP_CAP = 101400;
+const DE_SS_HEALTH_CARE = 0.1085;   // health 7.3% + Zusatzbeitrag ~1.25% + long-term care ~2.3%
+const DE_SS_HEALTH_CARE_CAP = 69750;
+
+function computeDESocialSecurity(grossIncome: number): number {
+  const g = Math.max(0, grossIncome);
+  return Math.min(g, DE_SS_PENSION_UNEMP_CAP) * DE_SS_PENSION_UNEMP
+       + Math.min(g, DE_SS_HEALTH_CARE_CAP) * DE_SS_HEALTH_CARE;
+}
+
+// Piecewise-linear marginal-rate approximation of the German income-tax curve.
+function computeDEIncomeTax(taxableIncome: number): number {
+  const t = Math.max(0, taxableIncome);
+  if (t <= DE_GRUNDFREIBETRAG) return 0;
+  const risingWidth = DE_TOP_OF_RISING - DE_GRUNDFREIBETRAG;
+  if (t <= DE_TOP_OF_RISING) {
+    const w = t - DE_GRUNDFREIBETRAG;
+    const slope = (DE_RATE_TOP - DE_RATE_START) / risingWidth;
+    return DE_RATE_START * w + 0.5 * slope * w * w;
+  }
+  const risingTax = DE_RATE_START * risingWidth + 0.5 * (DE_RATE_TOP - DE_RATE_START) * risingWidth;
+  if (t <= DE_45_THRESHOLD) {
+    return risingTax + (t - DE_TOP_OF_RISING) * DE_RATE_TOP;
+  }
+  return risingTax
+       + (DE_45_THRESHOLD - DE_TOP_OF_RISING) * DE_RATE_TOP
+       + (t - DE_45_THRESHOLD) * DE_RATE_RICH;
+}
+
+// DE local salary dataset — sourced annual medians in EUR (theemployerofrecord 2026).
+const DE_LOCAL_SALARIES: Record<string, number> = {
+  'Software Engineer': 65000,    // theemployerofrecord DE SWE 2026 (EUR50-80k)
+  'Financial Analyst': 60000,    // est. DE finance/analyst median
+  'Data Analyst':      55000,    // est. DE data analyst median
+  'Product Manager':   72000,    // est. DE product manager median
+  'Marketing Manager': 52000,    // est. DE marketing professional median
+  'Nurse':             40000,    // est. DE nurse median
+  'Teacher':           50000,    // est. DE teacher median
+  'Accountant':        55000,    // est. DE accountant median
+  'Sales Representative': 48000, // est. DE sales representative median
+  'Operations Manager':   58000, // est. DE operations manager median
+};
+const DE_SALARY_FALLBACK_EUR = 48000; // conservative DE median professional salary (EUR)
+
+const DE_FINANCIAL_MODEL: FinancialModel = {
+  id: 'de-2026',
+  computeTax(grossIncome: number, _stateRate: number): number {
+    const ss = computeDESocialSecurity(grossIncome);
+    // SS is broadly deductible for income-tax purposes (Vorsorgeaufwendungen) — approximated as fully deductible.
+    const taxable = Math.max(0, grossIncome - ss);
+    return ss + computeDEIncomeTax(taxable);
+  },
+  computeExpenses(profile: Profile, city: City): ExpenseBreakdown {
+    return computeUSExpenses(profile, city);
+  },
+  computeSalary(profile: Profile, _city: City): number {
+    return DE_LOCAL_SALARIES[profile.profession] ?? DE_SALARY_FALLBACK_EUR;
+  },
+};
+
+// ── Canada (Ontario) Financial Model (ca-on-2026) ────────────────────────────
+// Federal brackets + Ontario provincial (+ surtax + Health Premium) + CPP/CPP2 + EI (CAD).
+// No US math.
+//
+// Sources:
+//   Federal 2026 brackets + BPA C$16,452: Manulife 2026 tax rate card / CRA
+//   Ontario brackets + surtax + Health Premium; CPP 5.95% (cap C$74,600, max C$4,230.45),
+//     CPP2 4% (C$74,600-85,000, max C$416), EI 1.63% (cap C$68,900, max C$1,123.07):
+//     CRA T4032-ON 2026
+//   CA local salaries: theemployerofrecord 2026
+//
+// Worked example (C$95,000 gross, single, Toronto):
+//   CPP+CPP2 ~= C$4,646; EI ~= C$1,123; federal ~= C$13,368; ON tax+surtax+health ~= C$6,665
+//   total ~= C$25,802; net ~= C$69,198/yr ~= C$5,766/mo (~27%).
+//   [VERIFY] Ontario surtax / Health Premium precision before the pitch (RESEARCH Gap #6).
+
+const CA_FED_BRACKETS: Array<{ limit: number; rate: number }> = [
+  { limit: 58523,    rate: 0.14 },
+  { limit: 117045,   rate: 0.205 },
+  { limit: 181440,   rate: 0.26 },
+  { limit: 258482,   rate: 0.29 },
+  { limit: Infinity, rate: 0.33 },
+];
+const CA_FED_BPA = 16452;     // federal Basic Personal Amount 2026 (Manulife/CRA)
+const CA_FED_LOW_RATE = 0.14; // BPA credit valued at the lowest federal rate
+
+const ON_BRACKETS: Array<{ limit: number; rate: number }> = [
+  { limit: 52886,    rate: 0.0505 },
+  { limit: 105775,   rate: 0.0915 },
+  { limit: 150000,   rate: 0.1116 },
+  { limit: 220000,   rate: 0.1216 },
+  { limit: Infinity, rate: 0.1316 },
+];
+const ON_BPA = 12747;       // Ontario Basic Personal Amount 2026 (CRA T4032-ON)
+const ON_LOW_RATE = 0.0505;
+const ON_SURTAX_T1 = 5710;  // 20% Ontario surtax over this basic ON tax (CRA T4032-ON 2026)
+const ON_SURTAX_T2 = 7307;  // additional 16% over this
+const CA_CPP_MAX = 4230.45; // CPP max contribution 2026
+const CA_CPP2_MAX = 416;    // CPP2 max contribution 2026
+const CA_EI_MAX = 1123.07;  // EI max contribution 2026
+
+function caBracketTax(income: number, brackets: Array<{ limit: number; rate: number }>): number {
+  let tax = 0;
+  let prev = 0;
+  for (const b of brackets) {
+    if (income <= prev) break;
+    tax += (Math.min(income, b.limit) - prev) * b.rate;
+    prev = b.limit;
+  }
+  return tax;
+}
+
+function caFederalTax(income: number): number {
+  const g = Math.max(0, income);
+  return Math.max(0, caBracketTax(g, CA_FED_BRACKETS) - CA_FED_BPA * CA_FED_LOW_RATE);
+}
+
+function onHealthPremium(income: number): number {
+  // Stepped approximation of the Ontario Health Premium (CRA T4032-ON). [VERIFY]
+  if (income <= 20000) return 0;
+  if (income <= 36000) return 300;
+  if (income <= 48000) return 450;
+  if (income <= 200000) return 750;
+  return 900;
+}
+
+function onProvincialTax(income: number): number {
+  const g = Math.max(0, income);
+  const basic = Math.max(0, caBracketTax(g, ON_BRACKETS) - ON_BPA * ON_LOW_RATE);
+  const surtax = Math.max(0, basic - ON_SURTAX_T1) * 0.20 + Math.max(0, basic - ON_SURTAX_T2) * 0.36;
+  return basic + surtax + onHealthPremium(g);
+}
+
+function caPayrollContrib(income: number): number {
+  const g = Math.max(0, income);
+  // CPP 5.95% on 3,500-74,600 (max 4,230.45); CPP2 4% on 74,600-85,000 (max 416)
+  const cpp = Math.min(CA_CPP_MAX, Math.max(0, Math.min(g, 74600) - 3500) * 0.0595);
+  const cpp2 = Math.min(CA_CPP2_MAX, Math.max(0, Math.min(g, 85000) - 74600) * 0.04);
+  // EI 1.63% on income up to 68,900 (max 1,123.07)
+  const ei = Math.min(CA_EI_MAX, Math.min(g, 68900) * 0.0163);
+  return cpp + cpp2 + ei;
+}
+
+// CA local salary dataset — sourced annual medians in CAD (theemployerofrecord 2026).
+const CA_LOCAL_SALARIES: Record<string, number> = {
+  'Software Engineer': 95000,    // theemployerofrecord CA SWE 2026 (avg ~C$90-100k)
+  'Financial Analyst': 80000,    // est. CA finance/analyst median
+  'Data Analyst':      75000,    // est. CA data analyst median
+  'Product Manager':   105000,   // est. CA product manager median
+  'Marketing Manager': 75000,    // est. CA marketing professional median
+  'Nurse':             80000,    // est. CA nurse median
+  'Teacher':           70000,    // est. CA teacher median
+  'Accountant':        72000,    // est. CA accountant median
+  'Sales Representative': 65000, // est. CA sales representative median
+  'Operations Manager':   85000, // est. CA operations manager median
+};
+const CA_SALARY_FALLBACK_CAD = 65000; // conservative CA median professional salary (CAD)
+
+const CA_FINANCIAL_MODEL: FinancialModel = {
+  id: 'ca-on-2026',
+  computeTax(grossIncome: number, _stateRate: number): number {
+    return caFederalTax(grossIncome)
+         + onProvincialTax(grossIncome)
+         + caPayrollContrib(grossIncome);
+  },
+  computeExpenses(profile: Profile, city: City): ExpenseBreakdown {
+    return computeUSExpenses(profile, city);
+  },
+  computeSalary(profile: Profile, _city: City): number {
+    return CA_LOCAL_SALARIES[profile.profession] ?? CA_SALARY_FALLBACK_CAD;
+  },
+};
+
 /**
  * Registry of financial models keyed by financialModelId.
  * Phase 4 adds country models here without touching US spine:
@@ -294,4 +568,7 @@ const UK_FINANCIAL_MODEL: FinancialModel = {
 export const FINANCIAL_MODELS: Record<string, FinancialModel> = {
   us: US_FINANCIAL_MODEL,
   'uk-2026': UK_FINANCIAL_MODEL,
+  'pt-irs-2026': PT_FINANCIAL_MODEL,
+  'de-2026': DE_FINANCIAL_MODEL,
+  'ca-on-2026': CA_FINANCIAL_MODEL,
 };

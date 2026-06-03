@@ -32,9 +32,9 @@ This GSD project is the **full competition deliverable** for the **FBLA Collegia
 
 **Product — the app we demo:**
 - [ ] Deep quiz-style profile capture (career, finances, background, lifestyle, priorities, dealbreakers, openness to living abroad)
-- [ ] City matching/scoring engine that ranks destinations to the user's profile
+- [x] City matching/scoring engine that ranks destinations to the user's profile — *US spine validated in Phase 3 (config-driven scoring, dealbreaker penalty + D-02 re-confirm, ranks 22 cities, personalizes by profile); international destinations = Phase 4*
 - [ ] International destinations included (not US-only)
-- [ ] Financial reality view per city (estimated salary, take-home, expense breakdown, monthly savings)
+- [x] Financial reality view per city (estimated salary, take-home, expense breakdown, monthly savings) — *US model validated in Phase 3 (TY2026 progressive federal + state + FICA, cost-indexed expenses); country models = Phase 4*
 - [ ] Live AI data layer (real jobs, real housing, day-in-the-life) backed by a real backend/proxy — not the broken client-side call
 - [ ] Relocation **roadmap** output: step-by-step "how to actually move there" (timeline, costs, action steps, job/housing path)
 - [ ] Immigration/visa pathway as the premium differentiator
@@ -112,4 +112,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-31 — Phase 10 complete (final phase of milestone): the pitch deck outline + speaker notes (`pitch/deck/deck-outline.md`), 20-question Q&A bank (`pitch/qa-bank.md`), and binary protocol checklist + rehearse-later spec (`pitch/protocol-checklist.md`) are authored, source-tagged, and goal-verified 10/10. The three timed hotspot run-throughs, mock-judge Q&A drill, and live protocol sign-off are specified and correctly gated on Phase 8 (live demo, not yet built — product track at Phase 2). All pitch-package phases (9–10) done; remaining work is the product track (Phases 2–8).*
+*Last updated: 2026-06-02 — Phase 3 (Matching & US Financial Spine) complete: a pure-TypeScript engine (TY2026 federal/state/FICA financial model, config-driven two-layer scoring with honest signed contribution bars, dealbreaker penalty + D-02 re-confirm, `rankCities()` ranking 22 US cities) wired into the React results UI and running fully offline — the first end-to-end demoable product slice. A code-review BLOCKER (scoring collapsed all profiles to array order) was caught and fixed; the suite now asserts the user-facing score so it can't regress. 5 items await on-device human UAT (`03-HUMAN-UAT.md`); several non-blocking warnings tracked in `03-REVIEW.md`. Product track also has Phase 2 (quiz, UI-SPEC approved, ready to plan) and Phases 4–8 outstanding; pitch phases 9–10 done.*
