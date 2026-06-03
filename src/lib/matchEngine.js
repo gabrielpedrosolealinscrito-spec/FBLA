@@ -32,8 +32,11 @@ const PALETTE = ['#C9A24B', '#E8712B', '#1565C0', '#00897B', '#7B1FA2', '#558B2F
  */
 export function scoreProfile(profile) {
   const { results } = rankCities(profile);
+  // opennessToAbroad === 0 means "US only"; any openness above that includes
+  // international destinations (Phase 4 — e.g. London via the uk-2026 model).
+  const usOnly = (profile.opennessToAbroad ?? 0) === 0;
   return results
-    .filter((r) => r.city.country === 'US') // US financial-spine scope for now
+    .filter((r) => (usOnly ? r.city.country === 'US' : true))
     .map((r, i) => ({
       ...r.city,
       matchScore: r.matchScore,
