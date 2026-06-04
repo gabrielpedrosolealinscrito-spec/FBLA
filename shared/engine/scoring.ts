@@ -243,6 +243,87 @@ export function computeRawScore(profile: Profile, city: City): CityScore {
   );
   scoreFactors.push({ factor: 'Safety', contribution: safetyContrib });
 
+  // ── Phase 12 New Categories ───────────────────────────────────────────────────
+  // Each category: null factorScore → genuine exclusion (contribution 0, dataLevel 'none').
+  // D-07: never emit a nonzero midpoint for missing-data cities; the 0 marker adds nothing
+  // to rawScore (honest-contribution invariant intact) and lets the UI show "core data only."
+  // D-03/D-09: NO entry references demographics or FEMA fields.
+
+  // Healthcare (practical tier — always contributes a floor, even when not explicitly weighted)
+  const healthcareFS = healthcareFactorScore(city);
+  if (healthcareFS !== null) {
+    const healthcareContrib = Math.round(
+      SCORING_WEIGHTS.global.healthcare
+      * categoryPersonalWeight(profile, 'healthcare', true)
+      * healthcareFS
+      * SCORING_WEIGHTS.normalization.healthcareMaxContribution
+    );
+    scoreFactors.push({ factor: 'Healthcare', contribution: healthcareContrib, dataLevel: 'city' });
+  } else {
+    // No cited datum, no proxy → display-only neutral exclusion marker (D-07)
+    scoreFactors.push({ factor: 'Healthcare', contribution: 0, dataLevel: 'none' });
+  }
+
+  // Schools — state-average label (D-08); preference tier
+  const schoolsFS = schoolsFactorScore(city);
+  if (schoolsFS !== null) {
+    const schoolsContrib = Math.round(
+      SCORING_WEIGHTS.global.schools
+      * categoryPersonalWeight(profile, 'schools', false)
+      * schoolsFS
+      * SCORING_WEIGHTS.normalization.schoolsMaxContribution
+    );
+    scoreFactors.push({ factor: 'Schools (state avg)', contribution: schoolsContrib, dataLevel: 'state' });
+  } else {
+    scoreFactors.push({ factor: 'Schools (state avg)', contribution: 0, dataLevel: 'none' });
+  }
+
+  // Childcare — state-average label (D-08); preference tier
+  const childcareFS = childcareFactorScore(city);
+  if (childcareFS !== null) {
+    const childcareContrib = Math.round(
+      SCORING_WEIGHTS.global.childcare
+      * categoryPersonalWeight(profile, 'childcare', false)
+      * childcareFS
+      * SCORING_WEIGHTS.normalization.childcareMaxContribution
+    );
+    scoreFactors.push({ factor: 'Childcare (state avg)', contribution: childcareContrib, dataLevel: 'state' });
+  } else {
+    scoreFactors.push({ factor: 'Childcare (state avg)', contribution: 0, dataLevel: 'none' });
+  }
+
+  // Air Connectivity — city-level data; preference tier
+  const connectivityFS = connectivityFactorScore(city);
+  if (connectivityFS !== null) {
+    const connectivityContrib = Math.round(
+      SCORING_WEIGHTS.global.connectivity
+      * categoryPersonalWeight(profile, 'connectivity', false)
+      * connectivityFS
+      * SCORING_WEIGHTS.normalization.connectivityMaxContribution
+    );
+    scoreFactors.push({ factor: 'Air Connectivity', contribution: connectivityContrib, dataLevel: 'city' });
+  } else {
+    scoreFactors.push({ factor: 'Air Connectivity', contribution: 0, dataLevel: 'none' });
+  }
+
+  // Parks & Outdoors — city or proxy; preference tier; ALWAYS scores (parksFactorScore never null)
+  const parksFS = parksFactorScore(city);
+  const parksContrib = Math.round(
+    SCORING_WEIGHTS.global.parks
+    * categoryPersonalWeight(profile, 'parks', false)
+    * parksFS
+    * SCORING_WEIGHTS.normalization.parksMaxContribution
+  );
+  scoreFactors.push({
+    factor: 'Parks & Outdoors',
+    contribution: parksContrib,
+    dataLevel: city.parkScore !== undefined ? 'city' : 'proxy',
+  });
+
+  // TODO (D-04 / Phase 5 live-AI seam): externally-researched category scores append here as
+  // additional scoreFactors entries with dataLevel: 'display-only' (the reserved seam member)
+  // — separate labeled tier, never folded into cited numbers.
+
   // rawScore is the SUM of stored (rounded) contributions — this is the Pitfall 1 guard.
   // Do NOT accumulate rawScore separately; the invariant holds because rawScore IS this sum.
   const rawScore = BASE_SCORE + scoreFactors.reduce((s, f) => s + f.contribution, 0);

@@ -21,7 +21,7 @@ import { CITIES_DATA } from '../data/cities.js';
 import { FINANCIAL_MODELS } from './financial.js';
 import { toUSD, currencyForCountry } from './fx.js';
 import { scoreCity } from './scoring.js';
-import { SCORING_WEIGHTS } from './scoring-weights.js';
+import { SCORING_WEIGHTS, WEIGHT_MAX_PREF, NEUTRAL_DEFAULT } from './scoring-weights.js';
 import { applyPenalties, checkReconfirm } from './dealbreakers.js';
 import type { ReconfirmSignal } from './dealbreakers.js';
 
@@ -43,18 +43,31 @@ function clamp(n: number, min: number, max: number): number {
  * Sanitize Profile weights at engine entry (T-3-11).
  * Clamps each weight to [0, 4] — prevents score amplification from
  * malformed quiz output. Returns a shallow copy with clamped weights.
+ *
+ * Phase 12 (T-12-05): also clamps categoryWeights to [0, WEIGHT_MAX_PREF=1.8].
+ * Math.max/Math.min do not neutralize NaN, so use Number.isFinite guard —
+ * non-finite values (NaN/Infinity) fall back to NEUTRAL_DEFAULT (safe midpoint).
  */
 function sanitizeProfile(profile: Profile): Profile {
-  if (!profile.weights) return profile;
-  return {
-    ...profile,
-    weights: {
-      cost:      clamp(profile.weights.cost,      0, 4),
-      career:    clamp(profile.weights.career,    0, 4),
-      lifestyle: clamp(profile.weights.lifestyle, 0, 4),
-      safety:    clamp(profile.weights.safety,    0, 4),
-    },
-  };
+  const weights = profile.weights
+    ? {
+        cost:      clamp(profile.weights.cost,      0, 4),
+        career:    clamp(profile.weights.career,    0, 4),
+        lifestyle: clamp(profile.weights.lifestyle, 0, 4),
+        safety:    clamp(profile.weights.safety,    0, 4),
+      }
+    : profile.weights;
+
+  const categoryWeights = profile.categoryWeights
+    ? Object.fromEntries(
+        Object.entries(profile.categoryWeights).map(([k, v]) => [
+          k,
+          Number.isFinite(v) ? clamp(v, 0, WEIGHT_MAX_PREF) : NEUTRAL_DEFAULT,
+        ])
+      )
+    : profile.categoryWeights;
+
+  return { ...profile, ...(weights !== undefined ? { weights } : {}), ...(categoryWeights !== undefined ? { categoryWeights } : {}) };
 }
 
 /**
