@@ -6,7 +6,7 @@
 // All coefficients come from SCORING_WEIGHTS. No magic numbers inline.
 // ─────────────────────────────────────────────────────────────────
 
-import { SCORING_WEIGHTS, BASE_SCORE, PERSONAL_WEIGHT_SCALE } from './scoring-weights.js';
+import { SCORING_WEIGHTS, BASE_SCORE, PERSONAL_WEIGHT_SCALE, WEIGHT_MAX_PREF, WEIGHT_MAX_PRAC, NEUTRAL_DEFAULT } from './scoring-weights.js';
 import type { Profile, City } from '../types.js';
 
 // Re-export BASE_SCORE so scoring.test.ts can import it from this module.
@@ -15,7 +15,7 @@ export { BASE_SCORE } from './scoring-weights.js';
 // ── Output Shape ──────────────────────────────────────────────────
 export interface CityScore {
   rawScore: number;
-  scoreFactors: { factor: string; contribution: number }[];
+  scoreFactors: { factor: string; contribution: number; dataLevel?: 'city' | 'state' | 'proxy' | 'none' | 'display-only' }[];
 }
 
 // ── Weight Derivation ─────────────────────────────────────────────
@@ -125,6 +125,88 @@ function lifestyleFactorScore(city: City, profile: Profile): number {
   return Math.max(0, Math.min(1, rawLifestyle / ceiling));
 }
 
+// ── Phase 12: Category Personal Weight ───────────────────────────
+// Two-tier normalization for categoryWeights entries (D-02 compliant).
+// Practical categories (healthcare) retain a floor so they always contribute.
+// Preference categories (schools/childcare/connectivity/parks) subtract the neutral
+// baseline so a skipped/absent weight (NEUTRAL_DEFAULT=0.5) maps to exactly 0.
+// All constants come from scoring-weights.ts (D-03: no magic numbers inline).
+//
+// Analog: rankToWeight's norm() closure (L34-36) but two-tier.
+function categoryPersonalWeight(profile: Profile, slug: string, isPractical: boolean): number {
+  const raw = profile.categoryWeights?.[slug] ?? NEUTRAL_DEFAULT;
+  const clamped = Math.max(0, raw);
+  if (isPractical) {
+    // Practical: retain floor — healthcare always contributes something.
+    // Range [0..WEIGHT_MAX_PRAC], normalize to [0..1].
+    return Math.min(WEIGHT_MAX_PRAC, clamped) / WEIGHT_MAX_PRAC;
+  } else {
+    // Preference: baseline-subtract neutral so NEUTRAL_DEFAULT → 0.
+    // Range [NEUTRAL_DEFAULT..WEIGHT_MAX_PREF=1.8]; neutral=0.5 → 0; max=1.8 → 1.
+    const baselined = Math.max(0, clamped - NEUTRAL_DEFAULT);
+    const range = WEIGHT_MAX_PREF - NEUTRAL_DEFAULT; // 1.3
+    return Math.min(1, baselined / range);
+  }
+}
+
+// ── Phase 12: New Category Factor Score Functions ──────────────────
+// Analogs: costFactorScore (lower-is-better/anchored), safetyFactorScore (higher-is-better),
+//          lifestyleFactorScore (proxy fallback).
+// All scored values wrapped in Math.max(0, Math.min(1, ...)) — never omit the clamp shell.
+// healthcare/schools/childcare/connectivity return null when city field is undefined
+// (no proxy exists → genuine neutral exclusion; contribution 0, dataLevel 'none').
+// parksFactorScore NEVER returns null — proxy floor 0.4 covers every city (D-07).
+
+// Healthcare: higher Numbeo Healthcare Index = better.
+// Anchored range (observed: 62.9–71.9) with headroom: floor 60, ceiling 75.
+// Source: deep-category-data.md §1 Healthcare (NAEP / Numbeo Healthcare Index).
+function healthcareFactorScore(city: City): number | null {
+  if (city.healthcareIndex === undefined) return null; // no proxy → genuine exclusion
+  return Math.max(0, Math.min(1, (city.healthcareIndex - 60) / 15));
+}
+
+// Schools: higher NAEP G8 Reading proficiency % = better. State-level data (D-08).
+// Anchored range (observed: 25–35%) with headroom: floor 22, ceiling 38.
+// Source: deep-category-data.md §3 School quality.
+function schoolsFactorScore(city: City): number | null {
+  if (city.schoolProficiencyPct === undefined) return null; // no proxy → genuine exclusion
+  return Math.max(0, Math.min(1, (city.schoolProficiencyPct - 22) / 16));
+}
+
+// Childcare: LOWER infant annual cost = better (analog: costFactorScore lower-is-better).
+// State-level data (D-08). Source: deep-category-data.md §4 CCAoA infant annual cost.
+// Anchored: floor $10,000, ceiling $24,000 (range = 14,000).
+function childcareFactorScore(city: City): number | null {
+  if (city.childcareInfantAnnual === undefined) return null; // no proxy → genuine exclusion
+  return Math.max(0, Math.min(1, (24000 - city.childcareInfantAnnual) / 14000));
+}
+
+// Air Connectivity: higher FAA enplanements = better.
+// Log-scale normalization: observed range 2.37M–50.95M (21:1 raw) → log normalizes cleanly.
+// Source: deep-category-data.md §7 Air connectivity.
+function connectivityFactorScore(city: City): number | null {
+  if (city.airportEnplanements === undefined) return null; // no proxy → genuine exclusion
+  const logE = Math.log(city.airportEnplanements);
+  return Math.max(0, Math.min(1, (logE - 14.5) / 3.5));
+}
+
+// Parks & Outdoors: TPL ParkScore (higher = better) with proxy fallback.
+// Proxy: nearMountains + nearCoast booleans + 'outdoorsy' vibe string (all cities have these).
+// Proxy floor = 0.4 — never 0 (D-07 phantom-zero prohibition). Never returns null.
+// Source: deep-category-data.md §6 Parks + cities.ts nearMountains/nearCoast.
+function parksFactorScore(city: City): number {
+  if (city.parkScore !== undefined) {
+    // ParkScore: anchored range 40–90 (observed: Minneapolis=83.4, Seattle=75.4; floor=40)
+    return Math.max(0, Math.min(1, (city.parkScore - 40) / 50));
+  }
+  // Proxy fallback — analog: lifestyleFactorScore vibe pattern (L96-120)
+  let proxy = 0.4; // baseline: median city, no special outdoors access
+  if (city.nearMountains) proxy += 0.25;
+  if (city.nearCoast) proxy += 0.2;
+  if (city.vibe.some(v => v.toLowerCase() === 'outdoorsy')) proxy += 0.15;
+  return Math.min(1, proxy);
+}
+
 // ── Main Export ───────────────────────────────────────────────────
 // computeRawScore — name expected by scoring.test.ts (Plan 01 RED).
 // D-04 two-layer formula: contribution = global[f] × personal[f] × factorScore × maxContribution[f]
@@ -135,7 +217,7 @@ export function computeRawScore(profile: Profile, city: City): CityScore {
   const personal = rankToWeight(profile);
   const { global, normalization } = SCORING_WEIGHTS;
 
-  const scoreFactors: { factor: string; contribution: number }[] = [];
+  const scoreFactors: { factor: string; contribution: number; dataLevel?: 'city' | 'state' | 'proxy' | 'none' | 'display-only' }[] = [];
 
   // Cost factor
   const costContrib = Math.round(
