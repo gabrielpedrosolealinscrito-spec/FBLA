@@ -18,6 +18,7 @@
 import { rankCities, normalizeOpenness } from './index.js';
 import type { Profile } from '../types.js';
 import { CITIES_DATA } from '../data/cities.js';
+import { SCORING_WEIGHTS, BASE_SCORE } from './scoring-weights.js';
 
 // Software Engineer profile matching the D-07 reference calculation
 // Single filer: hasPartner false, partnerIncome 0 (required for take-home to match reference)
@@ -271,6 +272,73 @@ describe('normalizeOpenness (V3 scale-defensive — D-06)', () => {
   it('returns a safe default in [0,1] for NaN/undefined (documented: full openness = 1)', () => {
     expect(normalizeOpenness(NaN)).toBe(1);
     expect(normalizeOpenness(undefined as unknown as number)).toBe(1);
+  });
+});
+
+
+// ── Phase 12 (12-04): D-05 clamp BLOCKER gate ────────────────────────────────
+// The authoritative test that the displayed matchScore never reaches 99 for the
+// strongest possible profile. This gate MUST:
+//   1. Call rankCities() — NOT computeRawScore() — because clamp lives in index.ts
+//      (buildRawResult), not scoring.ts. A pre-clamp assertion gave false comfort
+//      while the displayed score was broken (memory: test-assert-user-facing-output).
+//   2. Exercise BOTH profile.weights at max (4) AND profile.categoryWeights at max
+//      (WEIGHT_MAX_PREF=1.8) so all 9 factor contributions reach their ceiling.
+//   3. Use CITIES_DATA.length dynamically — never a hardcoded city count.
+// ──────────────────────────────────────────────────────────────────────────────
+
+// maxProfile: spreads the existing swEngineerProfile and overrides all weight axes
+// to their maximum values. Lifestyle tags are set to the full supported set so the
+// lifestyle factor score reaches 1.0 (normalized against tagVibeBonus ceiling in
+// scoring.ts). US city (citizenship='US', opennessToAbroad=0) is the binding case —
+// opennessMultiplier=1.0, so the raw score is unscaled before clamping.
+const maxProfile: Profile = {
+  ...swEngineerProfile,
+  // Legacy 4-factor weights at max (rankToWeight maps rank-0 → weight-4 → personal=1.0)
+  weights: { cost: 4, career: 4, lifestyle: 4, safety: 4 },
+  // Phase 12 category weights at WEIGHT_MAX_PREF=1.8 (all 5 preference slots)
+  categoryWeights: {
+    healthcare:   1.8,
+    schools:      1.8,
+    childcare:    1.8,
+    connectivity: 1.8,
+    parks:        1.8,
+  },
+  // All lifestyle tags to maximize lifestyleFactorScore (hits vibe ceiling in scoring.ts)
+  lifestyleTags: ['outdoors', 'nightlife', 'arts', 'walkable', 'diversity', 'family', 'startup'],
+};
+
+describe('rankCities — D-05 clamp BLOCKER gate (Phase 12)', () => {
+  it('displayed matchScore < 99 for the strongest profile across all cities (clamp BLOCKER)', () => {
+    // Asserts the POST-CLAMP user-facing score from rankCities(), not pre-clamp computeRawScore().
+    // Every city must be present (D-01 never-filter) and every displayed score must be < 99.
+    const { results } = rankCities(maxProfile);
+    expect(results.length).toBe(CITIES_DATA.length);
+    results.forEach((r) => {
+      expect(r.matchScore).toBeLessThan(99);
+      expect(r.matchScore).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  it('static budget: BASE_SCORE + Σ(global × maxContribution) < 95 (structural bound proof)', () => {
+    // Proves the runtime clamp gate passes because of the scoring budget, not coincidental data.
+    // Computes the theoretical maximum rawScore: BASE_SCORE + sum of all global-weighted caps.
+    // Because personalWeight ∈ [0,1] and factorScore ∈ [0,1], the per-factor maximum
+    // contribution is global[slug] × maxContribution[slug]. If this sum + BASE_SCORE < 95,
+    // no real profile can reach 99 even under per-factor rounding slop (≤ 0.5 per factor).
+    //
+    // Phase 12 calibration (Option A proportional renorm):
+    //   cost=1.0×8.4 + career=1.0×8.4 + lifestyle=1.0×7.0 + safety=0.8×5.6
+    //   + healthcare=1.0×4 + schools=1.0×3 + childcare=1.0×3 + connectivity=1.0×3 + parks=1.0×3
+    //   = 44.28 → BASE_SCORE(50) + 44.28 = 94.28 (< 95, ≥ 4pt headroom to the 99 clamp ceiling)
+    const norm = SCORING_WEIGHTS.normalization as Record<string, number>;
+    const budgetSum = Object.keys(SCORING_WEIGHTS.global).reduce((sum, slug) => {
+      const globalWeight = (SCORING_WEIGHTS.global as Record<string, number>)[slug];
+      const maxContrib = norm[slug + 'MaxContribution'] ?? 0;
+      return sum + globalWeight * maxContrib;
+    }, 0);
+    const theoreticalMax = BASE_SCORE + budgetSum;
+    expect(theoreticalMax).toBeLessThan(95);
   });
 });
 
