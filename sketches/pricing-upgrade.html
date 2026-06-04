@@ -229,7 +229,7 @@
   const io=new IntersectionObserver(es=>es.forEach(e=>{
     if(e.isIntersecting){const i=cards.indexOf(e.target);
       setTimeout(()=>e.target.classList.add('in'),i*100);io.unobserve(e.target);}
-  },{threshold:.2});
+  }),{threshold:.2});
   cards.forEach(c=>io.observe(c));
 
   grid.addEventListener('click',e=>{
