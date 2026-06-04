@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────────
 // Potential — US City Dataset (Phase 3, D-09/D-10/D-11/D-12)
-// 22 curated US cities. Typed to shared/types.ts City interface.
+// 28 curated US cities (+1 international: London). Typed to shared/types.ts City interface.
+// 22 original (Phase 3) + 6 major anchors added 2026-06-03: LA, SF, Boston, DC, Houston, Philadelphia.
 //
 // costIndex: US-national-average=100 scale.
 //   Derived from Numbeo (NYC=100 baseline) × 1.431 rescaling factor,
@@ -626,6 +627,185 @@ export const CITIES_DATA: City[] = [
     nearCoast: true,
     hasIntlAirport: true,
   },
+
+  // ── 6 major US anchor cities (added 2026-06-03) ───────────────────────────
+  // Sourcing follows the same chain as the original 22 (see header). costIndex
+  // derived from Numbeo Cost-of-Living Index (excl. rent, NYC=100) × 1.431,
+  // pulled in one consistent read of the US region-rankings table on 2026-06-03:
+  //   SF 96.9 · DC 92.4 · Boston 88.9 · LA 84.8 · Philly 81.3 · Houston 65.3
+  // (anchors in same table: Austin 71.3→103, NYC 100→143, San Diego 82.8→119).
+  // Phase 11/12 optional fields (healthcareIndex, disasterRiskScore, childcare…)
+  // intentionally omitted — Phase 12 populates them across ALL cities at once.
+  // Several jobGrowth values are NEGATIVE here (real 2026 BLS data): DC -3.2
+  // (federal workforce cuts), Boston -1.0, LA -0.3.
+
+  {
+    name: "Los Angeles, CA",
+    country: "US",
+    financialModelId: "us",
+    emoji: "🎬",
+    lat: 34.05,
+    lng: -118.24,
+    pop: "12.8M metro",
+    climate: "Mediterranean, mild and dry year-round",
+    costIndex: 121,        // Numbeo CoL 84.8 × 1.431
+    medianRent: 2100,      // Zumper 1BR, May 2026
+    medianHome: 890000,    // Zillow ZHVI LA County, Mar 2026
+    avgTemp: 65,
+    stateTax: 13.30,       // CA top marginal (matches San Diego convention)
+    summerHighF: 84,       // Aug avg high (NOAA 1991-2020)
+    winterLowF: 48,
+    walkScore: 69,
+    transitScore: 53,
+    safetyIndex: 46,
+    jobGrowth: -0.3,       // LA metro YoY, Apr 2026 (BLS, flat-to-negative)
+    vibe: ["Creative", "Diverse", "Outdoorsy", "Nightlife"],
+    topIndustries: ["Entertainment", "Trade", "Aerospace", "Tech"],
+    nearMountains: true,   // San Gabriel / Santa Monica Mts within ~60 min
+    nearCoast: true,
+    hasIntlAirport: true,
+  },
+
+  {
+    name: "San Francisco, CA",
+    country: "US",
+    financialModelId: "us",
+    emoji: "🌁",
+    lat: 37.77,
+    lng: -122.42,
+    pop: "4.6M metro",
+    climate: "Cool, foggy summers; mild winters",
+    costIndex: 139,        // Numbeo CoL 96.9 × 1.431 (highest US after NYC)
+    medianRent: 3877,      // Zumper 1BR, Jun 2026 (runs above NYC's 1BR)
+    medianHome: 1270000,   // Zillow ZHVI city, 2026
+    avgTemp: 57,
+    stateTax: 13.30,       // CA top marginal
+    summerHighF: 70,       // Sep is warmest (fog effect); NOAA 1991-2020
+    winterLowF: 46,
+    walkScore: 89,
+    transitScore: 77,
+    safetyIndex: 40,
+    jobGrowth: 0.6,        // SF-Oakland MSA YoY (BLS, AI-driven recovery)
+    vibe: ["Tech", "Progressive", "Walkable", "Expensive"],
+    topIndustries: ["Tech", "Finance", "Biotech", "Tourism"],
+    nearMountains: false,  // no major range within ~60 min (Sierra ~2.5h)
+    nearCoast: true,
+    hasIntlAirport: true,
+  },
+
+  {
+    name: "Boston, MA",
+    country: "US",
+    financialModelId: "us",
+    emoji: "🎓",
+    lat: 42.36,
+    lng: -71.06,
+    pop: "4.9M metro",
+    climate: "Four seasons, cold snowy winters",
+    costIndex: 127,        // Numbeo CoL 88.9 × 1.431
+    medianRent: 2850,      // Zumper 1BR, May 2026
+    medianHome: 780000,    // Zillow ZHVI city, Apr 2026
+    avgTemp: 51,
+    stateTax: 5.00,        // MA flat (4% surtax only >$1M, irrelevant here)
+    summerHighF: 82,       // Jul avg high (NOAA 1991-2020, Logan)
+    winterLowF: 23,        // Jan avg low — triggers "No extreme cold" (23 < 25)
+    walkScore: 83,
+    transitScore: 72,
+    safetyIndex: 60,
+    jobGrowth: -1.0,       // Boston-Cambridge MSA YoY, early 2026 (BLS)
+    vibe: ["Historic", "Academic", "Walkable", "Sports"],
+    topIndustries: ["Education", "Biotech", "Healthcare", "Finance"],
+    nearMountains: false,  // Blue Hills are hills; real ranges ~2h
+    nearCoast: true,
+    hasIntlAirport: true,
+  },
+
+  {
+    name: "Washington, DC",
+    country: "US",
+    financialModelId: "us",
+    emoji: "🦅",
+    lat: 38.91,
+    lng: -77.04,
+    pop: "6.3M metro",
+    climate: "Four seasons, hot humid summers",
+    costIndex: 132,        // Numbeo CoL 92.4 × 1.431
+    medianRent: 2280,      // Zumper 1BR, May 2026
+    medianHome: 620000,    // Zillow ZHVI city, 2026
+    avgTemp: 58,
+    // DC graduated income tax; 8.5% bracket covers $60K-$250K (the demo band).
+    // Source: DC Office of Tax & Revenue. Same band-rate approach as MN/OH records.
+    stateTax: 8.50,
+    summerHighF: 90,       // Jul avg high (NOAA 1991-2020, DCA)
+    winterLowF: 30,
+    walkScore: 98,
+    transitScore: 100,     // Metro — Walk Score "Rider's Paradise"
+    safetyIndex: 40,
+    jobGrowth: -3.2,       // Washington-Arlington MSA YoY, early 2026 — federal
+                           // workforce cuts; largest % decline of any large metro (BLS)
+    vibe: ["Political", "Historic", "Walkable", "Diverse"],
+    topIndustries: ["Government", "Law", "Defense", "Tech"],
+    nearMountains: false,  // Blue Ridge ~75 min (outside 60-min standard)
+    nearCoast: false,      // Chesapeake borderline; open Atlantic ~2.5h
+    hasIntlAirport: true,
+  },
+
+  {
+    name: "Houston, TX",
+    country: "US",
+    financialModelId: "us",
+    emoji: "🚀",
+    lat: 29.76,
+    lng: -95.37,
+    pop: "7.8M metro",
+    climate: "Hot humid summers, mild winters",
+    costIndex: 93,         // Numbeo CoL 65.3 × 1.431 (below Austin — cheap metro)
+    medianRent: 1130,      // Zumper 1BR, Jun 2026
+    medianHome: 265000,    // Zillow ZHVI city, Apr 2026
+    avgTemp: 70,
+    stateTax: 0,           // Texas — no state income tax
+    summerHighF: 94,       // Aug avg high (NOAA 1991-2020) — just under 95 heat threshold
+    winterLowF: 46,
+    walkScore: 47,
+    transitScore: 36,
+    safetyIndex: 37,
+    jobGrowth: 0.2,        // Houston MSA YoY NSA, Feb 2026 (BLS) — soft labor year
+    vibe: ["Diverse", "Affordable", "Foodie", "Sprawling"],
+    topIndustries: ["Energy", "Healthcare", "Aerospace", "Trade"],
+    nearMountains: false,
+    nearCoast: true,       // Galveston Bay / Gulf ~50 min
+    hasIntlAirport: true,
+  },
+
+  {
+    name: "Philadelphia, PA",
+    country: "US",
+    financialModelId: "us",
+    emoji: "🔔",
+    lat: 39.95,
+    lng: -75.17,
+    pop: "6.2M metro",
+    climate: "Four seasons, humid continental",
+    costIndex: 116,        // Numbeo CoL 81.3 × 1.431
+    medianRent: 1500,      // Zumper 1BR, 2026
+    medianHome: 221000,    // Zillow ZHVI city, May 2026
+    avgTemp: 56,
+    // PA flat 3.07% (matches Pittsburgh). Philly's ~3.75% city wage tax omitted
+    // by convention — same single-source state-only approach used for NYC.
+    stateTax: 3.07,
+    summerHighF: 86,       // Jul avg high (NOAA 1991-2020)
+    winterLowF: 26,
+    walkScore: 75,
+    transitScore: 67,
+    safetyIndex: 35,
+    jobGrowth: 1.2,        // Philadelphia-Camden MSA YoY, year-end 2025 (BLS)
+    vibe: ["Historic", "Walkable", "Affordable", "Sports"],
+    topIndustries: ["Healthcare", "Education", "Finance", "Pharma"],
+    nearMountains: false,  // Poconos ~75 min
+    nearCoast: false,      // Jersey Shore ~75 min; Delaware River is tidal, not coast
+    hasIntlAirport: true,
+  },
+
   // ── International Cities (Phase 4, Plan 01 — UK walking proof) ──────────────
   //
   // International city records append the US-city dataset for MATCH-02 coverage.

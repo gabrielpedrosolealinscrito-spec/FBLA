@@ -1,8 +1,8 @@
 ---
 phase: 5
 slug: proxy-live-ai-golden-path-cache
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-03
 ---
@@ -42,14 +42,14 @@ created: 2026-06-03
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD (proxy validation) | TBD | 1 | LIVE-01, LIVE-02 | T-5-key / — | Malformed/non-conforming LLM output is rejected before return; proxy never emits unvalidated data | unit | `npm test` (`tests/live-validation.test.ts`) | ❌ W0 | ⬜ pending |
-| TBD (dayinlife validation) | TBD | 1 | LIVE-03 | — | `validateItems('dayinlife', …)` accepts a narrative string, rejects an array | unit | `npm test` (`tests/live-validation.test.ts`) | ❌ W0 | ⬜ pending |
-| TBD (proxy fallback) | TBD | 2 | LIVE-04 | T-5-leak / — | On SDK error or validation failure the proxy returns `fromCache: true` with golden-path items, never a 5xx with a raw error | unit | `npm test` (`tests/live-proxy.test.ts`) | ❌ W0 | ⬜ pending |
-| TBD (client fallback) | TBD | 2 | FOUND-04, LIVE-04 | — | `fetchCategoryLive` with a `fetch` that throws/timeouts renders bundled golden-path data, no blank/spinner-stuck state | unit | `npm test` (`tests/live-fallback.test.ts`) | ❌ W0 | ⬜ pending |
-| TBD (no client key) | TBD | 1 | FOUND-03 | T-5-key | `ANTHROPIC_API_KEY` never appears in the client bundle; all Anthropic calls go through `/api/*` | manual | DevTools Network tab: zero calls to `api.anthropic.com`; `grep` built `dist/` for the key returns nothing | N/A | ⬜ pending |
+| 02-T1 (GREEN; stub 01-T3) | 05-02 | 2 | LIVE-01, LIVE-02 | T-5-key / — | Malformed/non-conforming LLM output is rejected before return; proxy never emits unvalidated data | unit | `npm test` (`tests/live-validation.test.ts`) | ❌ W0 (01-T3) | ⬜ pending |
+| 02-T1 (GREEN; stub 01-T3) | 05-02 | 2 | LIVE-03 | — | `validateItems('dayinlife', …)` accepts a narrative string, rejects an array | unit | `npm test` (`tests/live-validation.test.ts`) | ❌ W0 (01-T3) | ⬜ pending |
+| 02-T2 (GREEN; stub 01-T3) | 05-02 | 2 | LIVE-04 | T-5-leak / — | On SDK error or validation failure the proxy returns `fromCache: true` with golden-path items, never a 5xx with a raw error | unit | `npm test` (`tests/live-proxy.test.ts`) | ❌ W0 (01-T3) | ⬜ pending |
+| 03-T1 (GREEN; stub 01-T3) | 05-03 | 2 | FOUND-04, LIVE-04 | — | `fetchCategoryLive` with a `fetch` that throws/timeouts renders bundled golden-path data, no blank/spinner-stuck state | unit | `npm test` (`tests/live-fallback.test.ts`) | ❌ W0 (01-T3) | ⬜ pending |
+| 04-T3 (manual checkpoint) | 05-04 | 3 | FOUND-03 | T-5-key | `ANTHROPIC_API_KEY` never appears in the client bundle; all Anthropic calls go through `/api/*` | manual | DevTools Network tab: zero calls to `api.anthropic.com`; `grep` built `dist/` for the key returns nothing | N/A | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
-*Task IDs are TBD until the planner assigns plan/wave numbers; the planner MUST map each automated test above onto a concrete task.*
+*The 3 Wave 0 test files are created RED in 05-01 Task 3 and turn GREEN as 05-02/05-03 implement the exported targets (`validateItems`, the `/api/live` handler, `fetchCategoryLive`). `wave_0_complete` flips true once those files exist and pass during execution.*
 
 ---
 
@@ -75,11 +75,11 @@ created: 2026-06-03
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (3 test files + golden-path stub)
-- [ ] No watch-mode flags (`vitest run`, not `vitest`)
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (3 test files + golden-path stub)
+- [x] No watch-mode flags (`vitest run`, not `vitest`)
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-03 (plan-checker VERIFICATION PASSED, 0 blockers)

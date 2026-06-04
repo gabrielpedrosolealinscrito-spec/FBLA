@@ -128,7 +128,22 @@ Plans:
   4. When the hotspot is killed and the proxy is unreachable, live data panels render golden-path content instantly with no spinner and no blank state
   5. On API timeout or malformed LLM response, the UI falls back to golden-path data without crashing
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
+
+**Wave 2** *(parallel; blocked on Wave 1)*
+
+- [ ] 05-02-PLAN.md — Proxy: api/live-core.ts (validate/prompts/sanitize) + api/live.ts web_search handler with cache fallback (FOUND-03, LIVE-01..04)
+- [ ] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (live wow, no-key, offline fallback) (FOUND-03/04, LIVE-01..04)
+
 **UI hint**: yes
 
 ### Phase 6: Relocation Roadmap
@@ -227,7 +242,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 2. Quiz & Profile Capture | 0/4 | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
-| 5. Proxy, Live AI & Golden-Path Cache | 0/TBD | Not started | - |
+| 5. Proxy, Live AI & Golden-Path Cache | 0/4 | Not started | - |
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
