@@ -163,7 +163,12 @@ Plans:
   5. On API timeout or malformed LLM response, the UI falls back to golden-path data without crashing
   6. The brand fonts (Instrument Serif, Manrope, JetBrains Mono) are self-hosted (bundled woff2 + `@font-face`, or `@fontsource/*`) so the visual identity renders correctly with zero network — confirmed when the hotspot is killed, the fonts do NOT fall back to system defaults
 
-**Plans**: TBD
+**Plans**:
+- [ ] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub (Austin+Lisbon, rent+buy) + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
+- [ ] 05-02-PLAN.md — Proxy: api/live-core.ts (validate/prompts/sanitize) + api/live.ts web_search handler with cache fallback (FOUND-03, LIVE-01..04)
+- [ ] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp.jsx button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
+- [ ] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (FOUND-03/04, LIVE-01..04)
+- [ ] 05-05-PLAN.md — Self-host brand fonts (@fontsource), remove Google Fonts CDN link — offline typography (SC6 / FOUND-04)
 **UI hint**: yes
 
 > **Carried from Phase 1 cross-AI review** (`.planning/phases/01-scaffold-port/01-REVIEWS.md`, MEDIUM): Phase 1 loads the three brand fonts via a `fonts.googleapis.com` CDN `<link>` and labeled it "offline resilience" — that is wrong; a CDN link still requires network. Against the venue's hard "Internet Access: Not Provided" constraint, a dropped hotspot silently degrades the entire visual identity (a scored rubric item) to system fonts. Self-hosting the fonts is the fix and belongs in this phase's offline-resilience scope (criterion #6). Also correct the Phase 1 rationale wording so later work does not bank fonts as already handled.
