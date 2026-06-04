@@ -1,8 +1,8 @@
 ---
 phase: 12
 slug: multi-dimensional-scoring-extend-the-scoring-engine-and-city
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-03
 ---
@@ -48,7 +48,7 @@ created: 2026-06-03
 | D-02 | Schools/childcare contribution ≈ 0 when `categoryWeights` absent (childless user) | `shared/engine/scoring.test.ts` | unit | `npm test -- shared/engine/scoring.test.ts` | ❌ W0 | ⬜ pending |
 | D-02 | Schools/childcare contribution >> 0 when family user sets high `categoryWeight` | `shared/engine/scoring.test.ts` | unit | `npm test -- shared/engine/scoring.test.ts` | ❌ W0 | ⬜ pending |
 | D-07 | Parks proxy fallback: contribution > 0 and < max when `parkScore` absent | `shared/engine/scoring.test.ts` | unit | `npm test -- shared/engine/scoring.test.ts` | ❌ W0 | ⬜ pending |
-| D-07 | Neutral exclusion: no phantom-zero contribution for any missing-datum city | `shared/engine/scoring.test.ts` | unit | `npm test -- shared/engine/scoring.test.ts` | ❌ W0 | ⬜ pending |
+| D-07 | Genuine neutral exclusion: a no-cited-data, no-proxy category (the 7 anchor cities) yields `contribution === 0` + `dataLevel === 'none'` — NOT a nonzero midpoint; rawScore === BASE + only-applicable factors | `shared/engine/scoring.test.ts` | unit | `npm test -- shared/engine/scoring.test.ts` | ❌ W0 | ⬜ pending |
 | D-08 | Schools/childcare entries carry `dataLevel='state'` (state-average label) | `shared/engine/scoring.test.ts` | unit | `npm test -- shared/engine/scoring.test.ts` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
