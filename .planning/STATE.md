@@ -5,9 +5,9 @@ milestone_name: milestone
 current_phase: 2
 current_plan: Not started (Phase 2, 0 of 4)
 status: executing
-stopped_at: Phase 12 context gathered
+stopped_at: Phase 12 planned (4 plans, 3 waves)
 last_updated: "2026-06-03T23:41:08.240Z"
-last_activity: 2026-06-02
+last_activity: 2026-06-03
 progress:
   total_phases: 10
   completed_phases: 5
@@ -24,8 +24,8 @@ Phase: 2 (quiz-profile-capture) — READY TO EXECUTE
 Plan: 0 of 4 (4 plans ready)
 **Status:** Ready to execute
 **Current Phase:** 2
-**Last Activity:** 2026-06-02
-**Last Activity Description:** Phase 02 planning complete — 4 plans ready
+**Last Activity:** 2026-06-03
+**Last Activity Description:** Phase 12 planning complete — 4 plans in 3 waves (data → config/contract → scoring → clamp gate)
 
 > **Pitch track: COMPLETE.** Phases 9 (Business Substance) and 10 (Deck, Rehearsal & Protocol) both done 2026-05-31. All business-substance deliverables, deck outline, Q&A bank, and protocol checklist authored, source-tagged, and goal-verified under `pitch/`. Phase 10's timed rehearsals are specified but gated on Phase 8 (live demo, not yet built).
 
@@ -45,6 +45,7 @@ Plan: 0 of 4 (4 plans ready)
 - [Phase ?]: AI fetch stub pattern
 - Business model: run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99), no consumer subscription, modeled on 16Personalities (Phase 9 discussion)
 - Phase 2 reshaped to a capture-layer rebuild: adaptive/branching quiz + tension reconciliation + derived preference weights; city scoring deferred to Phase 3 (Phase 2 discussion)
+- [Phase 12]: missing new-category data (7 of 28 cities) → neutral-midpoint factorScore (0.5) labeled dataLevel 'limited-data' — honors D-07 (never punished) + D-01 (honesty boundary visible); resolves the D-01-vs-D-07 fork the research left open
 
 ## Performance Metrics
 
@@ -58,8 +59,9 @@ Plan: 0 of 4 (4 plans ready)
 
 ## Session Continuity
 
-**Stopped At:** Phase 12 context gathered
+**Stopped At:** Phase 12 planned (4 plans, 3 waves)
 **Resume File (product track):** .planning/phases/02-quiz-profile-capture/ — execute Phase 2 (0 of 4 plans)
+**Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
 **Live URL:** https://fbla-ruddy.vercel.app
 **Walking Skeleton:** proven end-to-end (local npm run dev + public Vercel deploy + /api/health 200)
@@ -69,3 +71,4 @@ Plan: 0 of 4 (4 plans ready)
 ### Roadmap Evolution
 
 - Phase 2 edited: added success criteria 6-7: adaptive/branching quiz + tension reconciliation (from Phase 2 discussion)
+- Phase 12 planned off-ROADMAP (defined on main/reconcile/v1, not integrate/quiz-engine): multi-dimensional scoring — 4 plans, 3 waves, executes on reconcile/v1
