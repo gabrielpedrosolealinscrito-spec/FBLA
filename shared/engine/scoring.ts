@@ -134,7 +134,11 @@ function lifestyleFactorScore(city: City, profile: Profile): number {
 //
 // Analog: rankToWeight's norm() closure (L34-36) but two-tier.
 function categoryPersonalWeight(profile: Profile, slug: string, isPractical: boolean): number {
-  const raw = profile.categoryWeights?.[slug] ?? NEUTRAL_DEFAULT;
+  // T-12-05/T-12-07: guard NaN/Infinity before any math — non-finite falls back to NEUTRAL_DEFAULT.
+  // (sanitizeProfile in index.ts also clamps at engine entry, but this defensive guard
+  //  prevents NaN propagation if categoryPersonalWeight is ever called directly.)
+  const rawLookup = profile.categoryWeights?.[slug] ?? NEUTRAL_DEFAULT;
+  const raw = Number.isFinite(rawLookup) ? rawLookup : NEUTRAL_DEFAULT;
   const clamped = Math.max(0, raw);
   if (isPractical) {
     // Practical: retain floor — healthcare always contributes something.
