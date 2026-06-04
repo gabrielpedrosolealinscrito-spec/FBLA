@@ -60,11 +60,13 @@ Phase 12 is a pure engine + data phase. It has two parts: (1) populating the 22-
 
 The non-negotiable constraint is the clamp BLOCKER (D-05). The existing engine has a theoretical max raw score of 90.4 (BASE_SCORE=50 + global-weighted cap sum of 40.4). Adding 5 new scored categories — even modest ones — pushes the sum well above 49 headroom, triggering the very defect Phase 3 fixed. The recalibration is the first thing to get right; everything else flows from the new budget.
 
-The weight-gating model is already built by Phase 11: `synthesizeCategoryWeights` emits raw values in `[WEIGHT_FLOOR..WEIGHT_MAX]` (where `WEIGHT_FLOOR=0.3`, `WEIGHT_MAX_PRAC=1.5`, `WEIGHT_MAX_PREF=1.8`). Phase 12 normalizes these via a successor to `rankToWeight`, consuming `profile.categoryWeights[slug] / WEIGHT_MAX` to produce a `[0,1]` personal weight that gates each new factor contribution.
+The weight-gating model is already built by Phase 11: `synthesizeCategoryWeights` emits raw values in `[WEIGHT_FLOOR..WEIGHT_MAX]` (where `WEIGHT_FLOOR=0.3`, `WEIGHT_MAX_PRAC=1.5`, `WEIGHT_MAX_PREF=1.8`). Phase 12 normalizes these with a **two-tier formula**: preference categories (schools, childcare, parks, connectivity) use baseline-subtraction so a neutral/skipped weight (NEUTRAL_DEFAULT=0.5) maps to zero contribution; practical categories (healthcare) retain a floor so they always bite a little regardless of expressed preference.
 
 **Primary recommendation:** Recalibrate using proportional renormalization of all factor caps to fit in a tighter total budget (target `BASE_SCORE + Σ(global-weighted caps) ≤ 94` to absorb rounding slop), then wire each new category with the pattern `contribution = global × personal × factorScore × maxContribution`. The clamp invariant test MUST call `rankCities()` and assert on `.matchScore`, not on `computeRawScore().rawScore`.
 
 ---
+
+> **HARD PREREQUISITE — Branch:** `personality.ts` (WEIGHT_FLOOR, WEIGHT_MAX_PRAC, WEIGHT_MAX_PREF, NEUTRAL_DEFAULT, PRACTICAL_CATEGORIES, synthesizeCategoryWeights) and `keys.ts` (ALL_SCORED_CATEGORIES slugs) exist **only on `reconcile/v1`** (or a descendant) — they are absent on `integrate/quiz-engine`. Phase 12 MUST execute on `reconcile/v1` or a branch merged from it. Confirm before any engine edit.
 
 ## Architectural Responsibility Map
 
@@ -119,7 +121,9 @@ No new packages. This phase is pure TypeScript logic + data entry on the existin
 Profile.categoryWeights {slug: rawWeight}
          |
          v
-  categoryPersonalWeight(slug) = clamp(rawWeight, 0, WEIGHT_MAX) / WEIGHT_MAX  → [0,1]
+  categoryPersonalWeight(slug, isPractical) → [0,1]
+         preference: (raw - NEUTRAL_DEFAULT) / (WEIGHT_MAX_PREF - NEUTRAL_DEFAULT)
+         practical:  raw / WEIGHT_MAX_PRAC
          |
          v
   Per-factor normalization  ←── City data fields (healthcareIndex, schoolProficiencyPct, ...)
@@ -251,28 +255,46 @@ function parksFactorScore(city: City, profile: Profile): number {
 
 ### Pattern 2: Weight-Gating via categoryWeights
 
-Phase 11 `synthesizeCategoryWeights` emits raw values in `[WEIGHT_FLOOR..WEIGHT_MAX]`:
-- Practical categories (`healthcare`, `safety`): floor=0.3, max=1.5
-- Preference categories (`schools`, `childcare`, `parks`, `connectivity`): floor=0, max=1.8
-- Skipped categories: NEUTRAL_DEFAULT=0.5
+Phase 11 `synthesizeCategoryWeights` emits raw values with different behavior per tier:
+- **Practical categories** (`healthcare`): floor=WEIGHT_FLOOR=0.3, max=WEIGHT_MAX_PRAC=1.5 — always contributes something
+- **Preference categories** (`schools`, `childcare`, `parks`, `connectivity`): floor=0, max=WEIGHT_MAX_PREF=1.8 — skipped/neutral = NEUTRAL_DEFAULT=0.5
+- **Skipped categories** (any): NEUTRAL_DEFAULT=0.5 emitted regardless of tier
 
-Phase 12 normalizes for the contribution formula:
+**The critical D-02 requirement:** for preference categories, a user without kids must get schools/childcare contribution ≈ 0. A flat `/ 1.8` normalizer FAILS this: `NEUTRAL_DEFAULT=0.5 / 1.8 = 0.278`, and `0.278 × 0.81 (CO school factor) × 3 (cap) = 0.68 → rounds to 1` — schools shifts rankings for a childless user by up to 1 point per city. That violates D-02.
+
+**Two-tier normalization formula:**
 
 ```typescript
-// Successor to rankToWeight for new categories
-// categoryWeights[slug] is in [0..WEIGHT_MAX_PREF=1.8] (pref) or [WEIGHT_FLOOR..WEIGHT_MAX_PRAC=1.5] (prac)
-// Normalize to [0,1] by dividing by the practical ceiling (1.8 — the global max possible)
-// This mirrors the existing PERSONAL_WEIGHT_SCALE=4 normalization in rankToWeight
-const CATEGORY_WEIGHT_SCALE = 1.8; // WEIGHT_MAX_PREF is the global ceiling
+// Two-tier weight normalization (D-02 compliant)
+// Constants come from personality.ts on reconcile/v1 — import or re-declare in scoring-weights.ts
+const WEIGHT_MAX_PREF = 1.8;   // ceiling for preference categories
+const WEIGHT_MAX_PRAC = 1.5;   // ceiling for practical categories
+const NEUTRAL_DEFAULT = 0.5;   // synthesizer emits this for skipped categories
 
-function categoryPersonalWeight(profile: Profile, slug: string): number {
+function categoryPersonalWeight(profile: Profile, slug: string, isPractical: boolean): number {
   const raw = profile.categoryWeights?.[slug] ?? NEUTRAL_DEFAULT;
-  return Math.min(1.8, Math.max(0, raw)) / CATEGORY_WEIGHT_SCALE; // → [0,1]
+  const clamped = Math.max(0, raw);
+  if (isPractical) {
+    // Practical: retain floor so healthcare always contributes something.
+    // Range [0..WEIGHT_MAX_PRAC=1.5], normalize to [0..1].
+    return Math.min(WEIGHT_MAX_PRAC, clamped) / WEIGHT_MAX_PRAC;
+  } else {
+    // Preference: baseline-subtract neutral so NEUTRAL_DEFAULT → 0 (no-kids = 0 schools bite).
+    // Range [0..WEIGHT_MAX_PREF=1.8]; neutral=0.5 → 0; max=1.8 → 1.
+    const baselined = Math.max(0, clamped - NEUTRAL_DEFAULT);
+    const range = WEIGHT_MAX_PREF - NEUTRAL_DEFAULT; // 1.3
+    return Math.min(1, baselined / range);
+  }
 }
 ```
 
-A user who didn't complete the Phase 11 quiz has no `categoryWeights` — `profile.categoryWeights` is `undefined`. The `?? NEUTRAL_DEFAULT` fallback produces `0.5 / 1.8 = 0.278` personal weight — a mild contribution, never zero, never dominant. This is the correct graceful degradation behavior.
-`[VERIFIED: codebase + personality.ts on reconcile/v1]`
+**Behavior after the fix:**
+- No-kids user, schools absent from categoryWeights → raw=0.5 (NEUTRAL_DEFAULT) → baselined=0 → personal=0 → schools contribution=0. D-02 satisfied.
+- Family user, schools=1.8 (WEIGHT_MAX_PREF) → baselined=1.3 → personal=1.0 → full cap. Strong signal.
+- Healthcare (practical), user skips healthcare module → raw=0.5 → personal=0.333 → mild contribution. Always present; never zero.
+
+**Graceful degradation (no categoryWeights):** profile has no `categoryWeights` (pre-Phase-11 profile). Falls back to `NEUTRAL_DEFAULT=0.5` → preference personal=0 → no new-category contributions. Existing 4-factor score runs unchanged. Safe.
+`[VERIFIED: codebase + personality.ts on reconcile/v1 — NEUTRAL_DEFAULT=0.5, WEIGHT_MAX_PREF=1.8, WEIGHT_MAX_PRAC=1.5]`
 
 ### Pattern 3: Clamp Recalibration Math (D-05)
 
@@ -292,7 +314,7 @@ Shrink the existing 4 factors proportionally to create room for the new 5:
 - 4 existing categories get 28 points total; 5 new categories get 16 points total
 - Existing rescaling: cost→8.4, career→8.4, lifestyle→7.0, safety→5.6 (× 0.7 scaling)
 - New category caps (all with global=1.0): healthcare=4, schools=3, childcare=3, connectivity=3, parks=3
-- Verify: 8.4 + 8.4 + 7.0 + (0.8×7.0) + 4 + 3 + 3 + 3 + 3 = 8.4+8.4+7.0+5.6+4+3+3+3+3 = **45.4 → max=95.4** (within budget; rounding slop stays safe)
+- Verify (global-weighted): cost=1.0×8.4 + career=1.0×8.4 + lifestyle=1.0×7.0 + safety=0.8×5.6 + healthcare=1.0×4 + schools=1.0×3 + childcare=1.0×3 + connectivity=1.0×3 + parks=1.0×3 = 8.4+8.4+7.0+4.48+4+3+3+3+3 = **44.28 → max=94.28** (within budget ≤ 94; rounding slop stays safe)
 
 **Option B — Shrink existing safety cap only:**
 - Safety already has global=0.8; reduce safety further and lifestyle slightly
@@ -424,11 +446,11 @@ The planner should document this as a TODO comment in `scoring.ts` marking where
 
 ### Pitfall 7: WEIGHT_FLOOR Tuning Interacts with the Clamp Budget
 
-**What goes wrong:** Tuning `WEIGHT_FLOOR` upward for practical categories (healthcare, safety) inadvertently raises the minimum contribution floor, effectively lowering the remaining clamp headroom for strong-weight profiles.
+**What goes wrong:** Tuning `WEIGHT_FLOOR` upward for practical categories (healthcare) raises the minimum contribution floor — narrowing headroom to the clamp ceiling for all profiles.
 
-**Why it happens:** If healthcare's WEIGHT_FLOOR is 0.3 and the normalizer produces `0.3/1.8 = 0.167`, then even a user who didn't flag healthcare contributes `0.167 × healthcareMaxContribution` every city. Multiplied across all practical categories, this raises the floor rawScore meaningfully.
+**Why it happens:** With the two-tier formula, practical personal = `WEIGHT_FLOOR / WEIGHT_MAX_PRAC` (e.g., `0.3/1.5 = 0.2`). If healthcare floor contribution is 0.2 × 4 (cap) = 0.8 → rounds to 1. That's always added. The floor rawScore is `BASE_SCORE + floor_contributions_from_practical_categories`. For preference categories (schools, childcare, parks, connectivity), the floor is 0 (NEUTRAL_DEFAULT → personal=0 → no contribution), so no floor concern.
 
-**How to avoid:** After setting all cap values, compute the FLOOR rawScore (using WEIGHT_FLOOR for practical categories, 0 for preference categories) and verify it's ≥ 50 (a city should score above BASE_SCORE when profile fully matches) while the CEILING rawScore is < 99. The math bound is: `BASE + Σ(global × WEIGHT_MAX_PREF / CATEGORY_WEIGHT_SCALE × maxContrib)` < 99 for all factors.
+**How to avoid:** After setting all cap values, compute: (a) FLOOR rawScore = BASE + `Σ(practical cats: global × (WEIGHT_FLOOR/WEIGHT_MAX_PRAC) × factorScore × maxContrib)` and verify it's sane (not too high); (b) CEILING rawScore = BASE + `Σ(all: global × 1.0 × 1.0 × maxContrib)` — this is the D-05 bound that must be < 94. With healthcare as the only practical category and its cap at 4: floor addition ≈ 0.2 × 4 = 0.8 ≈ 1 pt per city; not a significant budget issue.
 
 ---
 
@@ -504,29 +526,46 @@ it('BASE_SCORE + Σ(scoreFactors.contribution) === rawScore after new factors', 
 ### Weight-gating test (schools/childcare at ~0 weight)
 
 ```typescript
-it('schools contribution ≈ 0 when categoryWeights.schools is absent (no-kids profile)', () => {
+it('schools contribution === 0 when categoryWeights.schools absent (no-kids — D-02)', () => {
+  // Two-tier formula: NEUTRAL_DEFAULT=0.5 → baselined=0 → personal=0 → contrib=0
   const nokidsProfile = {
     ...testProfile,
     categoryWeights: { healthcare: 1.2, connectivity: 1.0 }, // no schools key
   };
   const result = computeRawScore(nokidsProfile, testCityWithSchoolData);
   const schoolsFactor = result.scoreFactors.find(f => f.factor.toLowerCase().includes('school'));
-  // NEUTRAL_DEFAULT=0.5, personal=0.5/1.8=0.278, maxCap=3 → max contrib ≈ 0.278*3 ≈ 0.83
-  // Rounded → at most 1. A school-unweighted profile contributes almost nothing.
-  if (schoolsFactor) expect(schoolsFactor.contribution).toBeLessThanOrEqual(1);
+  // With two-tier formula: absent schools → NEUTRAL_DEFAULT → baselined=0 → personal=0 → contrib=0
+  // A childless user must see schools contribution = 0, not "almost nothing" (the old flat formula)
+  expect(schoolsFactor?.contribution ?? 0).toBe(0);
 });
 
-it('schools contribution is noticeably higher when categoryWeights.schools = WEIGHT_MAX_PREF', () => {
+it('schools contribution === 0 when categoryWeights is empty object (no-kids — D-02)', () => {
+  const nokidsProfile = { ...testProfile, categoryWeights: {} };
+  const result = computeRawScore(nokidsProfile, testCityWithSchoolData);
+  const schoolsFactor = result.scoreFactors.find(f => f.factor.toLowerCase().includes('school'));
+  expect(schoolsFactor?.contribution ?? 0).toBe(0);
+});
+
+it('schools contribution > 0 and notably higher for family user vs. no-kids', () => {
   const familyProfile = {
     ...testProfile,
-    categoryWeights: { schools: 1.8, childcare: 1.8 }, // family user
+    categoryWeights: { schools: 1.8, childcare: 1.8 }, // WEIGHT_MAX_PREF — family user
   };
   const nokidsProfile = { ...testProfile, categoryWeights: {} };
   const familyResult = computeRawScore(familyProfile, testCityWithSchoolData);
   const nokidsResult = computeRawScore(nokidsProfile, testCityWithSchoolData);
   const familySchools = familyResult.scoreFactors.find(f => f.factor.toLowerCase().includes('school'))?.contribution ?? 0;
   const nokidsSchools = nokidsResult.scoreFactors.find(f => f.factor.toLowerCase().includes('school'))?.contribution ?? 0;
-  expect(familySchools).toBeGreaterThan(nokidsSchools);
+  expect(nokidsSchools).toBe(0);          // strict D-02: no-kids = zero
+  expect(familySchools).toBeGreaterThan(0); // family user = real contribution
+});
+
+it('healthcare contribution > 0 even when not explicitly weighted (practical tier)', () => {
+  // Practical tier: NEUTRAL_DEFAULT=0.5 → personal=0.333 (not zero) → still contributes
+  const nokidsProfile = { ...testProfile, categoryWeights: {} };
+  const result = computeRawScore(nokidsProfile, testCityWithHealthcareData);
+  const healthcareFactor = result.scoreFactors.find(f => f.factor.toLowerCase().includes('health'));
+  expect(healthcareFactor?.contribution ?? 0).toBeGreaterThan(0);
 });
 ```
 
@@ -565,7 +604,7 @@ it('parks factor uses proxy when parkScore is absent, neither 0 nor max', () => 
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | `CATEGORY_WEIGHT_SCALE = 1.8` (= WEIGHT_MAX_PREF) is the correct normalization denominator | Pattern 2, Weight-Gating | If WEIGHT_MAX_PREF changes in personality.ts, the normalizer produces values > 1.0 and breaks the contribution cap guarantee |
+| A1 | Two-tier formula: preference personal = `(raw - 0.5) / 1.3` (NEUTRAL_DEFAULT=0.5, range=WEIGHT_MAX_PREF-NEUTRAL_DEFAULT=1.3); practical personal = `raw / 1.5` (WEIGHT_MAX_PRAC=1.5) | Pattern 2, Weight-Gating | If NEUTRAL_DEFAULT or WEIGHT_MAX_PREF changes in personality.ts, the formula must be updated to match; read personality.ts on target branch before implementing |
 | A2 | The D-04 seam is already structurally present (open scoreFactors array, arbitrary-slug categoryWeights) | Pattern 5 | If Phase 5 needs a different injection mechanism, the seam design may need revision |
 | A3 | Proxy fallback for parks (nearMountains/nearCoast) covers all 22 cities | Pitfall 5, parks formula | If a city lacks both booleans, the baseline proxy score (0.4) is used — acceptable |
 | A4 | ParkScore for 7 confirmed cities: Minneapolis=83.4, Seattle=75.4, Portland=75.1, Chicago=74.3, Denver=~#11 (no score), Atlanta=~#18 (no score), Austin=~#47 (no score) | Normalization formula | Denver, Atlanta, Austin ParkScore values not confirmed numerically; proxy fallback applies for these despite having rank |
