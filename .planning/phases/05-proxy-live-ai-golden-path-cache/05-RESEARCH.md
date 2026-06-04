@@ -548,7 +548,7 @@ async function capture() {
 ### Pitfall 3: `url` rendered as anchor (D-10 violation)
 **What goes wrong:** Competition rules disallow clickable links on screen; a judge could click. Also kills the see-not-click narrative.
 **Why it happens:** `ItemCard` in PotentialApp.jsx currently renders a `url` prop as `<a>View listing ↗</a>` (lines ~213-221). Prompts that return `url` fields will render them unless the card is modified.
-**How to avoid:** Remove the `<a>` block from `ItemCard`. Prompts must NOT request a `url` field. Add a `source` field (site name as text) instead. `url` may be stored in the data for future use but never rendered.
+**How to avoid:** Remove the `<a>` block from `ItemCard`. Prompts must NOT request a `url` field. Add a `source` field (site name as text) instead. `url` may be stored in the data for future use but never rendered. Note: Anthropic's web-search-tool docs require attribution when displaying API outputs to end users — rendering the source name as text (e.g. "Indeed", "Idealista") satisfies this requirement; D-10 forbids the link, not the attribution.
 
 ### Pitfall 4: Image URLs in golden-path breaking D-08 "identical" offline
 **What goes wrong:** `ItemCard` renders `image` from a remote URL. When hotspot is dead, images 404-silently (handled by `onError` to hide) — but this means the cached panel LOOKS slightly different from the live panel (no images offline), breaking D-08's "indistinguishable" claim.
@@ -579,9 +579,7 @@ async function capture() {
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { LiveDataRequest, LiveDataResponse, LiveCategory } from '../shared/types';
 import Anthropic from '@anthropic-ai/sdk';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const goldenPath = require('../data/golden-path/demo-results.json');
+import goldenPath from '../data/golden-path/demo-results.json'; // requires resolveJsonModule: true in tsconfig.json
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from process.env
 
@@ -597,7 +595,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   try {
     const msg = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 2048,  // 1024 is too low: JSON truncation → parse failure → always cache (defeats D-04)
       system: 'You are a data assistant. After searching the web, output ONLY a JSON block. No prose outside the block. Format: ```json\\n[...]\\n```',
       messages: [{ role: 'user', content: buildPrompt(category, cityName, profession, age) }],
       tools: [{
