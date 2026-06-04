@@ -227,8 +227,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   max_uses: 3,                  // bounds cost + latency; adequate for structured listing queries
   user_location: {              // localizes results to target city
     type: "approximate",
-    city: cityName,             // e.g. "Austin"
-    country: "US"               // or "Portugal" for Lisbon
+    city: cityName,             // the full city.name, e.g. "Austin, TX"
+    country: "US"               // ISO alpha-2; derive from cityName suffix ("Lisbon, Portugal" -> "PT") — see "Complete api/live.ts skeleton"
   }
 }
 ```
@@ -469,25 +469,25 @@ D-02's "~7s budget" should be interpreted as: the ABORT SIGNAL fires at 20s (liv
 ```json
 {
   "jobs": {
-    "Austin": [ { "title": "...", "company": "...", ... } ],
-    "Lisbon": [ { "title": "...", "company": "...", ... } ]
+    "Austin, TX": [ { "title": "...", "company": "...", ... } ],
+    "Lisbon, Portugal": [ { "title": "...", "company": "...", ... } ]
   },
   "housing_rent": {
-    "Austin": [ ... ],
-    "Lisbon": [ ... ]
+    "Austin, TX": [ ... ],
+    "Lisbon, Portugal": [ ... ]
   },
   "housing_buy": {
-    "Austin": [ ... ],
-    "Lisbon": [ ... ]
+    "Austin, TX": [ ... ],
+    "Lisbon, Portugal": [ ... ]
   },
   "dayinlife": {
-    "Austin": "It's 7am and the September sun...",
-    "Lisbon": "The Tagus gleams through the kitchen window..."
+    "Austin, TX": "It's 7am and the September sun...",
+    "Lisbon, Portugal": "The Tagus gleams through the kitchen window..."
   }
 }
 ```
 
-Both `api/live.ts` and `src/` import this file (D-01 single source). Vite handles JSON imports natively in `src/`. The `api/` TypeScript compilation requires `resolveJsonModule: true` in tsconfig.json.
+**City keys are the FULL `city.name` string** ("Austin, TX" / "Lisbon, Portugal" — confirmed in shared/data/cities.ts), NOT bare tokens. The proxy and client both look up `goldenPath[category][city.name]`, so bare-token keys would resolve to `undefined → []` on every offline fallback and void SC4/SC5/LIVE-04. Both `api/live.ts` and `src/` import this file (D-01 single source). Vite handles JSON imports natively in `src/`. The `api/` TypeScript compilation requires `resolveJsonModule: true` in tsconfig.json.
 
 ### Capture script: `scripts/capture-golden-path.ts`
 
@@ -506,7 +506,7 @@ Both `api/live.ts` and `src/` import this file (D-01 single source). Vite handle
 // Requires: vercel dev running on localhost:3000
 
 const DEMO_PROFILE = { profession: 'Software Engineer', age: 28, housing: 'rent' }; // TBD from demo script
-const CITIES = ['Austin', 'Lisbon'];
+const CITIES = ['Austin, TX', 'Lisbon, Portugal']; // full city.name strings — the exact golden-path keys (read these from demo-profile.json in the real script)
 const CATEGORIES = ['jobs', 'housing_rent', 'dayinlife'] as const;
 
 async function capture() {
@@ -583,6 +583,14 @@ import goldenPath from '../data/golden-path/demo-results.json'; // requires reso
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from process.env
 
+// cityName is the full "City, ST"/"City, Country" string (e.g. "Lisbon, Portugal").
+// web_search user_location.country wants an ISO 3166 alpha-2 code; derive it from the suffix.
+const COUNTRY_BY_SUFFIX: Record<string, string> = { Portugal: 'PT', UK: 'GB', Germany: 'DE', Canada: 'CA' };
+function countryFor(cityName: string): string {
+  const suffix = cityName.split(', ').pop() ?? '';
+  return COUNTRY_BY_SUFFIX[suffix] ?? 'US'; // US cities end in a 2-letter state code -> default US
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
   const { category, cityName, profession, age } = req.body as LiveDataRequest;
@@ -602,7 +610,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         type: 'web_search_20250305',
         name: 'web_search',
         max_uses: 3,
-        user_location: { type: 'approximate', city: cityName, country: cityName === 'Lisbon' ? 'PT' : 'US' },
+        // country: ISO alpha-2 derived from the cityName suffix. Do NOT use `cityName === 'Lisbon'`
+        // — the runtime value is "Lisbon, Portugal" so that is always false. Map the suffix after ", ":
+        //   { Portugal:'PT', UK:'GB', Germany:'DE', Canada:'CA' }, default 'US' (US cities end in a state code).
+        user_location: { type: 'approximate', city: cityName, country: countryFor(cityName) },
       }],
     });
 
@@ -612,6 +623,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const items = validateItems(category, raw); // throws on bad shape → catch → golden path
     serve(items, false);
   } catch {
+    // cityName is the FULL "City, ST" string, matching the golden-path keys ("Austin, TX") — no stripping.
     const fallback = (goldenPath as Record<string, Record<string, unknown>>)[category]?.[cityName] ?? [];
     serve(fallback, true);
   }
@@ -678,26 +690,29 @@ function handlePullLiveData(selectedCity, profile, setCityAIData, setAiLoading) 
 |---|-------|---------|---------------|
 | A1 | `claude-haiku-4-5-20251001` supports `web_search_20250305` | Model Choice | If Haiku doesn't support web_search, live calls silently return training-data listings as if current — demo fails under scrutiny |
 | A2 | `user_location.country` accepts ISO 2-letter country code ("PT", "US") | Prompt Design | If it expects country name ("Portugal") or timezone, localization fails silently |
-| A3 | Demo persona cities are "Austin" and "Lisbon" (Lisbon confirmed in CONTEXT D-06; Austin assumed as #1 US match) | Golden-path capture | If #1 US match is not Austin, capture script targets wrong city |
+| A3 | Demo persona cities are "Austin, TX" and "Lisbon, Portugal" — the FULL city.name strings (Lisbon confirmed in CONTEXT D-06; Austin assumed as #1 US match) | Golden-path capture | If #1 US match is not Austin, capture script targets wrong city. Keys must be full names, not bare tokens (else fallback voids SC4/SC5). |
 | A4 | Vercel Fluid Compute is enabled by default on the project's Vercel plan | Timeout Budget | If not enabled, maxDuration defaults to 60s — still adequate, but confirms 300s not available |
 
 **A1 is the most consequential assumption** — this is why the recommendation is `claude-sonnet-4-6`. If Haiku is confirmed later, swap the model ID.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Demo persona must be finalized before capture script runs**
+   - RESOLVED: Pinned via `data/golden-path/demo-profile.json` (created in 05-01 Task 2 as a provisional stub; finalized at the 05-04 Task 2 human-action checkpoint before the real capture). The capture script reads persona + cities (full "City, ST" names) from this file, so re-pinning is a data edit, not a code edit.
    - What we know: D-06 says cache covers "#1 US match + Lisbon." #1 US match depends on the demo profile fed to the scoring engine.
    - What's unclear: The rehearsed demo profile (name, profession, income, lifestyle tags) has not been pinned in any accessible file on this branch.
    - Recommendation: Pin the demo profile in `data/golden-path/demo-profile.json` before running the capture script. The capture script should read from it.
 
 2. **web_search must be enabled in Anthropic Console by org admin**
+   - RESOLVED: Verified at the 05-04 Task 2 human-action checkpoint — the capture script throws on `fromCache:true` (which is what a disabled web_search produces), forcing confirmation that `usage.server_tool_use.web_search_requests > 0` before any snapshot is written.
    - What we know: The Anthropic docs state "Your organization's administrator must enable web search in the Claude Console." [CITED]
    - What's unclear: Whether Gabriel's API key already has this enabled.
    - Recommendation: Verify by making a test call and checking `usage.server_tool_use.web_search_requests > 0`.
 
 3. **Haiku web_search support**
+   - RESOLVED: Use `claude-sonnet-4-6` (confirmed web_search support) for Phase 5 — pinned in 05-02 Task 2. Haiku stays an unblocked future cost optimization, not a Phase 5 dependency.
    - What we know: Not listed in official Anthropic model-support docs for either tool version.
    - What's unclear: Whether it works for `web_search_20250305` despite being absent from the 20260209 list.
    - Recommendation: Use Sonnet 4.6 for Phase 5. If Haiku support is later confirmed, it can be swapped as a cost optimization.

@@ -64,8 +64,8 @@ The architecture skeleton was locked in Phase 1 (Vercel `/api` serverless, key a
 - `.planning/phases/01-scaffold-port/01-CONTEXT.md` — locked stack/deploy/proxy decisions this phase inherits (TS for `shared/`+`api/`, JSX for `src/`, Vercel auto-deploy on `main`, `.env` gitignored + `.env.example`).
 
 ### Frontend integration points
-- `src/screens/PotentialApp.jsx` — the stubbed AI section (`AIList` component, `dayinlife` Section, the disabled fetch at lines ~71-75, the "coming soon" placeholder ~195). This is where live data gets wired.
-- `src/screens/results/CityDetail.jsx` — city-detail panel where the "Pull live data" button (D-04) lives; already has an `FX_AS_OF`-style "as of" pattern for reference.
+- `src/screens/PotentialApp.jsx` — **the confirmed Phase 5 live-AI target** (user decision 2026-06-03). It is the component `App.jsx` actually mounts, and it holds the stubbed AI section (`AIList` component, `dayinlife` Section, `fetchCityAI` stub ~lines 72-77, the "coming soon" placeholder ~193). The "Pull live data" button (D-04) and all live wiring go HERE.
+- ~~`src/screens/results/CityDetail.jsx`~~ — **SUPERSEDED.** This Phase 3/4 component exists but is NOT wired into `App.jsx` (the `results/` tree is built but unmounted). It has no AI code and is OUT OF SCOPE for Phase 5. Wiring the `results/` cutover is separate, later frontend work. (Original assumption that the button lived here was incorrect — the mount + AI stub are in `PotentialApp.jsx`.)
 
 ### Scope & requirements
 - `.planning/ROADMAP.md` §"Phase 5" — goal + 5 success criteria (the verification target).

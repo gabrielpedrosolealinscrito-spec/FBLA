@@ -127,22 +127,24 @@ Plans:
   3. The golden-path cache (`data/golden-path/demo-results.json`) is populated for the scripted demo profile and at least 2 cities
   4. When the hotspot is killed and the proxy is unreachable, live data panels render golden-path content instantly with no spinner and no blank state
   5. On API timeout or malformed LLM response, the UI falls back to golden-path data without crashing
+  6. The brand fonts (Instrument Serif, Manrope, JetBrains Mono) are self-hosted (bundled woff2 + `@font-face`, or `@fontsource/*`) so the visual identity renders correctly with zero network — confirmed when the hotspot is killed, the fonts do NOT fall back to system defaults
 
-**Plans**: 4 plans
+**Plans**: 5 plans
 Plans:
 
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
+- [ ] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub (Austin+Lisbon, rent+buy) + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
 
 **Wave 2** *(parallel; blocked on Wave 1)*
 
 - [ ] 05-02-PLAN.md — Proxy: api/live-core.ts (validate/prompts/sanitize) + api/live.ts web_search handler with cache fallback (FOUND-03, LIVE-01..04)
-- [ ] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
+- [ ] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp.jsx button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
+- [ ] 05-05-PLAN.md — Self-host brand fonts (@fontsource), remove Google Fonts CDN link — offline typography (SC6 / FOUND-04)
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (live wow, no-key, offline fallback) (FOUND-03/04, LIVE-01..04)
+- [ ] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (FOUND-03/04, LIVE-01..04)
 
 **UI hint**: yes
 
@@ -242,7 +244,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 2. Quiz & Profile Capture | 0/4 | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
-| 5. Proxy, Live AI & Golden-Path Cache | 0/4 | Not started | - |
+| 5. Proxy, Live AI & Golden-Path Cache | 0/5 | Not started | - |
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
