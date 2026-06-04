@@ -1,3 +1,5 @@
+A LIFE SIMULATOR
+Potential
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,7 +30,8 @@
   }
 
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth;scroll-snap-type:y mandatory}
+  /* smooth-scroll is handled by an eased rAF glide in JS so it can't fight
+     programmatic scrolls during the gate->story transition */
   body{
     background:var(--night-1);
     color:var(--ivory);
@@ -114,9 +117,13 @@
   .loader-pct{position:absolute;font-family:'Instrument Serif',serif;font-size:28px;color:var(--gold)}
 
   /* ---------- gate (scene 0) ---------- */
-  .gate{position:relative;z-index:20;height:100vh;display:grid;place-items:center;text-align:center;scroll-snap-align:start;scroll-snap-stop:always}
+  .gate{position:relative;z-index:20;height:100vh;display:grid;place-items:center;text-align:center}
   .gate-inner{opacity:0;transform:translateY(18px);transition:1.4s var(--ease);transition-delay:.3s}
   .gate-inner.in{opacity:1;transform:none}
+  /* graceful exit: gate dissolves upward as the story glides into view */
+  .gate-inner.out{opacity:0;transform:translateY(-44px) scale(.985);
+    transition:opacity .85s var(--ease),transform 1.15s var(--ease);transition-delay:0s;
+    pointer-events:none}
   .kicker{font-size:12.5px;letter-spacing:.42em;text-transform:uppercase;
     color:var(--gold-soft);font-weight:500;margin-bottom:26px}
   .title{font-family:'Instrument Serif',serif;font-weight:400;
@@ -139,9 +146,10 @@
   @keyframes breathe{0%,100%{opacity:.3}50%{opacity:.7}}
 
   /* ---------- narrative scenes ---------- */
-  .story{position:relative;z-index:20;display:none}
-  .story.show{display:block}
-  .scene{height:100vh;display:grid;place-items:center;padding:0 8vw;text-align:center;scroll-snap-align:start;scroll-snap-stop:always}
+  /* story is rendered from the start (kept off-screen below the gate while the
+     body is locked) so pressing Enter triggers no layout reflow mid-transition */
+  .story{position:relative;z-index:20;display:block}
+  .scene{height:100vh;display:grid;place-items:center;padding:0 8vw;text-align:center}
   .line{font-family:'Instrument Serif',serif;font-weight:400;
     font-size:clamp(30px,5.2vw,72px);line-height:1.12;max-width:16ch;margin:0 auto;
     opacity:0;transform:translateY(26px);transition:1.3s var(--ease)}
@@ -248,7 +256,7 @@
     <div class="gate-inner" id="gateInner">
       <div class="kicker">A life simulator</div>
       <h1 class="title">Potential</h1>
-      <div class="tagline">See the other side before you decide.</div>
+      <div class="tagline">Know where to live. Know how to get there.</div>
       <div class="enter" id="enterBtn">
         <div class="ring pulse"></div><div class="ring"></div>
         <span>Enter</span>
@@ -260,18 +268,19 @@
   <!-- narrative -->
   <div class="story" id="story">
     <section class="scene" data-i="1">
-      <p class="line">There's a version of your life you <em>haven't met yet.</em></p>
+      <p class="line">Right now, somewhere, you're deciding <em>where to build your life.</em></p>
     </section>
     <section class="scene" data-i="2">
-      <p class="line">A different city. Different work. <em>Different mornings.</em></p>
+      <p class="line">Five browser tabs. A dozen opinions.
+        <span class="sub">Numbeo. Reddit. LinkedIn. Guesswork. And still — no real answer.</span></p>
     </section>
     <section class="scene" data-i="3">
-      <p class="line">What if you could see it <em>before you choose?</em></p>
+      <p class="line">What if you <em>knew</em> — not guessed — where you'd actually thrive?</p>
     </section>
     <section class="scene final" data-i="4">
       <span class="eyebrow">This is Potential</span>
-      <p class="line">We turn data into a window into the life that could be yours, and <em>the map to reach it.</em></p>
-      <div class="cta" id="beginBtn">See the other side
+      <p class="line">We find your place. Then we hand you <em>the map to get there.</em></p>
+      <div class="cta" id="beginBtn">Begin your run
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </div>
     </section>
@@ -316,7 +325,7 @@
 
   /* ---------- canvas: stars warming to embers ---------- */
   const cv = document.getElementById('stage'), ctx = cv.getContext('2d');
-  let W,H, dpr = Math.min(devicePixelRatio||1, 2), stars=[], layers=[];
+  let W,H, dpr = Math.min(devicePixelRatio||1, 2), stars=[], skyline=[];
   function resize(){
     W=cv.width=innerWidth*dpr; H=cv.height=innerHeight*dpr;
     cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
@@ -331,54 +340,19 @@
     });
   }
   function buildSkyline(){
-    layers=[];
-    // three depth layers: far (small, faint) -> near (tall, lit windows)
-    const defs=[
-      {shade:'#080b14', wlit:0.00, scaleH:0.55, gap:[3,9],  rim:0.28},
-      {shade:'#05070e', wlit:0.06, scaleH:0.82, gap:[5,13], rim:0.44},
-      {shade:'#020306', wlit:0.15, scaleH:1.08, gap:[7,17], rim:0.62}
-    ];
-    for(const d of defs){
-      const bs=[]; let x=-30*dpr;
-      while(x < W+40*dpr){
-        const w=(26+Math.random()*70)*dpr;
-        const h=(60+Math.random()*210)*d.scaleH*dpr;
-        const b={x,w,h,roof:Math.random(),win:[]};
-        if(d.wlit>0){                                  // pre-bake lit windows
-          const cols=Math.max(1,Math.floor(w/(10*dpr)));
-          const rows=Math.max(1,Math.floor(h/(13*dpr)));
-          for(let c=0;c<cols;c++)for(let r=1;r<rows;r++){
-            if(Math.random()<d.wlit) b.win.push([(c+0.5)/cols,(r+0.4)/rows]);
-          }
-        }
-        bs.push(b);
-        x += w + (d.gap[0]+Math.random()*(d.gap[1]-d.gap[0]))*dpr;
-      }
-      layers.push({...d,bs});
+    skyline=[]; let x=0; const base=H;
+    while(x<W){
+      const w=(30+Math.random()*70)*dpr;
+      const h=(40+Math.random()*180)*dpr;
+      skyline.push({x,w,h,base});
+      x+=w+(4+Math.random()*10)*dpr;
     }
   }
   resize(); addEventListener('resize', resize);
 
-  function drawBuilding(b,by){
-    ctx.fillRect(b.x,by,b.w,b.h);
-    const r=b.roof, cx=b.x+b.w/2;
-    if(r<0.22){ ctx.fillRect(cx-0.8*dpr, by-14*dpr, 1.6*dpr, 14*dpr); }       // antenna
-    else if(r<0.46){ ctx.fillRect(b.x+b.w*0.22, by-9*dpr, b.w*0.56, 9*dpr); } // rooftop setback
-    else if(r<0.58){ ctx.fillRect(b.x+b.w*0.62, by-11*dpr, 4*dpr, 11*dpr); }  // water tower
-  }
-
-  let prog = 0, targetProg = 0; // eased scroll progress
+  let prog = 0; // 0..1 scroll progress
   function render(t){
     ctx.clearRect(0,0,W,H);
-    // ease progress toward the scroll target -> smooth, slow settle on each pane
-    prog += (targetProg - prog) * (motionOff?1:0.07);
-    if(Math.abs(targetProg-prog) < 0.0004) prog = targetProg;
-    // atmosphere driven by the EASED progress (so it glides to a stop, not snaps)
-    skyDawn.style.opacity = prog;
-    fog.style.opacity = Math.sin(prog*Math.PI)*0.8;
-    const sp = Math.max(0,(prog-0.4)/0.6);
-    sun.style.opacity = sp;
-    sun.style.transform = `translateX(-50%) translateY(${(1-sp)*22}vh)`;
     // stars
     for(const s of stars){
       s.tw += s.sp* (motionOff?0:16);
@@ -391,26 +365,19 @@
       ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
     }
-    // layered city skyline rising into the dawn
-    if(prog>0.4){
-      const a = Math.min(1,(prog-0.4)/0.5);
-      let li=0;
-      for(const L of layers){
-        const lift = (1-a)*(50+li*22)*dpr;                 // nearer layers rise further
-        ctx.globalAlpha = a; ctx.fillStyle = L.shade;
-        for(const b of L.bs) drawBuilding(b, H-b.h+lift);
-        // warm rim light on the sunward (top) edge
-        ctx.globalAlpha = a*L.rim; ctx.fillStyle = 'rgba(231,184,108,.6)';
-        for(const b of L.bs) ctx.fillRect(b.x, H-b.h+lift, b.w, 1.4*dpr);
-        // lit windows
-        if(L.wlit>0){
-          ctx.globalAlpha = a*0.9; ctx.fillStyle = 'rgba(255,206,135,.85)';
-          for(const b of L.bs){ const by=H-b.h+lift;
-            for(const w of b.win) ctx.fillRect(b.x+w[0]*b.w, by+w[1]*b.h, 1.5*dpr, 2.1*dpr);
-          }
-        }
-        li++;
+    // skyline rising in the dawn
+    if(prog>0.45){
+      const a = (prog-0.45)/0.55;
+      const lift = (1-a)*60*dpr;
+      ctx.globalAlpha = a;
+      ctx.fillStyle = '#0a0805';
+      for(const b of skyline){
+        ctx.fillRect(b.x, b.base-b.h+lift, b.w, b.h);
       }
+      // warm rim light on rooftops
+      ctx.globalAlpha = a*0.6;
+      ctx.fillStyle = 'rgba(226,181,107,.5)';
+      for(const b of skyline){ ctx.fillRect(b.x, b.base-b.h+lift, b.w, 1.5*dpr); }
     }
     ctx.globalAlpha=1;
     requestAnimationFrame(render);
@@ -425,10 +392,16 @@
 
   function onScroll(){
     const max = document.documentElement.scrollHeight - innerHeight;
-    targetProg = max>0 ? Math.min(1, scrollY/max) : 0;   // render loop eases toward this
-    const seg = Math.min(railDots.length-1, Math.round(targetProg*(railDots.length-1)));
+    prog = max>0 ? Math.min(1, scrollY/max) : 0;
+    skyDawn.style.opacity = prog;
+    fog.style.opacity = Math.sin(prog*Math.PI)*0.8;       // fog peaks mid-journey
+    const sp = Math.max(0,(prog-0.4)/0.6);
+    sun.style.opacity = sp;
+    sun.style.transform = `translateX(-50%) translateY(${(1-sp)*22}vh)`;
+    // rail
+    const seg = Math.min(railDots.length-1, Math.round(prog*(railDots.length-1)));
     railDots.forEach((d,i)=>d.classList.toggle('on', i<=seg));
-    cue.classList.toggle('show', started && targetProg<0.12);
+    cue.classList.toggle('show', started && prog<0.12);
   }
   addEventListener('scroll', onScroll, {passive:true});
 
@@ -439,15 +412,34 @@
   scenes.forEach(s=>io.observe(s));
 
   /* ---------- gate -> story ---------- */
+  // eased rAF scroll — buttery, and immune to the CSS/native smooth-scroll
+  // conflicts that made the gate->story hand-off stutter.
+  let scrolling=false;
+  function glideTo(targetY, dur=1500){
+    if(motionOff || reduced){ scrollTo(0,targetY); onScroll(); return; }
+    const startY=scrollY, dist=targetY-startY, t0=performance.now();
+    const ease=x=> x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2;  // easeInOutCubic
+    scrolling=true;
+    (function step(now){
+      const p=Math.min(1,(now-t0)/dur);
+      scrollTo(0, startY+dist*ease(p));
+      if(p<1){ requestAnimationFrame(step); } else { scrolling=false; }
+    })(t0);
+  }
+
   let started=false;
   function begin(){
     if(started) return; started=true;
-    document.body.classList.remove('locked');
-    document.getElementById('story').classList.add('show');
+    // 1) dissolve the gate upward, 2) unlock + glide — no reflow, no fight
+    document.getElementById('gateInner').classList.add('out');
     rail.style.opacity=1;
     startAudio();
-    document.querySelector('.scene[data-i="1"]').scrollIntoView({behavior:'smooth'});
-    setTimeout(onScroll,50);
+    document.body.classList.remove('locked');
+    const scene1=document.querySelector('.scene[data-i="1"]');
+    requestAnimationFrame(()=>{
+      const targetY=scene1.getBoundingClientRect().top + scrollY;
+      glideTo(targetY, 1500);
+    });
   }
   document.getElementById('enterBtn').addEventListener('click', begin);
 
