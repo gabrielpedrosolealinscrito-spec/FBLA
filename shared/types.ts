@@ -149,7 +149,7 @@ export interface ExpenseBreakdown {
 export interface MatchResult {
   city: City;
   matchScore: number;            // 0–99
-  scoreFactors: { factor: string; contribution: number }[]; // MATCH-03 "why"
+  scoreFactors: { factor: string; contribution: number; dataLevel?: 'city' | 'state' | 'proxy' | 'none' | 'display-only' }[]; // MATCH-03 "why"; dataLevel labels data provenance (D-08)
   estSalary: number;
   monthlyTakeHome: number;
   expenses: ExpenseBreakdown;
