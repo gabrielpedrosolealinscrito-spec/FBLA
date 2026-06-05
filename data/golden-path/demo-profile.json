@@ -1,0 +1,7 @@
+{
+  "_note": "Provisional demo persona — finalized before running scripts/capture-golden-path (D-06/D-07 open dependency). The capture script reads this file to know which profession/age/housing preference to use in prompts and which cities to snapshot. Re-pin profession/age/housing to match the rehearsed pitch demo before capture.",
+  "profession": "Software Engineer",
+  "age": 28,
+  "housing": "rent",
+  "cities": ["Austin, TX", "Lisbon, Portugal"]
+}

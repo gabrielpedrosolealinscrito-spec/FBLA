@@ -1,0 +1,208 @@
+{
+  "jobs": {
+    "Austin, TX": [
+      {
+        "title": "Software Engineer II",
+        "company": "Dell Technologies",
+        "salary": "$110,000–$140,000/yr",
+        "desc": "Full-stack development for enterprise SaaS platform in Austin HQ. Hybrid schedule.",
+        "source": "LinkedIn"
+      },
+      {
+        "title": "Backend Engineer",
+        "company": "Indeed",
+        "salary": "$120,000–$150,000/yr",
+        "desc": "Build scalable search infrastructure. Python/Go. On-site at Austin campus.",
+        "source": "Indeed"
+      },
+      {
+        "title": "Data Engineer",
+        "company": "Oracle",
+        "salary": "$105,000–$130,000/yr",
+        "desc": "Design and maintain data pipelines for cloud analytics products. Austin office.",
+        "source": "LinkedIn"
+      },
+      {
+        "title": "Software Developer",
+        "company": "Apple (Austin Campus)",
+        "salary": "$130,000–$160,000/yr",
+        "desc": "iOS/macOS development for Apple Services. Austin tech campus, hybrid.",
+        "source": "ZipRecruiter"
+      }
+    ],
+    "Lisbon, Portugal": [
+      {
+        "title": "Backend Software Engineer",
+        "company": "Farfetch",
+        "salary": "€45,000–€65,000/yr",
+        "desc": "Python/Kotlin microservices for global e-commerce platform. Lisbon office, hybrid.",
+        "source": "LinkedIn"
+      },
+      {
+        "title": "Full Stack Developer",
+        "company": "Feedzai",
+        "salary": "€40,000–€58,000/yr",
+        "desc": "Build fraud-detection products using React and Java. Lisbon HQ.",
+        "source": "LinkedIn"
+      },
+      {
+        "title": "Software Engineer",
+        "company": "Remote (EU)",
+        "salary": "€55,000–€80,000/yr",
+        "desc": "Remote-first role open to Lisbon-based engineers. TypeScript, Node.js.",
+        "source": "Remote.com"
+      },
+      {
+        "title": "DevOps Engineer",
+        "company": "Taberna do Mercado Tech",
+        "salary": "€38,000–€52,000/yr",
+        "desc": "Cloud infrastructure on AWS for a Lisbon-based SaaS startup. Full remote.",
+        "source": "Indeed"
+      }
+    ]
+  },
+  "housing_rent": {
+    "Austin, TX": [
+      {
+        "neighborhood": "South Congress",
+        "price": "$1,850/mo",
+        "beds": "1BR",
+        "sqft": "720 sqft",
+        "feature": "Modern finishes, walkable to restaurants and coffee shops",
+        "source": "Zillow"
+      },
+      {
+        "neighborhood": "East Austin",
+        "price": "$2,100/mo",
+        "beds": "2BR",
+        "sqft": "950 sqft",
+        "feature": "Renovated unit near Lady Bird Lake trail",
+        "source": "Apartments.com"
+      },
+      {
+        "neighborhood": "Domain / North Austin",
+        "price": "$1,650/mo",
+        "beds": "1BR",
+        "sqft": "680 sqft",
+        "feature": "Pool, gym, minutes from tech campuses",
+        "source": "Zillow"
+      },
+      {
+        "neighborhood": "Downtown Austin",
+        "price": "$2,450/mo",
+        "beds": "Studio",
+        "sqft": "550 sqft",
+        "feature": "City skyline view, concierge, walkable to 6th Street",
+        "source": "Apartments.com"
+      }
+    ],
+    "Lisbon, Portugal": [
+      {
+        "neighborhood": "Parque das Nações",
+        "price": "€1,400/mo",
+        "beds": "2BR",
+        "sqft": "85 sqm",
+        "feature": "Riverside views, modern tower, metro access to the city center",
+        "source": "Idealista"
+      },
+      {
+        "neighborhood": "Alfama / Mouraria",
+        "price": "€1,150/mo",
+        "beds": "1BR",
+        "sqft": "55 sqm",
+        "feature": "Historic tile façade, walking distance to tram 28",
+        "source": "Uniplaces"
+      },
+      {
+        "neighborhood": "Almada (south bank)",
+        "price": "€1,050/mo",
+        "beds": "2BR",
+        "sqft": "78 sqm",
+        "feature": "Quiet suburb, Cacilheiro ferry to Lisbon center in 15 min",
+        "source": "Idealista"
+      },
+      {
+        "neighborhood": "Príncipe Real",
+        "price": "€1,600/mo",
+        "beds": "1BR",
+        "sqft": "60 sqm",
+        "feature": "Boutique building in Lisbon's trendiest neighborhood",
+        "source": "Idealista"
+      }
+    ]
+  },
+  "housing_buy": {
+    "Austin, TX": [
+      {
+        "address": "4210 Manchaca Rd, Austin",
+        "price": "$425,000",
+        "beds": "3BR",
+        "sqft": "1,580 sqft",
+        "feature": "Updated kitchen, large backyard, near Slaughter Creek greenway",
+        "source": "Zillow"
+      },
+      {
+        "address": "1802 E 7th St, Austin",
+        "price": "$550,000",
+        "beds": "2BR",
+        "sqft": "1,100 sqft",
+        "feature": "East Austin bungalow, original hardwoods, walkable neighborhood",
+        "source": "Realtor.com"
+      },
+      {
+        "address": "8930 Deer Trail Dr, Austin",
+        "price": "$395,000",
+        "beds": "4BR",
+        "sqft": "2,050 sqft",
+        "feature": "Northwest Austin, excellent AISD schools, two-car garage",
+        "source": "Realtor.com"
+      },
+      {
+        "address": "512 W 19th St #204, Austin",
+        "price": "$480,000",
+        "beds": "2BR",
+        "sqft": "1,050 sqft",
+        "feature": "Hyde Park condo, historic district, walkable to UT Austin",
+        "source": "Zillow"
+      }
+    ],
+    "Lisbon, Portugal": [
+      {
+        "address": "Rua da Alegria 45, Avenidas Novas",
+        "price": "€420,000",
+        "beds": "3BR",
+        "sqft": "110 sqm",
+        "feature": "Renovated Belle Époque building, parquet floors, balcony",
+        "source": "Idealista"
+      },
+      {
+        "address": "Av. Almirante Reis 110, Intendente",
+        "price": "€295,000",
+        "beds": "2BR",
+        "sqft": "82 sqm",
+        "feature": "Up-and-coming district, high ceilings, city views",
+        "source": "Idealista"
+      },
+      {
+        "address": "Rua Castilho 28, Marquês de Pombal",
+        "price": "€580,000",
+        "beds": "3BR",
+        "sqft": "130 sqm",
+        "feature": "Prime central Lisbon, doorman building, Parque Eduardo VII steps away",
+        "source": "Remax Portugal"
+      },
+      {
+        "address": "Estrada da Luz 77, Benfica",
+        "price": "€265,000",
+        "beds": "3BR",
+        "sqft": "105 sqm",
+        "feature": "Quiet residential area, new build, metro line 2 access",
+        "source": "ERA Imobiliária"
+      }
+    ]
+  },
+  "dayinlife": {
+    "Austin, TX": "It's 7am and the September sun is already glowing amber through the blinds in your South Congress apartment. You roll out for a 20-minute run on the Lady Bird Lake trail before most of the city wakes up — the downtown skyline reflects off the still water. Back home, you shower and make coffee while reviewing your Slack notifications. You're a software engineer, so the commute is a 25-minute drive to your company's North Austin campus, where the parking lot fills up fast. By 9am you're deep in a sprint planning session over cold brew. Lunch is a Torchy's Tacos run with your team — Trailer Park taco, Dirty Sanchez, the usual. The afternoon is heads-down: code review, a design sync, and a quick debugging session that bleeds into 6pm. You leave before rush hour gets brutal, grab groceries at HEB, and meet friends at a craft beer bar on Rainey Street. By 10pm you're back home, the ceiling fan running, city sounds drifting up from the street below. Austin is relentlessly alive, and tonight, you feel it.",
+    "Lisbon, Portugal": "The Tagus gleams through the kitchen window at 8am as you make a bica — short, strong, Portuguese espresso — and eat a pastel de nata still warm from the padaria downstairs. You're working remotely as a software engineer, so the commute is six steps to your desk in your Príncipe Real flat. The morning is a four-hour deep-work block: TypeScript, pull requests, a team standup on Zoom with colleagues in three time zones. At 1pm you close the laptop and walk ten minutes to a tasca in Bairro Alto where a two-course lunch with wine costs €12. The afternoon light is extraordinary. You work another two hours, then knock off early to wander through the Miradouro de São Pedro de Alcântara, watching the city tilt and shine below. Tram 28 rattles past. By 7pm you're at a natural wine bar in Mouraria with a friend who moved here from Berlin. The city hums in three languages. You get home past midnight, the Atlantic air still warm, thinking this is the best decision you ever made."
+  }
+}
