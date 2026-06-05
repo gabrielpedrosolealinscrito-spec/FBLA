@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 05
 current_plan: 2
 status: executing
-stopped_at: Completed 05-02-PLAN.md — api/live-core.ts and api/live.ts implemented, tests GREEN
-last_updated: "2026-06-05T23:48:07.732Z"
+stopped_at: Completed 05-03-PLAN.md — fetchLive.js and PotentialApp rewire, full suite GREEN
+last_updated: "2026-06-05T23:54:34.420Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
   percent: 50
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 05 (proxy-live-ai-golden-path-cache) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 **Status:** Ready to execute
 **Current Phase:** 05
 **Last Activity:** 2026-06-05
@@ -50,6 +50,9 @@ Plan: 3 of 5
 - [Phase ?]: sanitizeInput runs outside try/catch so unknown category returns 400 not fromCache:true (V5 correctness)
 - [Phase ?]: new Anthropic() inside try block — missing ANTHROPIC_API_KEY is LIVE-04 cache event at runtime, not a crash
 - [Phase ?]: Lisbon/London blocker resolved: golden-path keyed London UK; countryFor suffix map UK to GB
+- [Phase ?]: fetchCategoryLive uses 20s AbortController timeout — 7s reliably aborts live web_search (Pitfall 2)
+- [Phase ?]: AIList returns null before first pull — prevents blank/stuck state under button model
+- [Phase ?]: pullLiveData uses parallel forEach fan-out so one slow/failed category never blocks another (D-04/D-05)
 
 ## Performance Metrics
 
@@ -62,10 +65,11 @@ Plan: 3 of 5
 | Phase 09 P02 | 18min | 2 tasks | 1 files |
 | Phase 09 P03 | 15min | 2 tasks | 2 files |
 | Phase 05 P02 | 25min | 2 tasks | 2 files |
+| Phase 05 P03 | 15min | 2 tasks | 2 files |
 
 ## Session Continuity
 
-**Stopped At:** Completed 05-02-PLAN.md — api/live-core.ts and api/live.ts implemented, tests GREEN
+**Stopped At:** Completed 05-03-PLAN.md — fetchLive.js and PotentialApp rewire, full suite GREEN
 **Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
 **Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8

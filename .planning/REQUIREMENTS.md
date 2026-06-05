@@ -15,7 +15,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 - [x] **FOUND-01**: Diverged git branches reconciled — `potential_v2.jsx` prototype, README, PDF, and `.planning/` all live on one coherent `main`
 - [x] **FOUND-02**: Project builds and runs locally with a real toolchain (Vite + React), prototype ported in with no visual regression
 - [x] **FOUND-03**: Server-side proxy handles all Anthropic API calls — no API key is ever present in client code
-- [ ] **FOUND-04**: App runs end-to-end on a laptop on battery with the live layer served from a bundled offline cache when no network is available
+- [x] **FOUND-04**: App runs end-to-end on a laptop on battery with the live layer served from a bundled offline cache when no network is available
 
 ### Quiz / Profile Capture
 
@@ -117,7 +117,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | MATCH-02 | Phase 4: International Destinations & Country Models | Pending |
 | FIN-02 | Phase 4: International Destinations & Country Models | Pending |
 | FOUND-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
-| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
 | LIVE-01 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
 | LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
 | LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |

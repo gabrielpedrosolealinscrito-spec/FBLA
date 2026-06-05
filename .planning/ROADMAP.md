@@ -139,7 +139,7 @@ Plans:
 **Wave 2** *(parallel; blocked on Wave 1)*
 
 - [x] 05-02-PLAN.md — Proxy: api/live-core.ts (validate/prompts/sanitize) + api/live.ts web_search handler with cache fallback (FOUND-03, LIVE-01..04)
-- [ ] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp.jsx button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
+- [x] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp.jsx button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
 - [ ] 05-05-PLAN.md — Self-host brand fonts (@fontsource), remove Google Fonts CDN link — offline typography (SC6 / FOUND-04)
 
 **Wave 3** *(blocked on Wave 2)*
@@ -244,7 +244,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 2. Quiz & Profile Capture | 0/4 | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
-| 5. Proxy, Live AI & Golden-Path Cache | 2/5 | In Progress|  |
+| 5. Proxy, Live AI & Golden-Path Cache | 3/5 | In Progress|  |
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
