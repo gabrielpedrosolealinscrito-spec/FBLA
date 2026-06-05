@@ -1,0 +1,52 @@
+/* ============================================================
+   POTENTIAL — Brand Design Tokens
+   Derived from the product's "night → dawn" visual system.
+   Import this anywhere: <link rel="stylesheet" href="colors.css">
+   ============================================================ */
+
+:root {
+  /* ---- Night (primary dark / backgrounds) ---- */
+  --night-900: #050710;   /* deepest — full-bleed canvas */
+  --night-800: #070A11;   /* primary background          */
+  --night-700: #0D1119;   /* raised surface              */
+  --night-600: #141B27;   /* card / panel                */
+  --night-500: #1C2433;   /* hairline / border on dark   */
+
+  /* ---- Dawn Gold (primary brand accent) ---- */
+  --gold-500: #E2B56B;    /* THE brand gold — primary    */
+  --gold-600: #D2A45A;    /* pressed / hover             */
+  --gold-700: #CAA05A;    /* dawn glow                   */
+  --gold-300: #EFD2A0;    /* light gold / highlight      */
+  --gold-glow: rgba(226, 181, 107, 0.30);
+
+  /* ---- Amber (the dawn-gradient mids) ---- */
+  --amber-deep: #3A2C1D;
+  --amber-mid:  #6E4F2A;
+  --amber-lit:  #8A5E2E;
+
+  /* ---- Ivory (light / text) ---- */
+  --ivory:       #F3EDE1;          /* primary text on night */
+  --ivory-dim:   rgba(243,237,225,0.56);
+  --ivory-faint: rgba(243,237,225,0.30);
+  --ivory-ghost: rgba(243,237,225,0.12);
+
+  /* ---- Functional ---- */
+  --positive: #8FD6A8;
+  --negative: #E0816A;
+
+  /* ---- Signature gradients ---- */
+  --grad-dawn: radial-gradient(80% 60% at 50% 100%,
+                 var(--gold-700) 0%, #6E4F2A 22%,
+                 var(--amber-deep) 46%, #1C1A16 74%, var(--night-800) 100%);
+  --grad-night: radial-gradient(120% 80% at 50% 8%,
+                 #141B27 0%, var(--night-700) 38%, var(--night-800) 78%);
+  --grad-gold: linear-gradient(135deg, var(--gold-300) 0%, var(--gold-500) 48%, var(--gold-600) 100%);
+
+  /* ---- Type ---- */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-sans:    'Manrope', -apple-system, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(.22, .61, .36, 1);
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Potential — Launch Post</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="post.css">
+<link rel="stylesheet" href="../compass.css">
+<style>
+  .p1 .dawn{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1300px;height:560px;
+    background:radial-gradient(60% 100% at 50% 100%, rgba(226,181,107,.22) 0%, rgba(138,94,46,.10) 38%, transparent 70%);pointer-events:none}
+  .p1 .kicker{position:absolute;top:84px;left:0;right:0;text-align:center;font-size:21px;color:var(--gold-500)}
+  .p1 .cwrap{position:absolute;top:150px;left:50%;transform:translateX(-50%)}
+  .p1 .wm{position:absolute;left:50%;top:520px;transform:translateX(-50%);font-size:60px}
+  .p1 .head{position:absolute;top:626px;left:80px;right:80px;text-align:center;font-size:82px;line-height:1;letter-spacing:-.015em}
+  .p1 .head em{font-style:italic;color:var(--gold-500)}
+  .p1 .tag{position:absolute;left:50%;top:838px;transform:translateX(-50%);text-align:center;font-size:23px;color:var(--ivory-dim);max-width:740px;line-height:1.5}
+  .p1 .pill{position:absolute;left:50%;top:930px;transform:translateX(-50%);font-size:17px;color:var(--gold-500);border:1px solid color-mix(in srgb,var(--gold-500) 40%,transparent);padding:12px 26px;border-radius:100px}
+  .stars i{background:var(--ivory)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="post sq p1 field-night">
+    <div class="dawn"></div>
+    <div class="stars" id="stars"></div>
+    <div class="kicker mono">A relocation compass · est. 2026</div>
+    <div class="cwrap"><span class="compass" data-compass="300"></span></div>
+    <div class="wm">Potential</div>
+    <h1 class="head serif">Where should you<br><em>actually</em> live?</h1>
+    <div class="tag">See where your life could look like — somewhere else.</div>
+    <div class="pill mono">Join the waitlist</div>
+    <div class="grain"></div>
+  </div>
+</div>
+<script>
+  // subtle star field
+  (function(){var s=document.getElementById('stars');var h='';for(var i=0;i<18;i++){var x=Math.random()*100,y=Math.random()*62,tw=Math.random()>.6;h+='<i class="'+(tw?'t':'')+'" style="left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%;animation-delay:'+(i%5)+'s"></i>';}s.innerHTML=h;})();
+</script>
+<script src="../compass.js"></script>
+<script src="post.js"></script>
+</body>
+</html>

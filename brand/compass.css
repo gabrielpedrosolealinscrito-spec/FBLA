@@ -1,0 +1,9 @@
+/* Potential compass mark — animation. Pair with compass.js. Rotates HTML layers (reliable). */
+.compass{display:inline-block;position:relative;line-height:0}
+.cmp-layer{position:absolute;inset:0}
+.cmp-layer > svg{width:100%;height:100%;display:block;overflow:visible}
+@keyframes cmpA{to{transform:rotate(360deg)}}
+@keyframes cmpB{to{transform:rotate(-360deg)}}
+.cmp-ticks{animation:cmpB 90s linear infinite}
+.cmp-star{animation:cmpA 42s linear infinite}
+@media (prefers-reduced-motion:reduce){.cmp-ticks,.cmp-star{animation:none}}

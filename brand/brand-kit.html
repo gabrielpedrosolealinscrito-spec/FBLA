@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Potential — Brand Kit</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand-kit.css">
+<link rel="stylesheet" href="compass.css">
+<style>
+  .lockup.lt{color:var(--night-800)}
+  .lockup.lt .wm{color:var(--night-800)}
+  .lockup .wm{color:var(--ivory)}
+  .navlock{display:flex;align-items:center;gap:11px}
+  .herolock{display:flex;align-items:center;gap:40px;flex-wrap:wrap;margin-top:26px}
+  .herolock .wm{font-size:clamp(58px,11vw,150px);line-height:.9;letter-spacing:-.02em}
+  .footlock{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px}
+  .footlock .wm{margin-bottom:0}
+  .compass{vertical-align:middle}
+  .hero-stars{position:absolute;inset:0;z-index:1;pointer-events:none}
+  .hero-stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--ivory);opacity:.4}
+  @keyframes hstw{0%,100%{opacity:.12}50%{opacity:.5}}
+  .hero-stars i.t{animation:hstw 5s ease-in-out infinite}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="compass.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+/* ---------- data ---------- */
+const NAV = [["logo","Logo"],["color","Color"],["type","Type"],["voice","Voice"],["campaign","Campaign"]];
+
+const COLORS = [
+  {group:"Night — backgrounds & surfaces", items:[
+    {nm:"Night 900",hex:"#050710",role:"canvas"},
+    {nm:"Night 800",hex:"#070A11",role:"background"},
+    {nm:"Night 700",hex:"#0D1119",role:"surface"},
+    {nm:"Night 600",hex:"#141B27",role:"card"},
+    {nm:"Night 500",hex:"#1C2433",role:"border"},
+  ]},
+  {group:"Dawn Gold — the brand accent", items:[
+    {nm:"Gold 300",hex:"#EFD2A0",role:"highlight",dark:true},
+    {nm:"Gold 500",hex:"#E2B56B",role:"primary",dark:true},
+    {nm:"Gold 600",hex:"#D2A45A",role:"pressed",dark:true},
+    {nm:"Gold 700",hex:"#CAA05A",role:"dawn glow",dark:true},
+  ]},
+  {group:"Amber — the dawn-gradient mids", items:[
+    {nm:"Amber Deep",hex:"#3A2C1D",role:"horizon"},
+    {nm:"Amber Mid",hex:"#6E4F2A",role:"warm"},
+    {nm:"Amber Lit",hex:"#8A5E2E",role:"glow edge"},
+  ]},
+  {group:"Ivory & functional", items:[
+    {nm:"Ivory",hex:"#F3EDE1",role:"text",dark:true},
+    {nm:"Positive",hex:"#8FD6A8",role:"savings",dark:true},
+    {nm:"Negative",hex:"#E0816A",role:"deficit",dark:true},
+  ]},
+];
+
+const FONTS = [
+  {nm:"Instrument Serif",role:"Display",font:"'Instrument Serif',serif",
+   use:"Headlines, the wordmark, big emotional statements. Set it large with tight tracking. Use the italic for accent words.",
+   sample:"Where should you actually live?",size:"clamp(36px,5vw,68px)",extra:["Regular 400","Italic 400 — accents only"]},
+  {nm:"Manrope",role:"Text / UI",font:"'Manrope',sans-serif",
+   use:"Body copy, navigation, buttons, captions. The workhorse. Weights 400–700.",
+   sample:"Most people inherit where they live. We help you choose it.",size:"clamp(20px,2.6vw,30px)",extra:["Regular 400","Medium 500","Semibold 600","Bold 700"]},
+  {nm:"JetBrains Mono",role:"Data & labels",font:"'JetBrains Mono',monospace",
+   use:"Numbers, money, match scores, kicker labels. Uppercase + wide tracking for labels.",
+   sample:"94 MATCH · $4,120/MO · +$1,540 SAVED",size:"clamp(18px,2.2vw,26px)",extra:["Regular 400","Medium 500"]},
+];
+
+const PILLARS = [
+  {n:"01",h:"Warm, not hype",p:"We're true north, not a hype man. Confidence delivered calmly. No exclamation marks, no “unlock your dream life now.” Quiet certainty earns more trust than noise."},
+  {n:"02",h:"Concrete over abstract",p:"Real cities, real take-home pay, real visa steps. Every claim has a number or a name behind it. Specificity is the whole product — and the whole voice."},
+  {n:"03",h:"Honest about money",p:"We show the math, including the parts that aren't flattering. People are making a life decision; respect them with the truth, not a fantasy."},
+  {n:"04",h:"A compass, not a cheerleader",p:"We point; you decide. We never tell someone to move — we show them what moving would actually mean, then hand them the map."},
+];
+
+const VLINES = [
+  {good:"See your top match in 4 minutes.",bad:"Unlock your DREAM life today!!!"},
+  {good:"Here's what your money actually buys in Lisbon.",bad:"Live like royalty abroad for pennies."},
+  {good:"A step-by-step plan — visa included.",bad:"Moving abroad has never been easier!"},
+  {good:"Most people inherit where they live.",bad:"Escape the rat race and find paradise."},
+];
+
+const POSTS = [
+  ["posts/01-launch.html","Launch teaser"],
+  ["posts/02-reframe.html","Reframe hook"],
+  ["posts/03-howitworks.html","How it works"],
+  ["posts/04-match.html","Match teaser"],
+  ["posts/05-pricing.html","Pricing"],
+];
+
+/* ---------- small components ---------- */
+function Word({size}){
+  return <span className="wm" style={{fontSize:size}}>Potential</span>;
+}
+function Mark({size=120}){
+  return <span className="cmark" dangerouslySetInnerHTML={{__html: window.compassMarkup(size)}}/>;
+}
+function HeroStars(){
+  const dots = React.useMemo(()=>Array.from({length:28},(_,i)=>({x:Math.random()*100,y:Math.random()*100,t:Math.random()>0.6,d:i%5})),[]);
+  return <div className="hero-stars">{dots.map((s,i)=><i key={i} className={s.t?"t":""} style={{left:s.x+"%",top:s.y+"%",animationDelay:s.d+"s"}}/>)}</div>;
+}
+
+/* ---------- app ---------- */
+function App(){
+  const [active,setActive] = useState("logo");
+  const [theme,setTheme] = useState("dark");
+  const [toast,setToast] = useState(null);
+  const tRef = useRef();
+
+  useEffect(()=>{
+    const obs = new IntersectionObserver((es)=>{
+      es.forEach(e=>{ if(e.isIntersecting) setActive(e.target.id); });
+    },{rootMargin:"-45% 0px -50% 0px"});
+    document.querySelectorAll("section[id]").forEach(s=>obs.observe(s));
+    return ()=>obs.disconnect();
+  },[]);
+
+  function flash(msg){
+    setToast(msg); clearTimeout(tRef.current);
+    tRef.current = setTimeout(()=>setToast(null),1600);
+  }
+  function copy(hex){ navigator.clipboard?.writeText(hex); flash("Copied "+hex); }
+  function download(file){
+    const a=document.createElement("a"); a.href=file; a.download=file.split("/").pop();
+    document.body.appendChild(a); a.click(); a.remove();
+    flash("Downloaded "+file.split("/").pop());
+  }
+  function go(id){ document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"}); }
+
+  const lt = theme==="light";
+
+  return (
+    <React.Fragment>
+      {/* NAV */}
+      <nav className="nav">
+        <div className="navlock"><Mark size={30}/><Word size="26px"/></div>
+        <ul>
+          {NAV.map(([id,label])=>(
+            <li key={id}><a className={active===id?"on":""} onClick={()=>go(id)}>{label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* HERO */}
+      <header className="hero" id="top">
+        <div className="dawn"></div>
+        <HeroStars/>
+        <div className="hero-inner">
+          <div className="kick">Brand Kit · v1.0 · 2026</div>
+          <div className="herolock"><Mark size={154}/><Word/></div>
+          <div className="tag">See where your life could look like — somewhere else.</div>
+          <div className="meta">
+            <div><div className="t">What it is</div><div className="d">A relocation compass for people entering adulthood — match, money, and a roadmap to get there.</div></div>
+            <div><div className="t">The idea</div><div className="d">A compass. Find your bearing toward the life that fits — and the steps to reach it.</div></div>
+            <div><div className="t">The feeling</div><div className="d">Calm, cinematic, certain. A quiet promise — not a sales pitch.</div></div>
+          </div>
+        </div>
+        <div className="scrollcue">scroll ↓</div>
+      </header>
+
+      {/* LOGO */}
+      <section id="logo">
+        <div className="sechead">
+          <span className="idx">01</span>
+          <h2 className="serif">The mark</h2>
+        </div>
+        <p className="lede" style={{marginBottom:34}}>A compass rose set in an interlocking-circle rosette, drawn in gold and <strong style={{color:"var(--gold-500)",fontWeight:600}}>always slowly turning</strong>. It says exactly what the product does: find your bearing toward the life that fits. Pair it with the wordmark, or let either stand alone.</p>
+        <div style={{display:"flex",gap:14,marginBottom:24,alignItems:"center"}}>
+          <span className="mono" style={{fontSize:12,color:"var(--ivory-faint)"}}>Preview on</span>
+          <div className="toggle">
+            <button className={!lt?"on":""} onClick={()=>setTheme("dark")}>Night</button>
+            <button className={lt?"on":""} onClick={()=>setTheme("light")}>Ivory</button>
+          </div>
+        </div>
+        <div className="logo-grid">
+          {/* primary */}
+          <div className="card" style={{gridColumn:"span 8"}}>
+            <div className={"lockup"+(lt?" lt":"")}>
+              <span className="cap">Primary lockup</span>
+              <span className="dl" onClick={()=>download("assets/compass.svg")}>↓ mark.svg</span>
+              <div style={{display:"flex",alignItems:"center",gap:26}}>
+                <Mark size={88}/>
+                <Word size="64px"/>
+              </div>
+            </div>
+          </div>
+          {/* app icon */}
+          <div className="card" style={{gridColumn:"span 4"}}>
+            <div className="lockup" style={{background:"var(--night-900)"}}>
+              <span className="cap">App icon</span>
+              <span className="dl" onClick={()=>download("assets/app-icon.svg")}>↓ icon.svg</span>
+              <img src="assets/app-icon.svg" style={{width:150,height:150,borderRadius:34}}/>
+            </div>
+          </div>
+          {/* wordmark */}
+          <div className="card" style={{gridColumn:"span 4"}}>
+            <div className={"lockup"+(lt?" lt":"")}>
+              <span className="cap">Wordmark</span>
+              <Word size="46px"/>
+            </div>
+          </div>
+          {/* compass mark */}
+          <div className="card" style={{gridColumn:"span 4"}}>
+            <div className={"lockup"+(lt?" lt":"")}>
+              <span className="cap">Compass mark</span>
+              <span className="dl" onClick={()=>download("assets/compass.svg")}>↓ svg</span>
+              <Mark size={120}/>
+            </div>
+          </div>
+          {/* stacked */}
+          <div className="card" style={{gridColumn:"span 4"}}>
+            <div className={"lockup"+(lt?" lt":"")}>
+              <span className="cap">Stacked lockup</span>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
+                <Mark size={66}/>
+                <Word size="40px"/>
+              </div>
+            </div>
+          </div>
+          {/* on dawn */}
+          <div className="card" style={{gridColumn:"span 8"}}>
+            <div className="lockup" style={{background:"var(--grad-dawn)"}}>
+              <span className="cap" style={{color:"rgba(243,237,225,.5)"}}>On dawn</span>
+              <div style={{display:"flex",alignItems:"center",gap:22}}>
+                <Mark size={64}/>
+                <Word size="52px"/>
+              </div>
+            </div>
+          </div>
+          {/* avatar */}
+          <div className="card" style={{gridColumn:"span 4"}}>
+            <div className="lockup" style={{background:"var(--night-900)"}}>
+              <span className="cap">Avatar</span>
+              <div style={{width:150,height:150,borderRadius:"50%",border:"1px solid var(--ivory-ghost)",background:"var(--night-700)",display:"grid",placeItems:"center"}}>
+                <Mark size={104}/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="dos">
+          <div className="do good">
+            <div className="h">Do</div>
+            <ul>
+              <li>Give the mark clear space — at least the width of the outer ring on every side.</li>
+              <li>Keep it gold on night, or gold on ivory. Those are the pairings.</li>
+              <li>Let it spin slowly where motion is possible; freeze it cleanly where it can't.</li>
+            </ul>
+          </div>
+          <div className="do bad">
+            <div className="h">Don't</div>
+            <ul>
+              <li>Recolor the compass outside the gold range, or flatten the faceting.</li>
+              <li>Stretch, skew, or add a drop shadow to the mark.</li>
+              <li>Speed the rotation up — it should feel calm, never busy.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* COLOR */}
+      <section id="color">
+        <div className="sechead">
+          <span className="idx">02</span>
+          <h2 className="serif">Color</h2>
+        </div>
+        <p className="lede" style={{marginBottom:40}}>Night to dawn. Deep blue-blacks hold the space; one warm gold does all the talking. Tap any swatch to copy its hex.</p>
+        {COLORS.map(g=>(
+          <div key={g.group} style={{marginBottom:36}}>
+            <div className="mono" style={{fontSize:12,color:"var(--ivory-faint)",marginBottom:14}}>{g.group}</div>
+            <div className="swatches">
+              {g.items.map(c=>(
+                <div className="sw" key={c.hex} onClick={()=>copy(c.hex)}>
+                  <div className="chip" style={{background:c.hex}}>
+                    <span className="role" style={{color:c.dark?"#070A11":"#F3EDE1"}}>{c.role}</span>
+                  </div>
+                  <div className="meta"><div className="nm">{c.nm}</div><div className="hex">{c.hex}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <div className="mono" style={{fontSize:12,color:"var(--ivory-faint)",marginBottom:14}}>Signature gradient — “dawn”</div>
+        <div className="gradband" style={{background:"var(--grad-dawn)"}}>
+          <span className="lab">radial · night → amber → dawn gold</span>
+        </div>
+      </section>
+
+      {/* TYPE */}
+      <section id="type">
+        <div className="sechead">
+          <span className="idx">03</span>
+          <h2 className="serif">Type</h2>
+        </div>
+        <p className="lede" style={{marginBottom:30}}>An editorial serif for feeling, a clean sans for clarity, a mono for the numbers that make the product real.</p>
+        {FONTS.map(f=>(
+          <div className="type-row" key={f.nm}>
+            <div className="info">
+              <div className="nm" style={{fontFamily:f.font}}>{f.nm}</div>
+              <div className="role">{f.role}</div>
+              <div className="use">{f.use}</div>
+              <div style={{marginTop:14,display:"flex",flexWrap:"wrap",gap:8}}>
+                {f.extra.map(x=><span key={x} style={{fontFamily:"var(--font-mono)",fontSize:11,letterSpacing:".06em",color:"var(--ivory-dim)",border:"1px solid var(--ivory-ghost)",borderRadius:100,padding:"5px 10px"}}>{x}</span>)}
+              </div>
+            </div>
+            <div className="spec">
+              <div className="big" style={{fontFamily:f.font,fontSize:f.size,color:"var(--ivory)"}}>{f.sample}</div>
+              <div className="row" style={{fontFamily:f.font}}>ABCDEFGHIJKLM nopqrstuvwxyz 0123456789 &amp; $ +</div>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* VOICE */}
+      <section id="voice">
+        <div className="sechead">
+          <span className="idx">04</span>
+          <h2 className="serif">Voice</h2>
+        </div>
+        <p className="lede" style={{marginBottom:40}}>Potential sounds like a trusted friend who happens to know the data. Four pillars, and the lines they produce.</p>
+        <div className="pillars">
+          {PILLARS.map(p=>(
+            <div className="pillar" key={p.n}>
+              <div className="n">{p.n}</div>
+              <h3 className="serif">{p.h}</h3>
+              <p>{p.p}</p>
+            </div>
+          ))}
+        </div>
+        <div className="vlines">
+          <div className="do good">
+            <div className="h">We say</div>
+            <ul>{VLINES.map((v,i)=><li key={i}>{v.good}</li>)}</ul>
+          </div>
+          <div className="do bad">
+            <div className="h">We never say</div>
+            <ul>{VLINES.map((v,i)=><li key={i}>{v.bad}</li>)}</ul>
+          </div>
+        </div>
+      </section>
+
+      {/* CAMPAIGN */}
+      <section id="campaign">
+        <div className="sechead">
+          <span className="idx">05</span>
+          <h2 className="serif">Campaign</h2>
+        </div>
+        <p className="lede" style={{marginBottom:40}}>Five launch posts built from the system above. Click any to open it full-size.</p>
+        <div className="posts">
+          {POSTS.map(([file,label])=>(
+            <a className="posttile" key={file} href={file} target="_blank" rel="noopener">
+              <iframe src={file} scrolling="no" tabIndex="-1"></iframe>
+              <div className="ov"><span>{label} ↗</span></div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        <div className="footlock"><Mark size={44}/><Word size="40px"/></div>
+        <p>See where your life could look like — somewhere else.</p>
+      </footer>
+
+      <div className={"toast"+(toast?" show":"")}>{toast}</div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

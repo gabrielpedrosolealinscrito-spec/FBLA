@@ -1,0 +1,42 @@
+/* Shared styles for Potential social posts (1080×1080 / 1080×1920) */
+@import url('../colors.css');
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;overflow:hidden;
+  font-family:var(--font-sans);
+}
+.stage{ position:relative; }
+.post{
+  position:absolute;top:0;left:0;
+  transform-origin:top left;
+  overflow:hidden;
+  color:var(--ivory);
+  -webkit-font-smoothing:antialiased;
+}
+.sq{width:1080px;height:1080px}
+.story{width:1080px;height:1920px}
+
+/* shared atoms */
+.mono{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.22em}
+.serif{font-family:var(--font-display);font-weight:400}
+.hair{height:1px;background:var(--ivory-ghost);border:0}
+/* reusable wordmark: P + sun-o + tential, scales with font-size */
+.wm{font-family:var(--font-display);display:inline-flex;align-items:center;color:var(--ivory);line-height:1;white-space:nowrap}
+.wm .o{display:inline-block;width:.86em;height:.86em;margin:0 -.005em;transform:translateY(.05em)}
+.lockmark{display:inline-block;vertical-align:middle}
+
+/* night & dawn fields */
+.field-night{background:var(--grad-night)}
+.field-dawn{background:var(--grad-dawn)}
+/* subtle star field */
+.stars{position:absolute;inset:0;pointer-events:none;z-index:0}
+.stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--ivory);opacity:.45}
+@keyframes twk{0%,100%{opacity:.15}50%{opacity:.55}}
+.stars i.t{animation:twk 4.5s ease-in-out infinite}
+
+.grain{position:absolute;inset:0;opacity:.05;pointer-events:none;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}

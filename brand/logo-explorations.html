@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Potential — Compass Logo Options</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night-900:#050710;--night-800:#070A11;--night-700:#0D1119;--night-600:#141B27;
+    --gold:#E2B56B;--gold-l:#EFD2A0;--gold-d:#CAA05A;--gold-dim:rgba(226,181,107,.34);
+    --ivory:#F3EDE1;--ivory-dim:rgba(243,237,225,.55);
+    --serif:'Instrument Serif',serif;--sans:'Manrope',sans-serif;--mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);background:var(--night-900);color:var(--ivory)}
+
+  /* compass mark */
+  .mark{position:relative;display:inline-block}
+  .mark .layer{position:absolute;inset:0}
+  .mark svg{width:100%;height:100%;display:block;overflow:visible}
+  @keyframes spinCW{to{transform:rotate(360deg)}}
+  @keyframes spinCCW{to{transform:rotate(-360deg)}}
+  .cw{animation:spinCW linear infinite}
+  .ccw{animation:spinCCW linear infinite}
+  @media (prefers-reduced-motion: reduce){.cw,.ccw{animation:none}}
+
+  /* artboard interior */
+  .board{position:relative;width:100%;height:100%;background:
+      radial-gradient(120% 90% at 50% 18%, #11141d 0%, var(--night-800) 52%, var(--night-900) 100%);
+      overflow:hidden;display:flex;flex-direction:column;align-items:center}
+  .stars{position:absolute;inset:0;pointer-events:none}
+  .stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--ivory);opacity:.5}
+  @keyframes tw{0%,100%{opacity:.18}50%{opacity:.6}}
+  .stars i.t{animation:tw 4s ease-in-out infinite}
+  .stage{margin-top:54px;display:grid;place-items:center}
+  .name{font-family:var(--serif);font-size:30px;margin-top:30px;letter-spacing:.01em}
+  .opt{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-top:42px}
+  .desc{font-size:13.5px;color:var(--ivory-dim);text-align:center;max-width:280px;line-height:1.5;margin-top:10px;padding:0 20px}
+  .lock{display:flex;align-items:center;gap:12px;margin-top:auto;margin-bottom:34px;padding-top:22px}
+  .lock .wmk{font-family:var(--serif);font-size:30px;color:var(--ivory)}
+  .divider{width:46px;height:1px;background:var(--gold-dim);margin:18px 0 0}
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="compass.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {CompassMark, Stars} = window;
+
+function Board({opt,name,desc,kind,size=212}){
+  return (
+    <div className="board">
+      <Stars/>
+      <div className="opt">{opt}</div>
+      <div className="stage"><CompassMark kind={kind} size={size}/></div>
+      <div className="name">{name}</div>
+      <div className="desc">{desc}</div>
+      <div className="lock">
+        <CompassMark kind={kind} size={34}/>
+        <span className="wmk">Potential</span>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  return (
+    <DesignCanvas>
+      <DCSection id="compass" title="Compass — logo options" subtitle="All marks spin (slow, premium). Pick a direction; nothing on the posts changes yet.">
+        <DCArtboard id="a" label="A · Rose & Rosette" width={360} height={560}>
+          <Board opt="Option A" name="Rose & Rosette" kind="A"
+            desc="Your “waves” rosette ring + a faceted 8-point compass rose. Ring and star counter-spin."/>
+        </DCArtboard>
+        <DCArtboard id="b" label="B · Surveyor" width={360} height={560}>
+          <Board opt="Option B" name="Surveyor" kind="B"
+            desc="Engraved degree-tick ring with N·E·S·W and a sharp metallic star. Precise, instrument-grade."/>
+        </DCArtboard>
+        <DCArtboard id="c" label="C · Starburst" width={360} height={560}>
+          <Board opt="Option C" name="Starburst" kind="C"
+            desc="A detailed 16-point rose — closest to your bottom reference. Fine ring counter-rotates."/>
+        </DCArtboard>
+        <DCArtboard id="d" label="D · Wave-forward" width={360} height={560}>
+          <Board opt="Option D" name="Wave-forward" kind="D"
+            desc="The rosette as hero — heavier weight like your top reference — with a slim spinning needle."/>
+        </DCArtboard>
+        <DCArtboard id="e" label="E · Astrolabe" width={360} height={560}>
+          <Board opt="Option E" name="Astrolabe" kind="E"
+            desc="Minimal and elegant: a fine double ring and a single drifting needle. The quietest, most premium."/>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
