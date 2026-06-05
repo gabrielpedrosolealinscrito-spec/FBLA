@@ -134,7 +134,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub (Austin+Lisbon, rent+buy) + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
+- [x] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub (Austin+Lisbon, rent+buy) + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
 
 **Wave 2** *(parallel; blocked on Wave 1)*
 
@@ -244,7 +244,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 2. Quiz & Profile Capture | 0/4 | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
-| 5. Proxy, Live AI & Golden-Path Cache | 0/5 | Not started | - |
+| 5. Proxy, Live AI & Golden-Path Cache | 1/5 | In Progress|  |
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
