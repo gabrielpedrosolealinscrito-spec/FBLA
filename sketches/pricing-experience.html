@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Pricing (prototype)</title>
+<!-- THROWAWAY PROTOTYPE — gold cinematic pricing page for the Potential demo.
+     Self-contained: CSS + a little JS only. No network, no build step.
+     Reuses the landing-experience palette + type system (Instrument Serif + Manrope).
+     Pricing numbers are the LOCKED business-model tiers (D-05) but are still subject
+     to change — kept in one TIERS array in JS so they're trivial to re-tune. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --night-1:#070a11;
+    --night-2:#0d1119;
+    --panel:#10141d;
+    --panel-2:#141925;
+    --dawn-glow:#caa05a;
+    --gold:#e2b56b;
+    --gold-soft:#d2a45a;
+    --gold-deep:#a77c3c;
+    --ivory:#f3ede1;
+    --ivory-dim:rgba(243,237,225,.56);
+    --ivory-faint:rgba(243,237,225,.20);
+    --line:rgba(243,237,225,.10);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--night-1);
+    color:var(--ivory);
+    font-family:'Manrope',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* ---------- atmospheric backdrop ---------- */
+  .sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .sky-night{
+    background:radial-gradient(120% 90% at 50% -10%, #141b27 0%, var(--night-2) 40%, var(--night-1) 80%);
+  }
+  .glow{
+    position:fixed;left:50%;bottom:-30vh;width:90vw;height:70vh;
+    transform:translateX(-50%);
+    background:radial-gradient(circle at 50% 100%, rgba(226,181,107,.16) 0%, rgba(226,181,107,.05) 34%, transparent 64%);
+    z-index:0;pointer-events:none;filter:blur(8px);
+  }
+  .grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.045;mix-blend-mode:overlay}
+
+  /* ---------- chrome ---------- */
+  .brand{
+    position:fixed;top:28px;left:36px;z-index:25;
+    font-family:'Instrument Serif',serif;font-size:25px;letter-spacing:.5px;
+    color:var(--ivory);opacity:.92;text-decoration:none;
+  }
+  .brand small{font-style:italic;opacity:.6;font-size:14px;margin-left:1px}
+  .back{
+    position:fixed;top:34px;right:36px;z-index:25;
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ivory-dim);text-decoration:none;display:inline-flex;gap:8px;align-items:center;
+    transition:.4s var(--ease);
+  }
+  .back:hover{color:var(--gold)}
+  .back svg{width:15px;height:15px}
+
+  /* ---------- shell ---------- */
+  .wrap{position:relative;z-index:10;max-width:1180px;margin:0 auto;padding:118px 32px 90px}
+
+  /* ---------- header ---------- */
+  .head{text-align:center;max-width:680px;margin:0 auto 14px}
+  .kicker{font-size:12px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--gold-soft);font-weight:500;margin-bottom:22px}
+  .head h1{font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(40px,6.4vw,76px);line-height:1.02;letter-spacing:-.01em}
+  .head h1 em{font-style:italic;color:var(--gold)}
+  .head p{font-weight:300;font-size:clamp(15px,1.7vw,18px);color:var(--ivory-dim);
+    line-height:1.65;margin:20px auto 0;max-width:52ch}
+
+  /* ---------- run-unit explainer pill ---------- */
+  .unit{display:flex;justify-content:center;margin:34px auto 0}
+  .unit .chip{
+    display:inline-flex;align-items:center;gap:11px;padding:11px 20px;
+    border:1px solid var(--line);border-radius:100px;background:rgba(255,255,255,.02);
+    font-size:13px;color:var(--ivory-dim);font-weight:300;backdrop-filter:blur(6px);
+  }
+  .unit .chip b{color:var(--ivory);font-weight:500}
+  .unit .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 12px var(--gold);flex:none}
+
+  /* ---------- tier grid ---------- */
+  .grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+    margin-top:56px;align-items:stretch;
+  }
+  .card{
+    position:relative;display:flex;flex-direction:column;
+    padding:30px 26px 28px;border-radius:20px;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--night-2) 100%);
+    border:1px solid var(--line);
+    opacity:0;transform:translateY(26px);
+    transition:transform .8s var(--ease), opacity .8s var(--ease), border-color .4s, box-shadow .4s;
+  }
+  .card.in{opacity:1;transform:none}
+  .card:hover{border-color:rgba(226,181,107,.35);transform:translateY(-4px)}
+  .card.in:hover{transform:translateY(-4px)}
+
+  /* featured (Plus) */
+  .card.feature{
+    background:linear-gradient(180deg, #1a1710 0%, #120f0b 100%);
+    border-color:rgba(226,181,107,.45);
+    box-shadow:0 24px 70px -28px rgba(226,181,107,.4);
+  }
+  .card.feature:hover{border-color:var(--gold)}
+  .badge{
+    position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+    padding:6px 16px;border-radius:100px;background:var(--gold);color:#15110a;
+    font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;white-space:nowrap;
+    box-shadow:0 8px 24px -6px rgba(226,181,107,.6);
+  }
+
+  .tier-name{font-family:'Instrument Serif',serif;font-size:25px;font-weight:400;letter-spacing:.3px}
+  .tier-tag{font-size:12px;color:var(--ivory-dim);font-weight:300;margin-top:5px;line-height:1.45;min-height:34px}
+
+  .price{display:flex;align-items:baseline;gap:3px;margin:22px 0 4px}
+  .price .cur{font-size:20px;color:var(--ivory-dim);font-weight:400;align-self:flex-start;margin-top:6px}
+  .price .amt{font-family:'Instrument Serif',serif;font-size:48px;line-height:1;font-weight:400}
+  .feature .price .amt{color:var(--gold)}
+  .price .free{font-family:'Instrument Serif',serif;font-size:48px;line-height:1}
+  .runs{font-size:12.5px;letter-spacing:.04em;color:var(--gold-soft);font-weight:500;
+    text-transform:uppercase;margin-bottom:22px}
+  .runs .x{color:var(--ivory-faint);text-transform:none;letter-spacing:0}
+
+  .feats{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:26px;flex:1}
+  .feats li{display:flex;gap:11px;font-size:13.5px;line-height:1.5;font-weight:300;color:var(--ivory)}
+  .feats li.muted{color:var(--ivory-dim)}
+  .feats .ic{flex:none;width:17px;height:17px;margin-top:1px;color:var(--gold-soft)}
+  .feats li.muted .ic{color:var(--ivory-faint)}
+
+  .pick{
+    width:100%;padding:14px 18px;border-radius:100px;cursor:pointer;
+    font-family:'Manrope';font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;
+    background:transparent;border:1px solid var(--ivory-faint);color:var(--ivory);
+    transition:.45s var(--ease);
+  }
+  .pick:hover{border-color:var(--gold);color:var(--gold);background:rgba(226,181,107,.05)}
+  .pick.solid{background:var(--gold);border-color:var(--gold);color:#15110a;font-weight:600}
+  .pick.solid:hover{box-shadow:0 14px 40px -12px rgba(226,181,107,.55);transform:translateY(-1px);
+    background:var(--gold)}
+  .pick.ghost{border-color:transparent;background:rgba(255,255,255,.04);color:var(--ivory-dim)}
+  .pick.ghost:hover{color:var(--ivory);background:rgba(255,255,255,.07)}
+
+  /* ---------- reassurance strip ---------- */
+  .trust{display:flex;justify-content:center;gap:38px;flex-wrap:wrap;margin-top:50px;
+    padding-top:34px;border-top:1px solid var(--line)}
+  .trust div{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ivory-dim);font-weight:300}
+  .trust svg{width:16px;height:16px;color:var(--gold-soft)}
+
+  /* ---------- footnote ---------- */
+  .note{text-align:center;margin-top:30px;font-size:11.5px;color:var(--ivory-faint);
+    font-weight:300;letter-spacing:.02em}
+
+  @media (max-width:1000px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .card.feature{order:-1}
+  }
+  @media (max-width:560px){
+    .grid{grid-template-columns:1fr}
+    .wrap{padding:96px 20px 70px}
+    .trust{gap:18px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    .card{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+  <div class="sky sky-night"></div>
+  <div class="glow"></div>
+  <svg class="grain"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+
+  <a class="brand" href="#">Potential <small>°</small></a>
+  <a class="back" href="#">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    Back to results
+  </a>
+
+  <main class="wrap">
+    <header class="head">
+      <div class="kicker">Choose your run</div>
+      <h1>You've seen your <em>#1 match.</em><br>Now unlock the whole map.</h1>
+      <p>A <b>run</b> is one complete relocation analysis — your ranked cities, real financials,
+         live jobs &amp; housing, and a step-by-step plan to get there. Buy once. No subscription.</p>
+      <div class="unit">
+        <span class="chip"><span class="dot"></span> <b>Your runs never expire.</b>&nbsp; Use them when you're ready.</span>
+      </div>
+    </header>
+
+    <section class="grid" id="grid"></section>
+
+    <section class="trust">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg> One-time payment — no auto-renew</div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Credits never expire</div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 6 9 17l-5-5"/></svg> See your free preview before you pay</div>
+    </section>
+
+    <p class="note">Prices shown in USD. Upgrade anytime — pay only the difference. (Prototype — numbers subject to change.)</p>
+  </main>
+
+<script>
+(() => {
+  // LOCKED business-model tiers (D-05) — kept here so they're easy to re-tune.
+  const check = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>';
+  const lock  = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+
+  const TIERS = [
+    {
+      name:'Free', tag:'Your first taste of the answer.',
+      price:'0', runs:'Teaser only', cta:'You are here', ctaClass:'ghost', feature:false,
+      feats:[
+        [1,'Full personality + lifestyle quiz'],
+        [1,'Your #1 match city revealed'],
+        [1,'One headline financial figure'],
+        [0,'Deeper results stay blurred'],
+      ]
+    },
+    {
+      name:'Basic', tag:'The single most optimal city, in full.',
+      price:'0.99', runs:'1 run', cta:'Unlock Basic', ctaClass:'outline', feature:false,
+      feats:[
+        [1,'Your single best-fit city'],
+        [1,'Complete financial snapshot'],
+        [1,'Take-home, expenses & savings'],
+        [0,'Full ranked list & live-AI layer'],
+      ]
+    },
+    {
+      name:'Plus', tag:'The full picture — and the plan to get there.',
+      price:'9.99', runs:'3 runs', cta:'Unlock Plus', ctaClass:'solid', feature:true,
+      feats:[
+        [1,'Full ranked list — US &amp; international'],
+        [1,'Complete financials for every city'],
+        [1,'Live-AI layer: real jobs, housing, day-in-the-life'],
+        [1,'Personalized relocation roadmap'],
+      ]
+    },
+    {
+      name:'Premium', tag:'For when the move crosses a border.',
+      price:'29.99', runs:'Unlimited runs', cta:'Unlock Premium', ctaClass:'outline', feature:false,
+      feats:[
+        [1,'Everything in Plus'],
+        [1,'Immigration &amp; visa concierge'],
+        [1,'Eligibility → pathway → checklist'],
+        [1,'Cost, timeline &amp; attorney referral'],
+      ]
+    },
+  ];
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = TIERS.map(t => {
+    const priceBlock = t.price === '0'
+      ? `<span class="free">Free</span>`
+      : `<span class="cur">$</span><span class="amt">${t.price}</span>`;
+    const feats = t.feats.map(([on,txt]) =>
+      `<li class="${on?'':'muted'}">${on?check:lock}<span>${txt}</span></li>`).join('');
+    const runsClass = t.runs.includes('run') ? '' : 'class="x"';
+    return `
+      <article class="card ${t.feature?'feature':''}">
+        ${t.feature?'<div class="badge">Most popular</div>':''}
+        <div class="tier-name">${t.name}</div>
+        <div class="tier-tag">${t.tag}</div>
+        <div class="price">${priceBlock}</div>
+        <div class="runs"><span ${runsClass}>${t.runs}</span></div>
+        <ul class="feats">${feats}</ul>
+        <button class="pick ${t.ctaClass}" data-tier="${t.name}">${t.cta}</button>
+      </article>`;
+  }).join('');
+
+  // stagger reveal
+  const cards = [...grid.querySelectorAll('.card')];
+  const io = new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){ const i=cards.indexOf(e.target);
+      setTimeout(()=>e.target.classList.add('in'), i*90); io.unobserve(e.target);}
+  }),{threshold:.2});
+  cards.forEach(c=>io.observe(c));
+
+  grid.addEventListener('click', e=>{
+    const b = e.target.closest('.pick'); if(!b) return;
+    const tier = b.dataset.tier;
+    if(tier==='Free') return;
+    // real app routes into checkout / unlocks the tier (Phase 8)
+    b.style.transform='scale(.97)';
+    setTimeout(()=>{ alert(`→ Checkout for the ${tier} tier (Phase 8 wires this up).`); b.style.transform=''; },130);
+  });
+})();
+</script>
+</body>
+</html>

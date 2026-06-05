@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Potential — Pricing (start now / upgrade later)</title>
+<!-- THROWAWAY PROTOTYPE — pricing layout modeled on the NEWFLUX/ViewFlux page
+     (two-tone hero headline, decorative centerpiece over a featured middle card,
+     three minimal cards, free-account strip below) but re-skinned in the Potential
+     gold cinematic palette + type system (Instrument Serif + Manrope).
+     The stag becomes a gold compass rose (relocation/cartography brand fit).
+     Tiers are the LOCKED business-model numbers (D-05), still subject to change. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --night-1:#070a11;
+    --night-2:#0d1119;
+    --panel:#10141d;
+    --panel-2:#141925;
+    --gold:#e2b56b;
+    --gold-soft:#d2a45a;
+    --gold-deep:#a77c3c;
+    --ivory:#f3ede1;
+    --ivory-dim:rgba(243,237,225,.56);
+    --ivory-faint:rgba(243,237,225,.20);
+    --line:rgba(243,237,225,.10);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--night-1);color:var(--ivory);
+    font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;
+    min-height:100vh;overflow-x:hidden;
+  }
+  .sky{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% -10%, #141b27 0%, var(--night-2) 40%, var(--night-1) 80%);}
+  .glow{position:fixed;left:50%;top:8vh;width:70vw;height:60vh;transform:translateX(-50%);
+    background:radial-gradient(circle at 50% 40%, rgba(226,181,107,.14) 0%, rgba(226,181,107,.04) 36%, transparent 64%);
+    z-index:0;pointer-events:none;filter:blur(10px);}
+  .grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.045;mix-blend-mode:overlay}
+
+  /* ---------- top nav (echoes the reference) ---------- */
+  .nav{position:relative;z-index:25;display:flex;align-items:center;justify-content:space-between;
+    max-width:1120px;margin:0 auto;padding:30px 32px}
+  .brand{font-family:'Instrument Serif',serif;font-size:25px;letter-spacing:.5px;color:var(--ivory);
+    text-decoration:none}
+  .brand small{font-style:italic;opacity:.6;font-size:14px;margin-left:1px}
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory-dim);
+    text-decoration:none;transition:.35s var(--ease)}
+  .nav-links a:hover{color:var(--gold)}
+  .nav-links a.active{color:var(--gold-soft)}
+
+  /* ---------- shell ---------- */
+  .wrap{position:relative;z-index:10;max-width:1120px;margin:0 auto;padding:40px 32px 90px}
+
+  /* ---------- hero headline (two-tone, with centerpiece) ---------- */
+  .hero{position:relative;text-align:center;margin:34px 0 0;height:300px}
+  .hero h1{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-.015em;
+    font-size:clamp(52px,9vw,108px);line-height:.96;position:relative;z-index:3}
+  .hero h1 .l1{display:block;color:var(--ivory)}
+  .hero h1 .l2{display:block;font-style:italic;color:var(--gold)}
+  /* compass rose centerpiece — sits behind the second headline line, over the middle card.
+     Two layers spin in opposite directions: the rose (center star) and the ring (outer ticks). */
+  .compass{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    width:320px;height:320px;z-index:2;opacity:.92;pointer-events:none;
+    filter:drop-shadow(0 8px 44px rgba(226,181,107,.22))}
+  .compass #ring,.compass #rose{transform-box:fill-box;transform-origin:center}
+  .compass #ring{animation:spin-cw 120s linear infinite}
+  .compass #rose{animation:spin-ccw 72s linear infinite}
+  @keyframes spin-cw{to{transform:rotate(360deg)}}
+  @keyframes spin-ccw{to{transform:rotate(-360deg)}}
+
+  /* ---------- tier grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:18px;align-items:end}
+  .card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;
+    padding:38px 28px 32px;border-radius:20px;
+    background:linear-gradient(180deg,var(--panel) 0%,var(--night-2) 100%);
+    border:1px solid var(--line);
+    opacity:0;transform:translateY(26px);
+    transition:transform .8s var(--ease),opacity .8s var(--ease),border-color .4s,box-shadow .4s}
+  .card.in{opacity:1;transform:none}
+  .card:hover{border-color:rgba(226,181,107,.32);transform:translateY(-5px)}
+  .card.in:hover{transform:translateY(-5px)}
+
+  .card.feature{padding-top:52px;padding-bottom:40px;
+    background:linear-gradient(180deg,#1a1710 0%,#120f0b 100%);
+    border-color:rgba(226,181,107,.45);
+    box-shadow:0 30px 80px -30px rgba(226,181,107,.42)}
+  .card.feature:hover{border-color:var(--gold)}
+  .badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+    padding:6px 16px;border-radius:100px;background:var(--gold);color:#15110a;
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;white-space:nowrap;
+    box-shadow:0 8px 24px -6px rgba(226,181,107,.6)}
+
+  .tier-name{font-family:'Instrument Serif',serif;font-size:27px;font-weight:400;letter-spacing:.3px}
+  .runs{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-soft);
+    font-weight:500;margin-top:8px}
+  .runs.x{color:var(--ivory-faint)}
+
+  .feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin:22px 0 26px}
+  .feats li{font-size:13px;font-weight:300;color:var(--ivory-dim);line-height:1.4}
+  .feature .feats li{color:var(--ivory)}
+
+  .price{display:flex;align-items:flex-start;justify-content:center;gap:2px;margin-top:auto}
+  .price .cur{font-size:22px;color:var(--ivory-dim);margin-top:8px}
+  .price .amt{font-family:'Instrument Serif',serif;font-size:56px;line-height:.9;font-weight:400}
+  .feature .price .amt{color:var(--gold)}
+  .per{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ivory-faint);margin-top:8px}
+
+  .pick{margin-top:24px;width:100%;padding:13px 18px;border-radius:100px;cursor:pointer;
+    font-family:'Manrope';font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;
+    background:transparent;border:1px solid var(--ivory-faint);color:var(--ivory);transition:.45s var(--ease)}
+  .pick:hover{border-color:var(--gold);color:var(--gold);background:rgba(226,181,107,.05)}
+  .pick.solid{background:var(--gold);border-color:var(--gold);color:#15110a;font-weight:600}
+  .pick.solid:hover{box-shadow:0 14px 40px -12px rgba(226,181,107,.55);transform:translateY(-1px);background:var(--gold)}
+
+  /* ---------- free-account strip (echoes the reference footer form) ---------- */
+  .free{margin-top:64px;text-align:center}
+  .free h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(26px,3.6vw,40px);
+    letter-spacing:-.01em}
+  .free h2 em{font-style:italic;color:var(--gold)}
+  .free p{font-size:13.5px;color:var(--ivory-dim);font-weight:300;margin-top:12px}
+  .form{display:flex;justify-content:center;gap:10px;margin-top:28px;flex-wrap:wrap}
+  .form input{width:300px;max-width:80vw;padding:15px 20px;border-radius:100px;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--ivory);
+    font-family:'Manrope';font-size:14px;font-weight:300;transition:.35s var(--ease)}
+  .form input::placeholder{color:var(--ivory-faint)}
+  .form input:focus{outline:none;border-color:var(--gold-soft);background:rgba(255,255,255,.05)}
+  .form button{padding:15px 30px;border-radius:100px;border:none;cursor:pointer;
+    background:var(--gold);color:#15110a;font-family:'Manrope';font-weight:600;font-size:12.5px;
+    letter-spacing:.12em;text-transform:uppercase;transition:.45s var(--ease)}
+  .form button:hover{box-shadow:0 14px 40px -12px rgba(226,181,107,.55);transform:translateY(-1px)}
+  .micro{margin-top:22px;font-size:11px;letter-spacing:.04em;color:var(--ivory-faint);font-weight:300}
+
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr;gap:16px;align-items:stretch}
+    .card.feature{order:-1}
+    .compass{width:220px;height:220px}
+    .hero{height:230px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    .card{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+  <div class="sky"></div>
+  <div class="glow"></div>
+  <svg class="grain"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
+
+  <nav class="nav">
+    <a class="brand" href="#">Potential <small>°</small></a>
+    <div class="nav-links">
+      <a href="#">Tour</a>
+      <a href="#" class="active">Pricing</a>
+      <a href="#">Contact</a>
+      <a href="#">Sign in</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <svg class="compass" viewBox="0 0 200 200" aria-hidden="true">
+        <g id="ring"></g>
+        <g id="rose"></g>
+      </svg>
+      <h1>
+        <span class="l1">Start now,</span>
+        <span class="l2">upgrade later.</span>
+      </h1>
+    </section>
+
+    <section class="grid" id="grid"></section>
+
+    <section class="free">
+      <h2>Start with a <em>free</em> run. No card required.</h2>
+      <p>Take the quiz and see your #1 match city today — unlock the rest whenever you're ready.</p>
+      <form class="form" id="freeForm" onsubmit="return false">
+        <input type="email" placeholder="you@email.com" aria-label="Email" />
+        <button type="submit">Start free</button>
+      </form>
+      <p class="micro">Your runs never expire · One-time payment, no subscription · Prototype — numbers subject to change</p>
+    </section>
+  </main>
+
+<script>
+(() => {
+  /* ---------- compass centerpiece (modeled on the Potential app icon) ---------- */
+  /* Built as two layers so they can counter-rotate: #ring (ticks) + #rose (star). */
+  const C = 100;
+  const round = n => Number(n).toFixed(2);
+  const RING = '#8a6a38';                       // muted gold-brown for the ring + ticks
+
+  // outer ring: two concentric circles + 72 tick marks (every 5°), cardinals longer.
+  let ringHTML =
+    `<circle cx="100" cy="100" r="94" fill="none" stroke="${RING}" stroke-width=".9"/>` +
+    `<circle cx="100" cy="100" r="70" fill="none" stroke="${RING}" stroke-width=".9" opacity=".85"/>`;
+  const TICKS = 72;
+  for(let i=0;i<TICKS;i++){
+    const a = (i/TICKS)*Math.PI*2 - Math.PI/2;  // start at N
+    const cardinal = i % 18 === 0;              // N / E / S / W
+    const r1 = 72, r2 = cardinal ? 87 : 78;
+    ringHTML += `<line x1="${round(C+Math.cos(a)*r1)}" y1="${round(C+Math.sin(a)*r1)}" x2="${round(C+Math.cos(a)*r2)}" y2="${round(C+Math.sin(a)*r2)}" stroke="${RING}" stroke-width="${cardinal?1.5:.7}"/>`;
+  }
+  document.getElementById('ring').innerHTML = ringHTML;
+
+  // 8-point rose. Each point is split down its axis into a light + dark face (two-tone).
+  const LIGHT='#efdca9', DARK='#c89a4f', LIGHT2='#e7c987', DARK2='#b07f3a';
+  function point(angleDeg, len, half){
+    const a=(angleDeg-90)*Math.PI/180;          // 0° = up (N)
+    const ax=Math.cos(a), ay=Math.sin(a), px=-ay, py=ax;
+    const tip=`${round(C+ax*len)},${round(C+ay*len)}`;
+    const bl =`${round(C+px*half)},${round(C+py*half)}`;
+    const br =`${round(C-px*half)},${round(C-py*half)}`;
+    return { light:`${tip} ${bl} ${C},${C}`, dark:`${tip} ${br} ${C},${C}` };
+  }
+  let roseHTML='';
+  // back layer — the four intercardinal points (shorter)
+  [45,135,225,315].forEach(ang=>{
+    const p=point(ang,40,7);
+    roseHTML+=`<polygon points="${p.light}" fill="${LIGHT2}"/><polygon points="${p.dark}" fill="${DARK2}"/>`;
+  });
+  // front layer — the four cardinal points; N longest, like the icon
+  [[0,66],[90,58],[180,60],[270,58]].forEach(([ang,len])=>{
+    const p=point(ang,len,10);
+    roseHTML+=`<polygon points="${p.light}" fill="${LIGHT}"/><polygon points="${p.dark}" fill="${DARK}"/>`;
+  });
+  // hub
+  roseHTML+=`<circle cx="100" cy="100" r="8.5" fill="#caa15a"/><circle cx="100" cy="100" r="2.8" fill="#0a0d14"/>`;
+  document.getElementById('rose').innerHTML = roseHTML;
+
+  // LOCKED business-model tiers (D-05) — easy to re-tune here.
+  const TIERS = [
+    { name:'Basic', runs:'1 run', price:'0.99', cta:'Choose Basic', solid:false, feature:false,
+      feats:['Your single best-fit city','Complete financial snapshot','Take-home · expenses · savings'] },
+    { name:'Plus', runs:'3 runs', price:'9.99', cta:'Choose Plus', solid:true, feature:true,
+      feats:['Full ranked list — US & international','Live-AI: jobs, housing, day-in-the-life','Personalized relocation roadmap'] },
+    { name:'Premium', runs:'Unlimited runs', price:'29.99', cta:'Choose Premium', solid:false, feature:false,
+      feats:['Everything in Plus','Immigration & visa concierge','Pathways, checklists & referrals'] },
+  ];
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = TIERS.map(t=>`
+    <article class="card ${t.feature?'feature':''}">
+      ${t.feature?'<div class="badge">Most popular</div>':''}
+      <div class="tier-name">${t.name}</div>
+      <div class="runs ${t.runs.includes('run')&&!t.runs.includes('Unlimited')?'':'x'}">${t.runs}</div>
+      <ul class="feats">${t.feats.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div class="price"><span class="cur">$</span><span class="amt">${t.price}</span></div>
+      <div class="per">one-time</div>
+      <button class="pick ${t.solid?'solid':''}" data-tier="${t.name}">${t.cta}</button>
+    </article>`).join('');
+
+  const cards=[...grid.querySelectorAll('.card')];
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){const i=cards.indexOf(e.target);
+      setTimeout(()=>e.target.classList.add('in'),i*100);io.unobserve(e.target);}
+  }),{threshold:.2});
+  cards.forEach(c=>io.observe(c));
+
+  grid.addEventListener('click',e=>{
+    const b=e.target.closest('.pick'); if(!b) return;
+    b.style.transform='scale(.97)';
+    setTimeout(()=>{alert(`→ Checkout for the ${b.dataset.tier} tier (Phase 8 wires this up).`);b.style.transform='';},130);
+  });
+  document.getElementById('freeForm').addEventListener('submit',()=>{
+    alert('→ Starts the free quiz (Phase 2).');
+  });
+})();
+</script>
+</body>
+</html>

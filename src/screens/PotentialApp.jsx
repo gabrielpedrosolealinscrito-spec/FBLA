@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { scoreProfile } from '../lib/matchEngine.js';
 import Landing from './Landing.jsx';
-import Quiz from './Quiz.jsx';
+import Quiz from './CenteredQuiz.jsx';
 import ResultsMap from './ResultsMap.jsx';
 
 // ═══════════════════════════════════════════
