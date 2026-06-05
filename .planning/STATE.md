@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 05
 current_plan: 2
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-06-05T23:36:20.279Z"
+stopped_at: Completed 05-02-PLAN.md — api/live-core.ts and api/live.ts implemented, tests GREEN
+last_updated: "2026-06-05T23:48:07.732Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 29
-  completed_plans: 24
+  completed_plans: 25
   percent: 50
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 05 (proxy-live-ai-golden-path-cache) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 **Status:** Ready to execute
 **Current Phase:** 05
 **Last Activity:** 2026-06-05
@@ -47,6 +47,9 @@ Plan: 2 of 5
 - Phase 2 reshaped to a capture-layer rebuild: adaptive/branching quiz + tension reconciliation + derived preference weights; city scoring deferred to Phase 3 (Phase 2 discussion)
 - [Phase 12]: missing new-category data (7 of 28 cities) → neutral-midpoint factorScore (0.5) labeled dataLevel 'limited-data' — honors D-07 (never punished) + D-01 (honesty boundary visible); resolves the D-01-vs-D-07 fork the research left open
 - [Phase 05-01]: City-key contract: full city.name strings ('Austin, TX'/'Lisbon, Portugal') as golden-path JSON keys — load-bearing, matches runtime proxy/client goldenPath[category][city.name] lookup
+- [Phase ?]: sanitizeInput runs outside try/catch so unknown category returns 400 not fromCache:true (V5 correctness)
+- [Phase ?]: new Anthropic() inside try block — missing ANTHROPIC_API_KEY is LIVE-04 cache event at runtime, not a crash
+- [Phase ?]: Lisbon/London blocker resolved: golden-path keyed London UK; countryFor suffix map UK to GB
 
 ## Performance Metrics
 
@@ -58,10 +61,11 @@ Plan: 2 of 5
 | Phase 09 P01 | 2min | 2 tasks | 1 files |
 | Phase 09 P02 | 18min | 2 tasks | 1 files |
 | Phase 09 P03 | 15min | 2 tasks | 2 files |
+| Phase 05 P02 | 25min | 2 tasks | 2 files |
 
 ## Session Continuity
 
-**Stopped At:** Phase 6 context gathered
+**Stopped At:** Completed 05-02-PLAN.md — api/live-core.ts and api/live.ts implemented, tests GREEN
 **Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
 **Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
