@@ -15,7 +15,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 - [x] **FOUND-01**: Diverged git branches reconciled — `potential_v2.jsx` prototype, README, PDF, and `.planning/` all live on one coherent `main`
 - [x] **FOUND-02**: Project builds and runs locally with a real toolchain (Vite + React), prototype ported in with no visual regression
 - [ ] **FOUND-03**: Server-side proxy handles all Anthropic API calls — no API key is ever present in client code
-- [x] **FOUND-04**: App runs end-to-end on a laptop on battery with the live layer served from a bundled offline cache when no network is available
+- [ ] **FOUND-04**: App runs end-to-end on a laptop on battery with the live layer served from a bundled offline cache when no network is available
 
 ### Quiz / Profile Capture
 
@@ -39,10 +39,10 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Live AI Data Layer (Plus tier centerpiece)
 
-- [x] **LIVE-01**: User sees real current job listings for their profession in a selected city, fetched live via the proxy
-- [x] **LIVE-02**: User sees real current housing listings (rent or buy per their preference) for a selected city
-- [x] **LIVE-03**: User sees an AI-generated "day in your life" narrative personalized to their profile and city
-- [x] **LIVE-04**: Live results gracefully fall back to cached golden-path data on API/parse failure (never a blank or broken state on stage)
+- [ ] **LIVE-01**: User sees real current job listings for their profession in a selected city, fetched live via the proxy
+- [ ] **LIVE-02**: User sees real current housing listings (rent or buy per their preference) for a selected city
+- [ ] **LIVE-03**: User sees an AI-generated "day in your life" narrative personalized to their profile and city
+- [ ] **LIVE-04**: Live results gracefully fall back to cached golden-path data on API/parse failure (never a blank or broken state on stage)
 
 ### Relocation Roadmap (Plus tier differentiator)
 
@@ -117,11 +117,11 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | MATCH-02 | Phase 4: International Destinations & Country Models | Pending |
 | FIN-02 | Phase 4: International Destinations & Country Models | Pending |
 | FOUND-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
-| LIVE-01 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
-| LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
-| LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
-| LIVE-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-01 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
+| LIVE-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
 | ROAD-01 | Phase 6: Relocation Roadmap | Pending |
 | ROAD-02 | Phase 6: Relocation Roadmap | Pending |
 | ROAD-03 | Phase 6: Relocation Roadmap | Pending |
