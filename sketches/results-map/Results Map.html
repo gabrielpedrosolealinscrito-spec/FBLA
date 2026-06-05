@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Potential — Your matches, mapped</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="colors_and_type.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--night-800);
+    background-image: radial-gradient(120% 80% at 50% -10%, var(--night-700), var(--night-800) 60%);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    background: color-mix(in srgb, var(--night-800) 80%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand img { width: 26px; height: 26px; display: block; }
+  .brand .wm {
+    font-family: var(--font-display); font-size: 22px; letter-spacing: .01em;
+  }
+  .brand .wm .deg { color: var(--accent); }
+  .edit {
+    font-size: 13px; color: var(--fg-2);
+    background: var(--card-trans); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 14px; cursor: pointer;
+    transition: .2s var(--ease);
+  }
+  .edit:hover { color: var(--gold-500); border-color: var(--gold-500); }
+
+  /* ── Layout ── */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 34px 24px 90px; }
+  .kicker {
+    font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .32em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 14px;
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 46px; line-height: .98; letter-spacing: -.015em; }
+  h1 .it { font-style: italic; color: var(--accent); }
+  .sub { color: var(--fg-2); font-size: 14px; margin: 10px 0 22px; }
+
+  .sorts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .pill {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    color: var(--fg-2); background: var(--card-trans);
+    border: 1px solid var(--border); border-radius: var(--r-pill);
+    padding: 8px 16px; cursor: pointer; transition: .18s var(--ease);
+  }
+  .pill:hover { color: var(--fg); border-color: var(--border-hover); }
+  .pill.on { color: var(--accent-ink); background: var(--gold-500); border-color: var(--gold-500); font-weight: 600; }
+
+  /* ── Map stage ── */
+  .stage {
+    position: relative; width: 100%; aspect-ratio: 975 / 610;
+    border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden;
+    background:
+      radial-gradient(120% 130% at 50% -20%, rgba(226,181,107,.10) 0%, transparent 38%),
+      radial-gradient(120% 100% at 50% 0%, #14110c 0%, #0c0d12 55%, #08090e 100%);
+    box-shadow: var(--inset-deep);
+  }
+  .map { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .grat { stroke: rgba(243,237,225,.045); stroke-width: .8; }
+  .state {
+    fill: rgba(226,181,107,.035);
+    stroke: rgba(226,181,107,.20);
+    stroke-width: .7;
+    stroke-linejoin: round;
+    transition: fill .25s var(--ease);
+  }
+  .state.lit { fill: rgba(226,181,107,.13); }
+  .nation {
+    fill: none;
+    stroke: rgba(226,181,107,.55);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 10px rgba(226,181,107,.25));
+  }
+
+  /* ── Pins (HTML overlay) ── */
+  .pin { position: absolute; transform: translate(-50%, -100%); z-index: 2; cursor: pointer; }
+  .pin:hover, .pin.hot, .pin.best { z-index: 9; }
+  .pin .mk { display: block; filter: drop-shadow(0 6px 10px rgba(0,0,0,.55)) drop-shadow(0 0 8px var(--gold-glow)); }
+  .pin.best .mk { filter: drop-shadow(0 6px 12px rgba(0,0,0,.6)) drop-shadow(0 0 13px rgba(226,181,107,.55)); }
+  .plab {
+    position: absolute; left: 50%; top: -8px;
+    transform: translateX(-50%) translateY(-100%);
+    white-space: nowrap;
+    background: rgba(10,12,18,.82); border: 1px solid var(--border-hover);
+    border-radius: 9px; padding: 5px 10px;
+    font-size: 11.5px; display: flex; align-items: center; gap: 8px;
+    backdrop-filter: blur(6px); pointer-events: none;
+    opacity: 0; transition: .18s var(--ease);
+  }
+  .pin:hover .plab, .pin.best .plab, .pin.hot .plab { opacity: 1; }
+  .plab b { font-weight: 600; }
+  .plab .sc { font-family: var(--font-mono); color: var(--gold-500); }
+  .pulse {
+    position: absolute; left: 50%; bottom: 2px; width: 10px; height: 10px;
+    border-radius: 50%; transform: translate(-50%, 50%);
+    background: rgba(226,181,107,.5);
+    animation: rmpulse 2.6s ease-out infinite;
+  }
+  @keyframes rmpulse {
+    0%   { box-shadow: 0 0 0 0 rgba(226,181,107,.4); }
+    70%  { box-shadow: 0 0 0 18px rgba(226,181,107,0); }
+    100% { box-shadow: 0 0 0 0 rgba(226,181,107,0); }
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+    gap: 10px; margin-top: 24px;
+  }
+  .lrow {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px;
+    background: var(--card-trans); border: 1px solid var(--border);
+    border-radius: 14px; padding: 13px 16px; cursor: pointer;
+    transition: .18s var(--ease);
+  }
+  .lrow:hover, .lrow.hot { border-color: var(--gold-500); background: color-mix(in srgb, var(--gold-500) 7%, transparent); }
+  .lrow .rk { font-family: var(--font-mono); font-size: 12px; color: var(--fg-3); }
+  .lrow.best .rk { color: var(--gold-500); text-shadow: 0 0 7px var(--gold-glow); }
+  .lrow .nm { font-size: 14px; font-weight: 600; }
+  .lrow .scp {
+    font-family: var(--font-mono); font-size: 11px; color: var(--gold-500);
+    background: var(--accent-dim); padding: 1px 7px; border-radius: 6px; margin-left: 8px;
+  }
+  .lrow .intl {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--fg-3);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; margin-left: 6px;
+  }
+  .lrow .mo { text-align: right; font-family: var(--font-mono); font-size: 13px; }
+  .lrow .mo .sv { font-weight: 600; }
+  .lrow .mo .u { color: var(--fg-3); font-size: 10px; }
+
+  /* No entrance fade — content is always visible (robust against throttled animation). */
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+  @media (max-width: 620px) { .wrap { padding: 22px 16px 72px; } h1 { font-size: 34px; } }
+
+  .loading {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--fg-3);
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="compass.svg" alt="">
+      <span class="wm">Potential<span class="deg">°</span></span>
+    </div>
+    <button class="edit">Edit profile</button>
+  </div>
+
+  <div class="wrap">
+    <div class="kicker">Sample result · Software designer · remote</div>
+    <h1>Your matches, <span class="it">mapped</span></h1>
+    <p class="sub" id="sub"></p>
+
+    <div class="sorts" id="sorts"></div>
+
+    <div class="stage" id="stage">
+      <svg class="map" id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" aria-label="US map of matched cities"></svg>
+      <div class="loading" id="loading">Plotting your cities…</div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+  </div>
+
+<script>
+// ── City data (US cities are pinned; international cities listed only) ──
+const CITIES = [
+  { name: "Lisbon",     country: "Portugal", lat: 38.72, lng: -9.14,   intl: true,  matchScore: 94, monthlySavings: 1540 },
+  { name: "Austin",     country: "TX",       lat: 30.27, lng: -97.74,                matchScore: 88, monthlySavings: 980 },
+  { name: "Denver",     country: "CO",       lat: 39.74, lng: -104.99,               matchScore: 82, monthlySavings: 640 },
+  { name: "Raleigh",    country: "NC",       lat: 35.78, lng: -78.64,                matchScore: 79, monthlySavings: 1180 },
+  { name: "Pittsburgh", country: "PA",       lat: 40.44, lng: -79.99,                matchScore: 74, monthlySavings: 1390 },
+  { name: "Miami",      country: "FL",       lat: 25.76, lng: -80.19,                matchScore: 68, monthlySavings: -240 },
+];
+
+const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+const stage = document.getElementById("stage");
+const svg = d3.select("#map");
+let sortBy = "match";
+let hot = null;
+
+// Albers USA projection matching us-atlas states-albers-10m (975×610 viewport)
+const projection = d3.geoAlbersUsa().scale(1300).translate([487.5, 305]);
+const path = d3.geoPath(); // pre-projected topojson → identity path
+
+// state -> highest-match domestic city sitting in it (for subtle fill highlight)
+const litStates = new Set(["TX", "CO", "NC", "PA", "FL"]);
+const stateNameToCode = {
+  Texas:"TX", Colorado:"CO", "North Carolina":"NC", Pennsylvania:"PA", Florida:"FL"
+};
+
+const sub = document.getElementById("sub");
+sub.textContent = CITIES.length + " cities matched · " +
+  CITIES.filter(c => !c.intl).length + " on the map · select a city to explore";
+
+// ── Sort controls ──
+const SORTS = [["match","Best match"],["savings","Most savings"]];
+const sortsEl = document.getElementById("sorts");
+SORTS.forEach(([k,l]) => {
+  const b = document.createElement("button");
+  b.className = "pill" + (k === sortBy ? " on" : "");
+  b.textContent = l;
+  b.onclick = () => { sortBy = k; render(); };
+  sortsEl.appendChild(b);
+});
+
+function sortedCities() {
+  return [...CITIES].sort((a,b) =>
+    sortBy === "savings" ? b.monthlySavings - a.monthlySavings : b.matchScore - a.matchScore);
+}
+const bestUS = [...CITIES].filter(c => !c.intl).sort((a,b)=>b.matchScore-a.matchScore)[0].name;
+
+// ── Build the map from the Census us-atlas (public domain, Albers projection) ──
+const gGrat   = svg.append("g");
+const gStates = svg.append("g");
+const gNation = svg.append("g");
+
+// graticule-style guide lines inside the frame
+for (let i = 1; i < 7; i++) gGrat.append("line").attr("class","grat").attr("x1", i*975/7).attr("y1",0).attr("x2", i*975/7).attr("y2",610);
+for (let i = 1; i < 5; i++) gGrat.append("line").attr("class","grat").attr("x1",0).attr("y1", i*610/5).attr("x2",975).attr("y2", i*610/5);
+
+d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json").then((us) => {
+  const states = topojson.feature(us, us.objects.states).features;
+  // continental only: drop Alaska(02), Hawaii(15), Puerto Rico(72) insets
+  const drop = new Set(["02","15","72"]);
+  const cont = states.filter(s => !drop.has(s.id));
+
+  gStates.selectAll("path").data(cont).join("path")
+    .attr("class", d => "state" + (litStates.has(stateNameToCode[d.properties.name]) ? " lit" : ""))
+    .attr("d", path);
+
+  const nation = topojson.feature(us, us.objects.nation);
+  gNation.append("path").attr("class","nation").attr("d", path);
+
+  document.getElementById("loading").remove();
+  render();
+});
+
+// ── Pins + legend ──
+function pinSVG(best) {
+  const w = best ? 34 : 26, h = best ? 44 : 34;
+  return `<svg class="mk" viewBox="0 0 24 34" width="${w}" height="${h}">
+    <path d="M12 0C5.4 0 0 5.4 0 12c0 8.5 12 22 12 22s12-13.5 12-22C24 5.4 18.6 0 12 0z" fill="var(--gold-500)" stroke="#13100a" stroke-width="1"/>
+    <circle cx="12" cy="12" r="4.4" fill="#13100a"/></svg>`;
+}
+
+function render() {
+  // sort pills active state
+  [...sortsEl.children].forEach((b,i) => b.classList.toggle("on", SORTS[i][0] === sortBy));
+
+  // pins
+  stage.querySelectorAll(".pin").forEach(p => p.remove());
+  CITIES.filter(c => !c.intl).forEach((c) => {
+    const xy = projection([c.lng, c.lat]);
+    if (!xy) return;
+    const best = c.name === bestUS;
+    const el = document.createElement("div");
+    el.className = "pin" + (best ? " best" : "") + (hot === c.name ? " hot" : "");
+    el.style.left = (xy[0] / 975 * 100) + "%";
+    el.style.top  = (xy[1] / 610 * 100) + "%";
+    el.innerHTML =
+      (best ? `<span class="pulse"></span>` : "") +
+      `<div class="plab"><b>${c.name}</b><span class="sc">${c.matchScore}%</span></div>` +
+      pinSVG(best);
+    el.onmouseenter = () => { hot = c.name; syncHot(); };
+    el.onmouseleave = () => { hot = null; syncHot(); };
+    stage.appendChild(el);
+  });
+
+  // legend
+  const legend = document.getElementById("legend");
+  legend.innerHTML = "";
+  sortedCities().forEach((c, i) => {
+    const row = document.createElement("div");
+    row.className = "lrow" + (hot === c.name ? " hot" : "") + (c.name === bestUS ? " best" : "");
+    row.dataset.city = c.name;
+    const pos = c.monthlySavings >= 0;
+    row.innerHTML =
+      `<span class="rk">${String(i+1).padStart(2,"0")}</span>
+       <span><span class="nm">${c.name}, ${c.country}</span>
+         <span class="scp">${c.matchScore}%</span>
+         ${c.intl ? `<span class="intl">Intl</span>` : ""}</span>
+       <span class="mo"><span class="sv" style="color:${pos ? "var(--positive)" : "var(--negative)"}">${pos ? "+" : "−"}${fmt(Math.abs(c.monthlySavings))}</span><span class="u">/mo</span></span>`;
+    row.onmouseenter = () => { hot = c.name; syncHot(); };
+    row.onmouseleave = () => { hot = null; syncHot(); };
+    legend.appendChild(row);
+  });
+}
+
+function syncHot() {
+  stage.querySelectorAll(".pin").forEach(p => {
+    const name = p.querySelector(".plab b").textContent;
+    p.classList.toggle("hot", name === hot && name !== bestUS);
+    if (name === bestUS) return;
+  });
+  // simplest: re-render pins/legend hot state
+  stage.querySelectorAll(".pin").forEach((p) => {
+    const name = p.querySelector(".plab b").textContent;
+    p.classList.toggle("hot", name === hot);
+  });
+  document.querySelectorAll(".lrow").forEach(r => r.classList.toggle("hot", r.dataset.city === hot));
+}
+</script>
+</body>
+</html>
