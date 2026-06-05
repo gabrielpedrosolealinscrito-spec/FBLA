@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { scoreProfile } from '../lib/matchEngine.js';
+import { fetchCategoryLive } from '../lib/fetchLive.js';
 import Landing from './Landing.jsx';
 import Quiz from './Quiz.jsx';
 import ResultsMap from './ResultsMap.jsx';
@@ -8,7 +9,7 @@ import ResultsMap from './ResultsMap.jsx';
 // POTENTIAL — Life Simulator v2
 // Ported from prototype into src/screens/
 // Fonts load via index.html (no useEffect).
-// AI fetch stubbed — live data arrives Phase 5.
+// Live AI data wired in Phase 5 via fetchCategoryLive.
 // ═══════════════════════════════════════════
 
 // City data + scoring now come from the real engine (shared/engine via
@@ -68,13 +69,24 @@ export default function Potential() {
   // (scoreProfile → shared/engine rankCities). handleComplete calls it once;
   // both the results list and the city detail read from those scored rows.
 
-  // ── AI Fetch — stubbed for Phase 1; live data wired in Phase 5 ──
-  const fetchCityAI = useCallback(async (city, category) => {
-    const key = `${city.name}_${category}`;
-    if (cityAIData[key]) return;
-    console.info("[Phase 1] Live AI data is coming in Phase 5");
-    setCityAIData(prev => ({ ...prev, [key]: "coming_soon" }));
-  }, [cityAIData]);
+  // ── Pull live data — fires all 3 shipped categories concurrently (D-04/D-05) ──
+  const pullLiveData = useCallback(async (city, currentProfile) => {
+    const housingCategory = currentProfile.housing === "rent" ? "housing_rent" : "housing_buy";
+    const categories = ["jobs", housingCategory, "dayinlife"];
+
+    // Fire all three in parallel — each updates state independently so one slow/failed
+    // category never blocks another (D-05: per-category skeletons).
+    categories.forEach(async (category) => {
+      const key = `${city.name}_${category}`;
+      setAiLoading(prev => ({ ...prev, [key]: true }));
+      try {
+        const items = await fetchCategoryLive(city, category, currentProfile.profession);
+        setCityAIData(prev => ({ ...prev, [key]: items }));
+      } finally {
+        setAiLoading(prev => ({ ...prev, [key]: false }));
+      }
+    });
+  }, []);
 
   // ── CSS ──
   const css = {
@@ -165,7 +177,7 @@ export default function Potential() {
       const open = expandedSection === id;
       return (
         <div style={{ background:"var(--card)", borderRadius:16, border:"1px solid var(--border)", marginBottom:12, overflow:"hidden" }}>
-          <button onClick={() => { setExpandedSection(open ? null : id); if (!open) fetchCityAI(c, id); }} style={{
+          <button onClick={() => { setExpandedSection(open ? null : id); }} style={{
             width:"100%", padding:"18px 20px", background:"none", border:"none", color:"var(--text)",
             display:"flex", justifyContent:"space-between", alignItems:"center", cursor:"pointer", fontFamily:"inherit", fontSize:14, fontWeight:600
           }}>
@@ -188,37 +200,17 @@ export default function Potential() {
           <p style={{ fontSize:13, color:"var(--text3)", marginTop:10 }}>Searching for real listings...</p>
         </div>
       );
-      if (!data) return <p style={{ color:"var(--text3)", fontSize:13, padding:"12px 0" }}>Tap to load real data</p>;
+      if (!data) return null;
       if (data === "error") return <p style={{ color:"var(--neg)", fontSize:13 }}>Failed to load — try again</p>;
-      if (data === "coming_soon") return (
-        <p style={{ color:"var(--text3)", fontSize:14, lineHeight:1.7 }}>
-          Live AI data arrives in Phase 5. This section will show real job listings, apartments, and a personalized day-in-the-life narrative.
-        </p>
-      );
       if (typeof data === "string") return <p style={{ color:"var(--text2)", fontSize:14, lineHeight:1.7, whiteSpace:"pre-wrap" }}>{data}</p>;
       if (!Array.isArray(data)) return <p style={{ color:"var(--text3)", fontSize:13 }}>No results found</p>;
       return <div style={{ display:"flex", flexDirection:"column", gap:10, paddingTop:12 }}>{data.map((item, i) => renderItem(item, i))}</div>;
     };
 
-    const ItemCard = ({ children, url, image }) => (
+    const ItemCard = ({ children }) => (
       <div style={{ background:"var(--surface)", borderRadius:12, border:"1px solid var(--border)", overflow:"hidden" }}>
-        {image && (
-          <div style={{ width:"100%", height:140, overflow:"hidden", position:"relative" }}>
-            <img src={image} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
-              onError={(e) => { e.target.style.display = "none"; e.target.parentElement.style.display = "none"; }} />
-          </div>
-        )}
         <div style={{ padding:"14px 16px" }}>
           {children}
-          {url && (
-            <a href={url} target="_blank" rel="noopener noreferrer" style={{
-              display:"inline-flex", alignItems:"center", gap:5, marginTop:10, fontSize:12, fontWeight:600,
-              color:"var(--accent)", textDecoration:"none", padding:"5px 12px", borderRadius:6,
-              background:"var(--accent-dim)", border:"1px solid rgba(110,231,183,0.15)", transition:"all 0.15s"
-            }}>
-              View listing ↗
-            </a>
-          )}
         </div>
       </div>
     );
@@ -304,9 +296,21 @@ export default function Potential() {
 
           {/* ── AI-Powered Sections ── */}
           <div style={{ marginTop:8 }}>
-            <p style={{ fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text3)", marginBottom:12, fontWeight:600 }}>
-              ⚡ Live data — powered by AI search
-            </p>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+              <p style={{ fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text3)", margin:0, fontWeight:600 }}>
+                ⚡ Live data — powered by AI search
+              </p>
+              <button
+                onClick={() => pullLiveData(c, profile)}
+                style={{
+                  padding:"8px 18px", background:"var(--accent)", color:"#08090C", border:"none",
+                  borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit",
+                  letterSpacing:"0.02em"
+                }}
+              >
+                Pull live data
+              </button>
+            </div>
 
             <Section id="dayinlife" icon="📖" title="A Day in Your Life">
               <AIList dataKey="dayinlife" renderItem={(text) => <p style={{ color:"var(--text2)", fontSize:14, lineHeight:1.8 }}>{text}</p>} />
@@ -314,58 +318,27 @@ export default function Potential() {
 
             <Section id="jobs" icon="💼" title={`${profile.profession} Jobs Available Now`}>
               <AIList dataKey="jobs" renderItem={(job, i) => (
-                <ItemCard key={i} url={job.url}>
+                <ItemCard key={i}>
                   <div style={{ fontWeight:700, fontSize:15, marginBottom:2, color:"var(--text)" }}>{job.title}</div>
                   <div style={{ fontSize:13, color:"var(--accent)", fontWeight:600 }}>{job.company}</div>
                   {job.salary && job.salary !== "Not listed" && <div style={{ ...mono, fontSize:13, color:"var(--accent2)", marginTop:6, fontWeight:600 }}>{job.salary}</div>}
                   {job.desc && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6, lineHeight:1.5 }}>{job.desc}</div>}
+                  {job.source && <div style={{ fontSize:11, color:"var(--text3)", marginTop:8, fontWeight:500 }}>{job.source}</div>}
                 </ItemCard>
               )} />
             </Section>
 
             <Section id={profile.housing === "rent" ? "housing_rent" : "housing_buy"} icon="🏠" title={profile.housing === "rent" ? "Apartments for Rent" : "Homes for Sale"}>
               <AIList dataKey={profile.housing === "rent" ? "housing_rent" : "housing_buy"} renderItem={(h, i) => (
-                <ItemCard key={i} url={h.url} image={h.image}>
+                <ItemCard key={i}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <span style={{ fontWeight:700, fontSize:15, color:"var(--text)" }}>{h.name || h.address || h.neighborhood}</span>
                     <span style={{ ...mono, fontSize:15, fontWeight:700, color:"var(--accent)", whiteSpace:"nowrap", marginLeft:8 }}>{h.price}</span>
                   </div>
                   {h.neighborhood && h.name && <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{h.neighborhood}</div>}
-                  <div style={{ fontSize:12, color:"var(--text2)", marginTop:4 }}>{h.beds} bed{h.sqft ? ` · ${h.sqft} sqft` : ""}</div>
+                  <div style={{ fontSize:12, color:"var(--text2)", marginTop:4 }}>{h.beds} bed{h.sqft ? ` · ${h.sqft}` : ""}</div>
                   {h.feature && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6 }}>✦ {h.feature}</div>}
-                </ItemCard>
-              )} />
-            </Section>
-
-            <Section id="nightlife" icon="🍸" title="Nightlife & Bars">
-              <AIList dataKey="nightlife" renderItem={(n, i) => (
-                <ItemCard key={i} url={n.url} image={n.image}>
-                  <div style={{ fontWeight:700, fontSize:15, color:"var(--text)" }}>{n.name}</div>
-                  <div style={{ fontSize:12, color:"var(--accent)", marginTop:3, fontWeight:500 }}>{n.type} · {n.neighborhood}</div>
-                  {n.known_for && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6, lineHeight:1.5 }}>{n.known_for}</div>}
-                </ItemCard>
-              )} />
-            </Section>
-
-            <Section id="outdoors" icon="🥾" title="Outdoor Activities & Nature">
-              <AIList dataKey="outdoors" renderItem={(o, i) => (
-                <ItemCard key={i} url={o.url} image={o.image}>
-                  <div style={{ fontWeight:700, fontSize:15, color:"var(--text)" }}>{o.name}</div>
-                  <div style={{ fontSize:12, color:"var(--accent)", marginTop:3, fontWeight:500 }}>{o.type} · {o.distance}</div>
-                  {o.desc && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6, lineHeight:1.5 }}>{o.desc}</div>}
-                </ItemCard>
-              )} />
-            </Section>
-
-            <Section id="food" icon="🍜" title="Best Restaurants">
-              <AIList dataKey="food" renderItem={(f, i) => (
-                <ItemCard key={i} url={f.url} image={f.image}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                    <span style={{ fontWeight:700, fontSize:15, color:"var(--text)" }}>{f.name}</span>
-                    <span style={{ fontSize:12, color:"var(--accent2)", ...mono, fontWeight:600 }}>{f.price}</span>
-                  </div>
-                  <div style={{ fontSize:12, color:"var(--text2)", marginTop:3 }}>{f.cuisine} · {f.neighborhood}</div>
-                  {f.special && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6, fontStyle:"italic", lineHeight:1.5 }}>{f.special}</div>}
+                  {h.source && <div style={{ fontSize:11, color:"var(--text3)", marginTop:8, fontWeight:500 }}>{h.source}</div>}
                 </ItemCard>
               )} />
             </Section>
