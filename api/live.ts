@@ -70,7 +70,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
           content: buildPrompt(category, cityName, profession, age),
         },
       ],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tools: [
         {
           type: 'web_search_20250305',
