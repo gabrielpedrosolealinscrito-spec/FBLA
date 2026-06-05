@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 05
-current_plan: 2
+current_plan: 4
 status: executing
 stopped_at: Completed 05-03-PLAN.md — fetchLive.js and PotentialApp rewire, full suite GREEN
 last_updated: "2026-06-05T23:54:34.420Z"
@@ -34,7 +34,7 @@ Plan: 4 of 5
 ## Progress
 
 **Phases Complete:** 3 — Phase 1 (product track) + Phases 9 & 10 (pitch track, both complete 2026-05-31) · Phase 2 planned, ready to execute (product track)
-**Current Plan:** 2
+**Current Plan:** 4
 
 ## Decisions
 
@@ -78,7 +78,7 @@ Plan: 4 of 5
 
 ## Blockers
 
-- **[05-01 BLOCKER]** Lisbon/London city key mismatch: `demo-results.json` uses `"Lisbon, Portugal"` keys (D-06 working assumption) but `shared/data/cities.ts` only has `"London, UK"` as the international city. At runtime `goldenPath[category]["London, UK"]` → `undefined` → `[]`. The offline fallback for the international city renders blank — violates FOUND-04/SC4/LIVE-04. Must be reconciled before Plans 02-04 can satisfy LIVE-04 for the international city. Resolution: either add a `"Lisbon, Portugal"` entry to cities.ts or update golden-path keys to `"London, UK"`.
+None — the Lisbon/London blocker (05-01) was resolved in Plan 01: demo-results.json is keyed "London, UK"; countryFor suffix map handles UK→GB. fetchCategoryLive uses city.name verbatim. LIVE-04 satisfied for international city (Plan 03 complete).
 
 ## Accumulated Context
 
