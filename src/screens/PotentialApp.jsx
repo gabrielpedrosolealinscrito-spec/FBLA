@@ -9,6 +9,7 @@ import Visa from './Visa.jsx';
 import LockGate from '../components/LockGate.jsx';
 import DemoTierSwitcher from '../components/DemoTierSwitcher.jsx';
 import RunsBadge from '../components/RunsBadge.jsx';
+import PricingModal from '../components/PricingModal.jsx';
 import { canAccess } from '../../shared/types';
 
 // ═══════════════════════════════════════════
@@ -459,11 +460,18 @@ export default function Potential() {
   return null;
   }; // end renderScreen
 
-  // ── Root return — DemoTierSwitcher renders on top of every screen ──
-  // presenterMode toggles via corner triple-tap; hidden by default (D-05).
+  // ── Root return — overlays render on top of every screen ──
+  // PricingModal: opened by any locked padlock (LockGate onUnlock → setModalOpen(true)).
+  // DemoTierSwitcher: presenterMode toggles via corner triple-tap; hidden by default (D-05).
   return (
     <>
       {renderScreen()}
+      <PricingModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onTier={setTier}
+        currentTier={tier}
+      />
       <DemoTierSwitcher tier={tier} onTier={setTier} visible={presenterMode} />
     </>
   );
