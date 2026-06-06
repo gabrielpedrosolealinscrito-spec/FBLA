@@ -63,6 +63,14 @@ const unknownCitizenshipProfile: Profile = {
   citizenship: 'XX',
 };
 
+// Real quiz value: the capture layer (Quiz.jsx) emits the human-readable label
+// "US Citizen", NOT the registry code "US". Locks the normalization so the wired
+// flow surfaces the authored pathways instead of the skeleton (VISA-02 regression).
+const realQuizUSProfile: Profile = {
+  ...baseProfile,
+  citizenship: 'US Citizen',
+};
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('selectVisaPathways — flagship model (VISA-01/VISA-02)', () => {
@@ -81,6 +89,14 @@ describe('selectVisaPathways — flagship model (VISA-01/VISA-02)', () => {
     expect(resultsUK).toHaveLength(2);
     expect(resultsPortugal).toHaveLength(2);
     expect(resultsCanada).toHaveLength(2);
+  });
+
+  it('normalizes the real quiz label "US Citizen" → returns both pathways (length 2), not skeleton', () => {
+    const results = selectVisaPathways(realQuizUSProfile, 'UK');
+    expect(results).toHaveLength(2);
+    const countries = results.map((r) => r.pathway.destinationCountry);
+    expect(countries).toContain('Portugal');
+    expect(countries).toContain('Canada');
   });
 
   it('returns generic skeleton (length 1) for unlisted citizenship "XX"', () => {

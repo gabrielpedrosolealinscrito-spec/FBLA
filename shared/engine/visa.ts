@@ -146,11 +146,34 @@ function computeGradedFit(pathway: VisaPathway, profile: Profile): GradedFit {
  * @param matchedCountry - Top matched destination country — skeleton label only, NOT a filter
  * @returns                VisaScreenerResult[] with pathway + graded fit per pathway
  */
+/**
+ * Quiz → registry citizenship normalization.
+ * The capture layer (Quiz.jsx) emits human-readable labels ("US Citizen",
+ * "British", …); VISA_PATHWAYS is keyed by short codes ("US", "UK", …). Without
+ * this map a real completed profile (citizenship="US Citizen") misses the registry
+ * and falls back to GENERIC_SKELETON — the authored flagship pathways never
+ * surface (VISA-02). Mirrors CITIZENSHIP_KEY in src/lib/matchEngine.js. Values
+ * already in code form (e.g. "US" / "XX" from tests) pass through unchanged.
+ */
+const CITIZENSHIP_KEY: Record<string, string> = {
+  'US Citizen': 'US',
+  Canadian: 'CA',
+  British: 'UK',
+  Australian: 'AU',
+  'EU Citizen': 'EU',
+  Indian: 'IN',
+  Mexican: 'MX',
+  Filipino: 'PH',
+  Brazilian: 'BR',
+  Nigerian: 'NG',
+};
+
 export function selectVisaPathways(
   profile: Profile,
   matchedCountry: string,   // accent-emphasis / skeleton-label signal only — NOT a filter
 ): VisaScreenerResult[] {
-  const citizenship = profile.citizenship || 'US';
+  const rawCitizenship = profile.citizenship || 'US';
+  const citizenship = CITIZENSHIP_KEY[rawCitizenship] ?? rawCitizenship;
   const pathways = VISA_PATHWAYS[citizenship];
 
   if (!pathways || pathways.length === 0) {
