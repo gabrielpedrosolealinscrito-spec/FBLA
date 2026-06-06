@@ -59,9 +59,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Freemium Tier Gate
 
-- [ ] **TIER-01**: Free tier shows a minimal teaser (that a #1 match exists); deeper results and detail sections are visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style)
-- [ ] **TIER-02**: Basic ($0.99, 1 run) / Plus ($9.99, 3 runs) / Premium ($29.99, unlimited runs) tiers each unlock the correct run-based feature set, demonstrable by switching tier state in the UI
-- [ ] **TIER-03**: Tier-locked features display a clear "what you unlock" upsell, with Plus positioned as the primary upsell target
+- [x] **TIER-01**: Free tier shows a minimal teaser (that a #1 match exists); deeper results and detail sections are visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style)
+- [x] **TIER-02**: Basic ($0.99, 1 run) / Plus ($9.99, 3 runs) / Premium ($29.99, unlimited runs) tiers each unlock the correct run-based feature set, demonstrable by switching tier state in the UI
+- [x] **TIER-03**: Tier-locked features display a clear "what you unlock" upsell, with Plus positioned as the primary upsell target
 
 ### Pitch Package (what the judges score)
 
@@ -129,9 +129,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | VISA-02 | Phase 7: Visa Concierge | Complete |
 | VISA-03 | Phase 7: Visa Concierge | Complete |
 | VISA-04 | Phase 7: Visa Concierge | Pending |
-| TIER-01 | Phase 8: Freemium Tier Gate | Pending |
-| TIER-02 | Phase 8: Freemium Tier Gate | Pending |
-| TIER-03 | Phase 8: Freemium Tier Gate | Pending |
+| TIER-01 | Phase 8: Freemium Tier Gate | Complete |
+| TIER-02 | Phase 8: Freemium Tier Gate | Complete |
+| TIER-03 | Phase 8: Freemium Tier Gate | Complete |
 | PITCH-01 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-02 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-03 | Phase 9: Pitch — Business Substance | Complete |

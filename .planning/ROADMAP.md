@@ -239,7 +239,7 @@ Plans:
 
 **Wave 0**
 
-- [ ] 08-01-PLAN.md — Tier-gate contract (canAccess/TIER_FEATURES/TIER_RUNS_MAP) + RED test scaffold + pitch doc-sync (TIER-01/02/03)
+- [x] 08-01-PLAN.md — Tier-gate contract (canAccess/TIER_FEATURES/TIER_RUNS_MAP) + RED test scaffold + pitch doc-sync (TIER-01/02/03)
 
 **Wave 1** *(blocked on Wave 0)*
 
@@ -305,6 +305,6 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 4/5 | In Progress|  |
 | 7. Visa Concierge | 3/4 | In Progress|  |
-| 8. Freemium Tier Gate | 0/TBD | Not started | - |
+| 8. Freemium Tier Gate | 1/4 | In Progress|  |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
