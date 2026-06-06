@@ -1,8 +1,8 @@
 ---
 phase: 6
 slug: relocation-roadmap
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-05
 ---
@@ -36,17 +36,20 @@ created: 2026-06-05
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 0 | ROAD-01 | — | N/A | unit | `npx vitest run shared/engine/roadmap.test.ts -t "covered pair"` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ROAD-01 | — | N/A | unit | `npx vitest run shared/engine/roadmap.test.ts -t "threads numbers"` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ROAD-01 / D-07 | — | N/A | unit | `npx vitest run shared/engine/roadmap.test.ts -t "fallback"` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ROAD-01 / D-02 | — | Honest deficit reframe, no faked timeline | unit | `npx vitest run shared/engine/roadmap.test.ts -t "negative savings"` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ROAD-03 | — | Pure/offline render | unit | `npx vitest run shared/engine/roadmap.test.ts -t "offline deterministic"` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | ROAD-02 / D-05 | T-enrich-tamper | Enrich preserves authored label/sourceUrl/order/count | unit | `npx vitest run shared/engine/roadmap.test.ts -t "enrich preserves authored"` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | VISA-04 | T-UPL | UPL line + Premium teaser, no legal-advice phrasing | unit | `npx vitest run shared/engine/roadmap.test.ts -t "visa UPL"` | ❌ W0 | ⬜ pending |
+RED tests are all authored in Plan 01 (`06-01-01`, Wave 0). The GREEN column names the plan/wave that makes each test pass.
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky. Task IDs assigned once PLAN.md files are written.*
+| Test (RED in 06-01-01) | GREEN in | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
+|------------------------|----------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
+| 06-01-01 | 06-02 | 1 | ROAD-01 | — | N/A | unit | `npx vitest run shared/engine/roadmap.test.ts -t "covered pair"` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 06-02 | 1 | ROAD-01 | — | N/A | unit | `npx vitest run shared/engine/roadmap.test.ts -t "threads numbers"` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 06-02 | 1 | ROAD-01 / D-07 | — | N/A | unit | `npx vitest run shared/engine/roadmap.test.ts -t "fallback"` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 06-02 | 1 | ROAD-01 / D-02 | — | Honest deficit reframe, no faked timeline | unit | `npx vitest run shared/engine/roadmap.test.ts -t "negative savings"` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 06-02 | 1 | ROAD-03 | — | Pure/offline render | unit | `npx vitest run shared/engine/roadmap.test.ts -t "offline deterministic"` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 06-02 | 1 | ROAD-02 / D-05 | T-enrich-tamper | Enrich preserves authored label/sourceUrl/order/count | unit | `npx vitest run shared/engine/roadmap.test.ts -t "enrich preserves authored"` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 06-03 | 2 | VISA-04 | T-UPL | UPL line + Premium teaser, no legal-advice phrasing | unit | `npx vitest run shared/engine/roadmap.test.ts -t "visa UPL"` | ❌ W0 | ⬜ pending |
+| 06-04-04 (manual) | 06-04 | 3 | ROAD-03 (PDF) | — | Print CSS hides chrome; sections don't split | manual | browser print-preview (see Manual-Only below) | ❌ W0 | ⬜ pending |
+
+*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky. "File Exists ❌ W0" = the test file is created in Wave 0 (Plan 01), not yet on disk at planning time.*
 
 ---
 
@@ -68,11 +71,11 @@ created: 2026-06-05
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (7 RED tests in 06-01-01)
+- [x] No watch-mode flags (`vitest run`, not watch)
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-05 (plan-checker verified Plan 01 authors the 7 canonical RED tests with matching `-t` names; the one manual-only item, PDF print preview, is a blocking human-verify checkpoint in Plan 04 Task 4). `wave_0_complete` flips true once Plan 01 executes.

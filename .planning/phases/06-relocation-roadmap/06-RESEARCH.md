@@ -381,19 +381,20 @@ export function acceptEnrichment(
 | A5 | The #1 US match for the finalized persona is what `rankCities()` returns (not assumed to be Austin) | Pattern 1, Code Examples | Authoring the US roadmap against the wrong city = generic fallback at demo. Run the engine for the pinned persona and author against the actual `results[0]`. |
 | A6 | Phase 5 `scripts/capture-golden-path` will be on the working branch before the enrich-bake runs | Don't Hand-Roll, Env Availability | It is NOT present on this branch today (`scripts/` is empty). Enrich-bake (D-04) cannot run until it lands. Enrich is optional, so this does not block ROAD-01..03. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Lisbon vs London for the international golden-path roadmap.**
+> Dispositioned at plan-phase 2026-06-05 by the orchestrator/user before planning. All three are resolved for Phase 6's purposes.
+
+1. **Lisbon vs London for the international golden-path roadmap. — RESOLVED: London/UK.**
    - What we know: `cities.ts` has only US + London/UK; `FINANCIAL_MODELS` = {us, uk-2026}; `demo-profile.json` cities = Austin + London. CONTEXT calls Lisbon a "working assumption — confirm against the demo script." `[VERIFIED: cities.ts, financial.ts, demo-profile.json]`
-   - What's unclear: whether the rehearsed pitch demo narrates Lisbon or London.
-   - Recommendation: **Author against London/UK** (the buildable, Phase-5-pinned pair). Surface to the demo-script owner; if Lisbon is mandatory, that's a Phase 4 dependency (Portugal city + `pt-2026` model), not a Phase 6 task.
+   - **RESOLVED:** User confirmed **London/UK** (the buildable, Phase-5-pinned pair). Lisbon/Portugal is explicitly OUT of Phase 6 scope (would require a Phase 4 Portugal city + `pt-2026` model). The visa-section headline is a UK pathway, not Portugal D8. Locked in Plan 03.
 
-2. **Demo persona finalization (shared blocker with Phase 5).**
+2. **Demo persona finalization (shared blocker with Phase 5). — RESOLVED as provisional; does not block Plans 01-04.**
    - What we know: `demo-profile.json` is marked provisional (`Software Engineer / 28 / rent`).
-   - What's unclear: final profession/age/housing/citizenship — these drive every threaded number and the #1 US match.
-   - Recommendation: Pin the persona before authoring persona-specific steps and before any capture/bake. Author the generic fallback (D-07) and the `buildRoadmap` compiler first (persona-independent), so persona-pinning only gates the *content*, not the engine code.
+   - **RESOLVED:** Persona remains provisional, but this only gates the OPTIONAL Plan 05 (enrich bake) and the demo narrative. Plans 02-04 are persona-independent (`US.US`/`US.UK` keyed by destination *country*; `buildRoadmap` resolves the top city via `rankCities().results[0]`). Build the compiler + generic fallback + authored content first; pin the persona before the optional bake.
 
-3. **Roadmap UI placement** (Claude's discretion / UI-phase): dedicated `Roadmap` screen vs a section inside the results detail, and the nav from results. Not a research blocker.
+3. **Roadmap UI placement — RESOLVED: Plan 04 dedicated screen.**
+   - Claude's discretion / UI-phase. **RESOLVED:** Plan 04 builds a dedicated `Roadmap.jsx` screen reachable from results/city-detail (UI-SPEC was intentionally skipped; follows `src/screens/*` conventions). Not a research blocker.
 
 ## Environment Availability
 
