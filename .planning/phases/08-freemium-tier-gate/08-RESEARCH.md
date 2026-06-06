@@ -448,148 +448,155 @@ function PricingModal({ open, onClose, onTier, currentTier }) {
   if (!open) return null;
 
   return (
-    /* Full-screen dim layer — rgba only, no backdrop-filter here (GPU cost) */
-    <div onClick={onClose} style={{
-      position: "fixed", inset: 0, zIndex: 9998,
-      background: "rgba(4,5,8,0.80)", display: "flex",
-      alignItems: "center", justifyContent: "center", padding: "24px 16px"
-    }}>
-      {/* Modal card — stop propagation so clicks inside don't close */}
-      <div onClick={e => e.stopPropagation()} style={{
-        background: "rgba(13,16,22,0.96)", backdropFilter: "blur(20px)",
-        border: "1px solid rgba(243,237,225,0.1)", borderRadius: 20,
-        maxWidth: 880, width: "100%", maxHeight: "90vh", overflowY: "auto",
-        padding: "40px 32px 32px"
+    <>
+      {/* Scoped responsive styles — matches ResultsMap.jsx scoped-<style> pattern */}
+      <style>{`
+        .pm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .pm-testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+        @media (max-width: 520px) {
+          .pm-grid { grid-template-columns: 1fr; }
+          .pm-testimonials { grid-template-columns: 1fr; }
+          .pm-plus-card { order: -1; }
+        }
+      `}</style>
+      {/* Full-screen dim layer — rgba only, no backdrop-filter here (GPU cost) */}
+      <div onClick={onClose} style={{
+        position: "fixed", inset: 0, zIndex: 9998,
+        background: "rgba(4,5,8,0.80)", display: "flex",
+        alignItems: "center", justifyContent: "center", padding: "24px 16px"
       }}>
-        {/* Header */}
-        <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: "#f3ede1",
-          textAlign: "center", marginBottom: 8 }}>
-          Unlock Your Full Potential
-        </h2>
-        <p style={{ textAlign: "center", color: "rgba(243,237,225,0.5)",
-          fontFamily: "'Manrope', sans-serif", fontSize: 14, marginBottom: 32 }}>
-          Credits never expire · No subscription · No commitment
-        </p>
-
-        {/* 4-column tier grid */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12,
-          /* Mobile override via inline media is not possible; handle via className or JS width check */
+        {/* Modal card — stop propagation so clicks inside don't close */}
+        <div onClick={e => e.stopPropagation()} style={{
+          background: "rgba(13,16,22,0.96)", backdropFilter: "blur(20px)",
+          border: "1px solid rgba(243,237,225,0.1)", borderRadius: 20,
+          maxWidth: 880, width: "100%", maxHeight: "90vh", overflowY: "auto",
+          padding: "40px 32px 32px"
         }}>
-          {TIERS_CONFIG.map(t => (
-            <div key={t.key} style={{
-              background: t.popular ? "rgba(226,181,107,0.06)" : "rgba(243,237,225,0.03)",
-              border: t.popular ? "1.5px solid rgba(226,181,107,0.5)" : "1px solid rgba(243,237,225,0.08)",
-              borderRadius: 14, padding: "20px 16px", position: "relative",
-              display: "flex", flexDirection: "column", gap: 12
-            }}>
-              {/* "Most popular" badge (D-08) */}
-              {t.popular && (
-                <div style={{
-                  position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
-                  background: "#e2b56b", color: "#070a11", fontSize: 10, fontWeight: 700,
-                  padding: "3px 12px", borderRadius: 100, letterSpacing: "0.08em",
-                  fontFamily: "'Manrope', sans-serif", whiteSpace: "nowrap"
-                }}>
-                  MOST POPULAR
+          {/* Header */}
+          <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: "#f3ede1",
+            textAlign: "center", marginBottom: 8 }}>
+            Unlock Your Full Potential
+          </h2>
+          <p style={{ textAlign: "center", color: "rgba(243,237,225,0.5)",
+            fontFamily: "'Manrope', sans-serif", fontSize: 14, marginBottom: 32 }}>
+            Credits never expire · No subscription · No commitment
+          </p>
+
+          {/* 4-column tier grid — responsive via .pm-grid / @media (max-width:520px) above */}
+          <div className="pm-grid">
+            {TIERS_CONFIG.map(t => (
+              <div key={t.key} className={t.popular ? "pm-plus-card" : undefined} style={{
+                background: t.popular ? "rgba(226,181,107,0.06)" : "rgba(243,237,225,0.03)",
+                border: t.popular ? "1.5px solid rgba(226,181,107,0.5)" : "1px solid rgba(243,237,225,0.08)",
+                borderRadius: 14, padding: "20px 16px", position: "relative",
+                display: "flex", flexDirection: "column", gap: 12
+              }}>
+                {/* "Most popular" badge (D-08) */}
+                {t.popular && (
+                  <div style={{
+                    position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
+                    background: "#e2b56b", color: "#070a11", fontSize: 10, fontWeight: 700,
+                    padding: "3px 12px", borderRadius: 100, letterSpacing: "0.08em",
+                    fontFamily: "'Manrope', sans-serif", whiteSpace: "nowrap"
+                  }}>
+                    MOST POPULAR
+                  </div>
+                )}
+                <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 20, color: "#f3ede1" }}>
+                  {t.label}
                 </div>
-              )}
-              <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 20, color: "#f3ede1" }}>
-                {t.label}
-              </div>
-              <div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26,
-                  color: t.popular ? "#e2b56b" : "#f3ede1" }}>
-                  {t.price}
-                </span>
-                <span style={{ fontSize: 12, color: "rgba(243,237,225,0.4)",
-                  fontFamily: "'Manrope', sans-serif", marginLeft: 6 }}>
-                  {t.priceNote}
-                </span>
-              </div>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0,
-                display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
-                {t.features.map(f => (
-                  <li key={f} style={{ fontSize: 13, color: "rgba(243,237,225,0.65)",
-                    fontFamily: "'Manrope', sans-serif", paddingLeft: 16, position: "relative" }}>
-                    <span style={{ position: "absolute", left: 0, color: "#e2b56b" }}>✓</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              {t.ctaAction ? (
-                <button onClick={() => { onTier(t.ctaAction); onClose(); }} style={{
-                  padding: "10px 0", borderRadius: 8, border: "none", cursor: "pointer",
-                  background: t.popular ? "#e2b56b" : "rgba(243,237,225,0.08)",
-                  color: t.popular ? "#070a11" : "#f3ede1",
-                  fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 14
-                }}>
-                  {t.cta}
-                </button>
-              ) : (
-                <div style={{ padding: "10px 0", textAlign: "center",
-                  fontSize: 13, color: "rgba(243,237,225,0.3)",
-                  fontFamily: "'Manrope', sans-serif" }}>
-                  {currentTier === "free" ? "Current plan" : t.cta}
+                <div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26,
+                    color: t.popular ? "#e2b56b" : "#f3ede1" }}>
+                    {t.price}
+                  </span>
+                  <span style={{ fontSize: 12, color: "rgba(243,237,225,0.4)",
+                    fontFamily: "'Manrope', sans-serif", marginLeft: 6 }}>
+                    {t.priceNote}
+                  </span>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Trust microcopy (D-10) */}
-        <p style={{ textAlign: "center", color: "rgba(243,237,225,0.35)",
-          fontFamily: "'Manrope', sans-serif", fontSize: 12, marginTop: 20 }}>
-          {/* PENDING OQ-1: include or remove the money-back guarantee line before demo */}
-          {/* Option A (if OQ-1 resolves to include): "30-day money-back guarantee · Credits never expire · No subscription" */}
-          {/* Option B (if OQ-1 resolves to drop): "Credits never expire · No subscription · No commitment" */}
-          Credits never expire · No subscription · No commitment
-        </p>
-
-        {/* Testimonial cards (D-11) */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 12, marginTop: 28 }}>
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} style={{
-              background: "rgba(243,237,225,0.03)",
-              border: "1px solid rgba(243,237,225,0.06)",
-              borderRadius: 12, padding: "16px 14px"
-            }}>
-              <div style={{ color: "#e2b56b", fontSize: 13, marginBottom: 8 }}>
-                {"★".repeat(t.stars)}
+                <ul style={{ listStyle: "none", padding: 0, margin: 0,
+                  display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                  {t.features.map(f => (
+                    <li key={f} style={{ fontSize: 13, color: "rgba(243,237,225,0.65)",
+                      fontFamily: "'Manrope', sans-serif", paddingLeft: 16, position: "relative" }}>
+                      <span style={{ position: "absolute", left: 0, color: "#e2b56b" }}>✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                {t.ctaAction ? (
+                  <button onClick={() => { onTier(t.ctaAction); onClose(); }} style={{
+                    padding: "10px 0", borderRadius: 8, border: "none", cursor: "pointer",
+                    background: t.popular ? "#e2b56b" : "rgba(243,237,225,0.08)",
+                    color: t.popular ? "#070a11" : "#f3ede1",
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 14
+                  }}>
+                    {t.cta}
+                  </button>
+                ) : (
+                  <div style={{ padding: "10px 0", textAlign: "center",
+                    fontSize: 13, color: "rgba(243,237,225,0.3)",
+                    fontFamily: "'Manrope', sans-serif" }}>
+                    {currentTier === "free" ? "Current plan" : t.cta}
+                  </div>
+                )}
               </div>
-              <p style={{ fontSize: 13, color: "rgba(243,237,225,0.6)",
-                fontFamily: "'Manrope', sans-serif", lineHeight: 1.5, margin: 0 }}>
-                "{t.text}"
-              </p>
-              <p style={{ fontSize: 11, color: "rgba(243,237,225,0.3)",
-                fontFamily: "'Manrope', sans-serif", marginTop: 8, marginBottom: 0 }}>
-                — {t.name}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Trust microcopy (D-10) */}
+          <p style={{ textAlign: "center", color: "rgba(243,237,225,0.35)",
+            fontFamily: "'Manrope', sans-serif", fontSize: 12, marginTop: 20 }}>
+            {/* PENDING OQ-1: include or remove the money-back guarantee line before demo */}
+            {/* Option A (if OQ-1 resolves to include): "30-day money-back guarantee · Credits never expire · No subscription" */}
+            {/* Option B (if OQ-1 resolves to drop): "Credits never expire · No subscription · No commitment" */}
+            Credits never expire · No subscription · No commitment
+          </p>
+
+          {/* Testimonial cards (D-11) — responsive via .pm-testimonials / @media above */}
+          <div className="pm-testimonials">
+            {TESTIMONIALS.map((t, i) => (
+              <div key={i} style={{
+                background: "rgba(243,237,225,0.03)",
+                border: "1px solid rgba(243,237,225,0.06)",
+                borderRadius: 12, padding: "16px 14px"
+              }}>
+                <div style={{ color: "#e2b56b", fontSize: 13, marginBottom: 8 }}>
+                  {"★".repeat(t.stars)}
+                </div>
+                <p style={{ fontSize: 13, color: "rgba(243,237,225,0.6)",
+                  fontFamily: "'Manrope', sans-serif", lineHeight: 1.5, margin: 0 }}>
+                  "{t.text}"
+                </p>
+                <p style={{ fontSize: 11, color: "rgba(243,237,225,0.3)",
+                  fontFamily: "'Manrope', sans-serif", marginTop: 8, marginBottom: 0 }}>
+                  — {t.name}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Close */}
+          <button onClick={onClose} style={{
+            display: "block", margin: "24px auto 0",
+            background: "transparent", border: "none",
+            color: "rgba(243,237,225,0.35)", fontSize: 13, cursor: "pointer",
+            fontFamily: "'Manrope', sans-serif"
+          }}>
+            Dismiss
+          </button>
         </div>
-
-        {/* Mobile: testimonials stack (3-col breaks below ~480px; use JS or className breakpoint) */}
-
-        {/* Close */}
-        <button onClick={onClose} style={{
-          display: "block", margin: "24px auto 0",
-          background: "transparent", border: "none",
-          color: "rgba(243,237,225,0.35)", fontSize: 13, cursor: "pointer",
-          fontFamily: "'Manrope', sans-serif"
-        }}>
-          Dismiss
-        </button>
       </div>
-    </div>
+    </>
   );
 }
 ```
 
-**Mobile note:** The 4-column tier grid and 3-column testimonial grid both break below ~520px. Since this is inline-styles JSX (no CSS media query block), handle the responsive stack either by: (a) measuring `window.innerWidth` in a `useState` + `resize` listener, or (b) using a wrapper `<style>` tag scoped to the modal with a `@media` block. Option (b) is consistent with how `ResultsMap.jsx` handles media queries (scoped `<style>` tags inside the component). On mobile, bump Plus to `order: -1` so the recommended tier appears first in the stack.
+**Mobile:** Both grids respond via the `.pm-grid` / `.pm-testimonials` `@media (max-width: 520px)` block declared at the top of the component. Plus gets `className="pm-plus-card"` so `order: -1` bumps it to the top of the single-column stack on mobile. This is the scoped `<style>` tag pattern already used in `ResultsMap.jsx`.
 
 **OQ-1 slot:** The trust microcopy line is marked with a comment. Swap the copy once OQ-1 is resolved. This is the only task blocked by the conflict.
+
 
 ### Anti-Patterns to Avoid
 
