@@ -68,6 +68,7 @@ A second major risk is a **cross-doc conflict** that must be resolved before the
 | `TIER_FEATURES` visibility map | `shared/types.ts` (TypeScript) | — | Type contract lives at the typed boundary; feature map is static data |
 | `canAccess(active, required)` gate logic | `shared/types.ts` or `src/lib/tierGate.ts` | — | Pure function; TS-testable; no UI |
 | `<LockGate>` wrapper component | `src/components/LockGate.jsx` | — | JSX UI layer; inline-style idiom matching existing screens |
+| **Rank-gating (D-02 blurred stack)** | **`ResultsMap.jsx`** | — | **ResultsMap renders the city list and owns the ranked-list cutoff. It renders the first N cards normally, then a single locked-blurred stack for the remainder. LockGate does not know about rank order.** |
 | `<DemoTierSwitcher>` | `src/components/DemoTierSwitcher.jsx` | — | Floating pill; driven by presenterMode bool; sets tier |
 | Pricing modal | `src/components/PricingModal.jsx` | — | Overlay; reuses body-lock + backdrop-filter panel idioms from Landing.jsx |
 | Runs badge | Header area in `PotentialApp.jsx` city-detail header | — | Header already exists; badge is additive |
@@ -83,17 +84,48 @@ This matrix is the spine of `TIER_FEATURES`. Every LockGate instance keys off it
 |-------------------|------|-------|------|---------|-----------|
 | #1 city name + match % | ✓ | ✓ | ✓ | ✓ | Always visible |
 | #1 city "why" + full financials | locked | ✓ | ✓ | ✓ | Section-level |
-| Cities #2–3 full (name + why + financials) | locked | ✓ | ✓ | ✓ | Rank-gated |
-| Cities #4+ | locked | locked | ✓ | ✓ | Rank-gated |
-| Live-AI layer (jobs, housing, day-in-life) | locked | locked | ✓ | ✓ | Section-level |
-| Relocation Roadmap | locked | locked | ✓ | ✓ | Section-level |
-| Visa Concierge | locked | locked | locked | ✓ | Section-level |
+| Cities #2–3 full (name + why + financials) | locked | ✓ | ✓ | ✓ | Rank-gated (ResultsMap) |
+| Cities #4+ | locked | locked | ✓ | ✓ | Rank-gated (ResultsMap) |
+| Live-AI layer (jobs, housing, day-in-life) | locked | locked | ✓ | ✓ | Section-level (LockGate) |
+| Relocation Roadmap | locked | locked | ✓ | ✓ | Section-level (LockGate) |
+| Visa Concierge | locked | locked | locked | ✓ | Section-level (LockGate) |
 
 **Critical architecture note:** Gate granularity is NOT uniform. Two modes are needed:
-1. **Section-level gate** — `requiredTier` prop, locks the entire section (roadmap, visa, live-AI, city "why"/financials for Free).
-2. **Rank-gate** — `showUpTo: N` prop, renders the first N cities normally and blurs the rest. Free = 1, Basic = 3, Plus = all.
+1. **Section-level gate** (`<LockGate requiredTier>`) — locks an entire section. Owned by `LockGate`. Handles: roadmap, visa, live-AI, city "why"/financials for Free.
+2. **Rank-gate** — cuts the city list at N items and blurs the remainder into a "blurred stack with count." Owned by **`ResultsMap`** directly, not by `LockGate`. Free = show top 1, Basic = show top 3, Plus/Premium = show all.
 
-`TIER_FEATURES` must express both modes. `<LockGate>` must handle both. The rank-gate mode is where the "blurred stack with count" (D-02) lives.
+`TIER_FEATURES` must express both modes. `<LockGate>` handles section-level gating. `ResultsMap` reads `TIER_FEATURES.rankShowUpTo[tier]` and renders accordingly.
+
+---
+
+## SECTIONS Manifest (frosted-skeleton fallback)
+
+**Why this exists:** The roadmap and visa sections are not yet built on the current branch. LockGate must still render them — locked for Free/Basic, and as a frosted skeleton placeholder when unlocked but the component doesn't exist yet. Without a manifest, CityDetail would need conditional logic for each section, and unbuilt sections would simply not render at all.
+
+**How it works:** A static `SECTIONS` map in `CityDetail.jsx` (or as a shared constant) lists every expected section, the component to render if built, and the `requiredTier`:
+
+```javascript
+// src/screens/CityDetail.jsx or shared/sections.ts
+// Each entry: { key, label, requiredTier, Component }
+// Component is null when the screen isn't built yet — LockGate renders frosted skeleton
+const SECTIONS = [
+  { key: "financials",  label: "Financial Snapshot",  requiredTier: "basic",   Component: FinancialDetail },
+  { key: "liveAI",      label: "Live AI Data",         requiredTier: "plus",    Component: LiveAISection },
+  { key: "roadmap",     label: "Relocation Roadmap",   requiredTier: "plus",    Component: null }, // not built yet
+  { key: "visa",        label: "Visa Concierge",       requiredTier: "premium", Component: null }, // not built yet
+];
+
+// Renderer:
+SECTIONS.map(({ key, label, requiredTier, Component }) => (
+  <LockGate key={key} tier={tier} requiredTier={requiredTier} lockedLabel={`Unlock ${label}`} onUnlock={openModal}>
+    {Component ? <Component city={selectedCity} profile={profile} tier={tier} /> : null}
+  </LockGate>
+))
+```
+
+**The contract:** `LockGate` receives `children` as null when the component is absent. It renders `<FrostedSkeleton>` in that case. When the real component ships in a future phase, you swap `null` for the import — the gate wrapping does not change.
+
+This pattern means Phase 8 can build the complete gate layer with placeholder skeletons, and each future phase (7, 6) drops in real components with zero gate-layer changes.
 
 ---
 
@@ -133,8 +165,8 @@ PotentialApp (App root)
   ├── [tier: Tier]          ← app-level state (FREE default)
   ├── [presenterMode: bool] ← app-level state (false default)
   │
-  ├── gesture listener (keydown/pointerdown at root, persists across steps)
-  │        └── triple-tap corner → setPresenterMode(true)
+  ├── gesture listener (click + touchstart at root, persists across steps)
+  │        └── triple-tap bottom-right corner (80x80px) → setPresenterMode(m => !m)
   │
   ├── <RunsBadge tier={tier} />      ← header, always mounted when step >= 2
   │
@@ -150,26 +182,30 @@ PotentialApp (App root)
   │       currentTier={tier} />
   │
   └── [step-rendered screen]
-        ResultsMap / CityDetail / Roadmap / Visa
-          └── <LockGate tier={tier} requiredTier="plus" | showUpTo={N}>
-                  {children}              ← real content if built
-                  OR frosted-skeleton     ← if children === null/undefined
+        ResultsMap
+          ├── Top N cities (normal render, N = TIER_FEATURES.rankShowUpTo[tier])
+          └── Blurred stack + count (rank-gate — owned by ResultsMap, not LockGate)
+
+        CityDetail
+          └── SECTIONS.map → <LockGate tier requiredTier>
+                  {Component ?? null}   ← null → FrostedSkeleton inside LockGate
               </LockGate>
 ```
 
 Data flow:
 - User/presenter sets `tier` via DemoTierSwitcher
 - Every screen reads `tier` from prop or context
-- `<LockGate>` compares `tier` to `requiredTier` via `canAccess(tier, requiredTier)`
+- `<LockGate>` compares `tier` to `requiredTier` via `canAccess(tier, requiredTier)` for section-level gating
+- `ResultsMap` reads `TIER_FEATURES.rankShowUpTo[tier]` for rank-level gating
 - Locked: renders blur wrapper + padlock overlay + CTA
-- Unlocked: renders children directly
+- Unlocked: renders children; if children are null, renders FrostedSkeleton
 
 ### Recommended Project Structure
 
 ```
 src/
 ├── components/
-│   ├── LockGate.jsx         # blur wrapper + padlock overlay (dual-mode)
+│   ├── LockGate.jsx         # blur wrapper + padlock overlay (dual-mode: blur real / frosted skeleton)
 │   ├── DemoTierSwitcher.jsx # floating segmented pill (presenterMode-gated)
 │   ├── PricingModal.jsx     # 4-tier pricing overlay
 │   └── RunsBadge.jsx        # header badge: "Plus · 2 of 3 runs left"
@@ -201,42 +237,63 @@ This function is a pure TS utility — test it exhaustively with Vitest.
 ### Pattern 2: LockGate Component (dual-mode)
 
 **What:** Wraps any section. Blurs real children when locked; renders frosted skeleton when children are absent.
-**When to use:** Every section gated by tier. Accepts both `requiredTier` (section-level) and `showUpTo` (rank-gate) modes.
+**When to use:** Every section gated by tier. Accepts `requiredTier` (section-level gating). Does NOT handle rank-gating — that is ResultsMap's job.
 
 ```jsx
 // Source: pattern derived from existing blur idioms in ResultsMap.jsx and Landing.jsx [VERIFIED: codebase]
 // src/components/LockGate.jsx
 
-function LockGate({ tier, requiredTier, showUpTo, lockedLabel, onUnlock, children }) {
-  const locked = requiredTier
-    ? !canAccess(tier, requiredTier)
-    : false; // rank-gate mode handled separately in calling component
+function LockGate({ tier, requiredTier, lockedLabel, onUnlock, children }) {
+  const locked = !canAccess(tier, requiredTier);
+  const [animating, setAnimating] = React.useState(false);
 
-  if (!locked) return children ?? null;
+  // Track unlock: when locked transitions false, briefly animate
+  React.useEffect(() => {
+    if (!locked) { setAnimating(true); setTimeout(() => setAnimating(false), 450); }
+  }, [locked]);
+
+  if (!locked && !animating) return children ?? null;
 
   const hasRealContent = Boolean(children);
+  const blurAmount = locked ? "8px" : "0px";
+  const overlayOpacity = locked ? 1 : 0;
+
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", overflow: "hidden", borderRadius: 14 }}>
       {/* Layer 1: blurred real content OR frosted skeleton */}
       <div style={{
-        filter: "blur(8px)",
-        userSelect: "none", pointerEvents: "none",
-        transition: "filter 0.4s ease",  // D-09 blur-dissolve
-        willChange: "filter"
+        filter: `blur(${blurAmount})`, userSelect: "none", pointerEvents: "none",
+        transition: "filter 0.42s ease", willChange: animating ? "filter" : "auto"
       }}>
-        {hasRealContent
-          ? children
-          : <FrostedSkeleton />  /* placeholder when screen not built yet */
-        }
+        {hasRealContent ? children : <FrostedSkeleton />}
       </div>
       {/* Layer 2: padlock overlay + CTA */}
-      <PadlockOverlay label={lockedLabel} onUnlock={onUnlock} />
+      <div onClick={onUnlock} style={{
+        position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", gap: 12, cursor: "pointer",
+        background: "rgba(8,9,12,0.35)",
+        opacity: overlayOpacity, transition: "opacity 0.38s ease",
+        borderRadius: 14
+      }}>
+        {/* Inline padlock SVG — matches ResultsMap mk pin pattern [VERIFIED: codebase] */}
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="rgba(226,181,107,0.9)" strokeWidth="1.6" strokeLinecap="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span style={{
+          fontSize: 13, color: "rgba(243,237,225,0.8)",
+          fontFamily: "'Manrope', sans-serif", textAlign: "center", maxWidth: 200
+        }}>
+          {lockedLabel ?? "Unlock to see this"}
+        </span>
+      </div>
     </div>
   );
 }
 ```
 
-**Unlock animation:** To animate unlock (D-09), transition `filter: blur(8px)` → `filter: blur(0)` and overlay `opacity: 1` → `opacity: 0`. Use CSS transition on `filter` and `opacity` only — these are compositor-eligible, cause no layout shift, and perform well on battery. Never animate `height`, `margin`, `padding`, or `transform: translate` during the blur-dissolve.
+**Unlock animation (D-09):** Transition `filter: blur(8px)` → `filter: blur(0)` and overlay `opacity: 1` → `opacity: 0`. Use CSS transition on `filter` and `opacity` only — compositor-eligible, no layout shift, battery-safe. Never animate `height`, `margin`, `padding`, or `transform: translate` during the blur-dissolve.
 
 ### Pattern 3: CSS Blur — filter vs backdrop-filter
 
@@ -249,7 +306,7 @@ filter: blur(8px)            ← blurs the ELEMENT ITSELF — for locked content
 
 Both are in the codebase. Phase 8 uses `filter: blur()` for LockGate. [VERIFIED: codebase — `ResultsMap.jsx:37` uses `backdrop-filter:blur(12px)` on `.top`; `Landing.jsx:35` uses `backdrop-filter:blur(8px)` on `.ctl`]
 
-**Perf note on battery:** Large-area `filter: blur()` animation triggers GPU compositing. Bound the region — apply filter to the section wrapper, not the full screen. Add `will-change: filter` during the transition only (set it on lockout entry, remove it on completion). Test on the actual presenting device.
+**Perf note on battery:** Large-area `filter: blur()` animation triggers GPU compositing. Bound the region — apply filter to the section wrapper, not the full screen. Add `will-change: filter` during the transition only (set on lockout entry, remove on completion). Test on the actual presenting device.
 
 `prefers-reduced-motion` is already honored in Landing.jsx — use the same guard for the blur-dissolve:
 
@@ -273,7 +330,6 @@ const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 // Attach at PotentialApp root — NOT inside a screen — so it persists across step changes
 // Source: gesture pattern derived from Landing.jsx's window.addEventListener("keydown", onKey) [VERIFIED: codebase]
 
-const tapZone = { x: window.innerWidth - 80, y: window.innerHeight - 80 };
 let tapCount = 0, tapTimer = null;
 
 function onPresenterGesture(e) {
@@ -322,6 +378,219 @@ document.body.classList.remove("lp-locked"); // cleanup
 
 The pricing modal reuses these patterns: fixed overlay, backdrop-filter glass background, body scroll-lock on open, transition on `opacity`+`transform` for entry/exit animation.
 
+### Pattern 6: Pricing Modal (D-07, D-08, D-10, D-11)
+
+**What:** Full-screen 4-tier pricing overlay. Opens when any padlock is clicked. Shows all four tiers side-by-side, Plus badged "most popular", money-back + credits-never-expire microcopy (OQ-1 pending), and 3 testimonial cards below.
+
+**Layout:** CSS grid `1fr 1fr 1fr 1fr` on desktop; single-column with Plus first on mobile (<520px). Plus column has a glowing border + "most popular" badge to draw the eye.
+
+```jsx
+// Source: inline-style pattern; layout derived from 16Personalities pricing modal [VERIFIED: NOTES.md]
+// src/components/PricingModal.jsx
+
+const TIERS_CONFIG = [
+  {
+    key: "free",
+    label: "Free",
+    price: "$0",
+    priceNote: "forever",
+    features: ["#1 city match", "City name + match %"],
+    cta: "Current plan",
+    ctaAction: null,
+    popular: false,
+  },
+  {
+    key: "basic",
+    label: "Basic",
+    price: "$0.99",
+    priceNote: "1 run · never expires",
+    features: ["Top 3 cities fully revealed", "City \"why\" + core financials", "Offline-ready results"],
+    cta: "Get Basic",
+    ctaAction: "basic",
+    popular: false,
+  },
+  {
+    key: "plus",
+    label: "Plus",
+    price: "$9.99",
+    priceNote: "3 runs · never expires",
+    features: ["Full ranked list (all cities)", "Live AI: jobs, housing, day-in-life", "Relocation roadmap", "Everything in Basic"],
+    cta: "Get Plus",
+    ctaAction: "plus",
+    popular: true,  // D-08: "most popular" badge
+  },
+  {
+    key: "premium",
+    label: "Premium",
+    price: "$29.99",
+    priceNote: "unlimited runs",
+    features: ["Visa concierge + pathway comparison", "Document checklist + timeline", "Everything in Plus"],
+    cta: "Get Premium",
+    ctaAction: "premium",
+    popular: false,
+  },
+];
+
+// Testimonials (D-11) — static illustrative quotes; frame as "illustrative of target-user feedback"
+const TESTIMONIALS = [
+  { stars: 5, text: "Showed me Toronto was a better fit than Austin — saved me months of research.", name: "Alex M." },
+  { stars: 5, text: "The roadmap was the only tool that actually broke down what moving abroad costs.", name: "Priya K." },
+  { stars: 5, text: "Switched from Plus to Premium for the visa step. Worth every cent.", name: "Jordan T." },
+];
+
+function PricingModal({ open, onClose, onTier, currentTier }) {
+  React.useEffect(() => {
+    if (open) document.body.classList.add("lp-locked");
+    else document.body.classList.remove("lp-locked");
+    return () => document.body.classList.remove("lp-locked");
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    /* Full-screen dim layer — rgba only, no backdrop-filter here (GPU cost) */
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 9998,
+      background: "rgba(4,5,8,0.80)", display: "flex",
+      alignItems: "center", justifyContent: "center", padding: "24px 16px"
+    }}>
+      {/* Modal card — stop propagation so clicks inside don't close */}
+      <div onClick={e => e.stopPropagation()} style={{
+        background: "rgba(13,16,22,0.96)", backdropFilter: "blur(20px)",
+        border: "1px solid rgba(243,237,225,0.1)", borderRadius: 20,
+        maxWidth: 880, width: "100%", maxHeight: "90vh", overflowY: "auto",
+        padding: "40px 32px 32px"
+      }}>
+        {/* Header */}
+        <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 28, color: "#f3ede1",
+          textAlign: "center", marginBottom: 8 }}>
+          Unlock Your Full Potential
+        </h2>
+        <p style={{ textAlign: "center", color: "rgba(243,237,225,0.5)",
+          fontFamily: "'Manrope', sans-serif", fontSize: 14, marginBottom: 32 }}>
+          Credits never expire · No subscription · No commitment
+        </p>
+
+        {/* 4-column tier grid */}
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12,
+          /* Mobile override via inline media is not possible; handle via className or JS width check */
+        }}>
+          {TIERS_CONFIG.map(t => (
+            <div key={t.key} style={{
+              background: t.popular ? "rgba(226,181,107,0.06)" : "rgba(243,237,225,0.03)",
+              border: t.popular ? "1.5px solid rgba(226,181,107,0.5)" : "1px solid rgba(243,237,225,0.08)",
+              borderRadius: 14, padding: "20px 16px", position: "relative",
+              display: "flex", flexDirection: "column", gap: 12
+            }}>
+              {/* "Most popular" badge (D-08) */}
+              {t.popular && (
+                <div style={{
+                  position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
+                  background: "#e2b56b", color: "#070a11", fontSize: 10, fontWeight: 700,
+                  padding: "3px 12px", borderRadius: 100, letterSpacing: "0.08em",
+                  fontFamily: "'Manrope', sans-serif", whiteSpace: "nowrap"
+                }}>
+                  MOST POPULAR
+                </div>
+              )}
+              <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: 20, color: "#f3ede1" }}>
+                {t.label}
+              </div>
+              <div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26,
+                  color: t.popular ? "#e2b56b" : "#f3ede1" }}>
+                  {t.price}
+                </span>
+                <span style={{ fontSize: 12, color: "rgba(243,237,225,0.4)",
+                  fontFamily: "'Manrope', sans-serif", marginLeft: 6 }}>
+                  {t.priceNote}
+                </span>
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0,
+                display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                {t.features.map(f => (
+                  <li key={f} style={{ fontSize: 13, color: "rgba(243,237,225,0.65)",
+                    fontFamily: "'Manrope', sans-serif", paddingLeft: 16, position: "relative" }}>
+                    <span style={{ position: "absolute", left: 0, color: "#e2b56b" }}>✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              {t.ctaAction ? (
+                <button onClick={() => { onTier(t.ctaAction); onClose(); }} style={{
+                  padding: "10px 0", borderRadius: 8, border: "none", cursor: "pointer",
+                  background: t.popular ? "#e2b56b" : "rgba(243,237,225,0.08)",
+                  color: t.popular ? "#070a11" : "#f3ede1",
+                  fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: 14
+                }}>
+                  {t.cta}
+                </button>
+              ) : (
+                <div style={{ padding: "10px 0", textAlign: "center",
+                  fontSize: 13, color: "rgba(243,237,225,0.3)",
+                  fontFamily: "'Manrope', sans-serif" }}>
+                  {currentTier === "free" ? "Current plan" : t.cta}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Trust microcopy (D-10) */}
+        <p style={{ textAlign: "center", color: "rgba(243,237,225,0.35)",
+          fontFamily: "'Manrope', sans-serif", fontSize: 12, marginTop: 20 }}>
+          {/* PENDING OQ-1: include or remove the money-back guarantee line before demo */}
+          {/* Option A (if OQ-1 resolves to include): "30-day money-back guarantee · Credits never expire · No subscription" */}
+          {/* Option B (if OQ-1 resolves to drop): "Credits never expire · No subscription · No commitment" */}
+          Credits never expire · No subscription · No commitment
+        </p>
+
+        {/* Testimonial cards (D-11) */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 12, marginTop: 28 }}>
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} style={{
+              background: "rgba(243,237,225,0.03)",
+              border: "1px solid rgba(243,237,225,0.06)",
+              borderRadius: 12, padding: "16px 14px"
+            }}>
+              <div style={{ color: "#e2b56b", fontSize: 13, marginBottom: 8 }}>
+                {"★".repeat(t.stars)}
+              </div>
+              <p style={{ fontSize: 13, color: "rgba(243,237,225,0.6)",
+                fontFamily: "'Manrope', sans-serif", lineHeight: 1.5, margin: 0 }}>
+                "{t.text}"
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(243,237,225,0.3)",
+                fontFamily: "'Manrope', sans-serif", marginTop: 8, marginBottom: 0 }}>
+                — {t.name}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile: testimonials stack (3-col breaks below ~480px; use JS or className breakpoint) */}
+
+        {/* Close */}
+        <button onClick={onClose} style={{
+          display: "block", margin: "24px auto 0",
+          background: "transparent", border: "none",
+          color: "rgba(243,237,225,0.35)", fontSize: 13, cursor: "pointer",
+          fontFamily: "'Manrope', sans-serif"
+        }}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+**Mobile note:** The 4-column tier grid and 3-column testimonial grid both break below ~520px. Since this is inline-styles JSX (no CSS media query block), handle the responsive stack either by: (a) measuring `window.innerWidth` in a `useState` + `resize` listener, or (b) using a wrapper `<style>` tag scoped to the modal with a `@media` block. Option (b) is consistent with how `ResultsMap.jsx` handles media queries (scoped `<style>` tags inside the component). On mobile, bump Plus to `order: -1` so the recommended tier appears first in the stack.
+
+**OQ-1 slot:** The trust microcopy line is marked with a comment. Swap the copy once OQ-1 is resolved. This is the only task blocked by the conflict.
+
 ### Anti-Patterns to Avoid
 
 - **Slide animations on unlock:** Layout-property animations (`height`, `transform: translateY`) during unlock cause layout shift and feel janky on battery. Use only `filter` + `opacity` for the blur-dissolve (D-09).
@@ -331,6 +600,7 @@ The pricing modal reuses these patterns: fixed overlay, backdrop-filter glass ba
 - **Adding new npm packages:** Breaks the inline-style idiom. No Framer Motion, Radix, Headless UI, or icon libraries.
 - **Mounting gesture listener inside a screen component:** Landing.jsx's keydown lives on `window` but is inside a useEffect that unmounts. The presenter gesture must live at PotentialApp root to survive step changes.
 - **backdrop-filter on the pricing modal's full-screen overlay:** Fine for the modal panel itself, but if you apply it to the full-screen dim layer it's a GPU perf hazard. Use `rgba` background on the dim layer, `backdrop-filter` only on the modal card.
+- **Putting rank-gate logic inside LockGate:** LockGate does section-level gating. Rank-gating (the D-02 blurred stack of N remaining cities) belongs in ResultsMap, which owns the city list render order.
 
 ---
 
@@ -454,81 +724,26 @@ function DemoTierSwitcher({ tier, onTier, visible }) {
 }
 ```
 
-### LockGate — Blur Wrapper + Padlock Overlay
-
-```jsx
-// Source: filter pattern derived from existing inline-style idiom [VERIFIED: codebase pattern]
-// Padlock SVG: inline (18×18px), matches ResultsMap mk SVG pattern
-function LockGate({ tier, requiredTier, lockedLabel = "Unlock to see this", onUnlock, children }) {
-  const locked = !canAccess(tier, requiredTier);
-  const [animating, setAnimating] = React.useState(false);
-
-  // Track unlock: when locked transitions false, briefly animate
-  React.useEffect(() => {
-    if (!locked) { setAnimating(true); setTimeout(() => setAnimating(false), 450); }
-  }, [locked]);
-
-  if (!locked && !animating) return children ?? null;
-
-  const hasRealContent = Boolean(children);
-  const blurAmount = locked ? "8px" : "0px";
-  const overlayOpacity = locked ? 1 : 0;
-
-  return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 14 }}>
-      {/* Blurred content or skeleton */}
-      <div style={{
-        filter: `blur(${blurAmount})`, userSelect: "none", pointerEvents: "none",
-        transition: "filter 0.42s ease", willChange: animating ? "filter" : "auto"
-      }}>
-        {hasRealContent ? children : <FrostedSkeleton />}
-      </div>
-      {/* Padlock overlay */}
-      <div onClick={onUnlock} style={{
-        position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", gap: 12, cursor: "pointer",
-        background: "rgba(8,9,12,0.35)",
-        opacity: overlayOpacity, transition: "opacity 0.38s ease",
-        borderRadius: 14
-      }}>
-        {/* Inline padlock SVG */}
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-          stroke="rgba(226,181,107,0.9)" strokeWidth="1.6" strokeLinecap="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <span style={{
-          fontSize: 13, color: "rgba(243,237,225,0.8)",
-          fontFamily: "'Manrope', sans-serif", textAlign: "center", maxWidth: 200
-        }}>
-          {lockedLabel}
-        </span>
-      </div>
-    </div>
-  );
-}
-```
-
 ### FrostedSkeleton (frosted placeholder for unbuilt screens)
 
 ```jsx
 // Source: new — no existing skeleton; pattern derived from card idiom [ASSUMED]
+// Use static widths (not Math.random()) to avoid unstable render
 function FrostedSkeleton({ lines = 4 }) {
+  const WIDTHS = [85, 70, 90, 60]; // static — no re-render flicker
   return (
     <div style={{ padding: 24, borderRadius: 14, background: "var(--card)", border: "1px solid var(--border)" }}>
       {Array.from({ length: lines }).map((_, i) => (
         <div key={i} style={{
           height: 14, borderRadius: 6,
           background: "rgba(243,237,225,0.06)",
-          marginBottom: 10, width: `${70 + Math.random() * 20}%`
+          marginBottom: 10, width: `${WIDTHS[i % WIDTHS.length]}%`
         }} />
       ))}
     </div>
   );
 }
 ```
-
-Note: `Math.random()` in the render produces unstable widths on re-render. The planner should lock skeleton line widths to static values (e.g., `[85,70,90,60]`) to avoid this.
 
 ---
 
@@ -571,19 +786,26 @@ return (
 
 The 4-tier pricing modal is the hardest mobile case: 4 columns side-by-side breaks below ~480px.
 
-```css
-/* Pricing modal tier grid: desktop 4-col, mobile stack */
-@media (max-width: 520px) {
-  .pricing-grid { grid-template-columns: 1fr; }
-  .pricing-card.most-popular { order: -1; } /* bump Plus to top on mobile */
-}
+Since inline-style JSX cannot use `@media` directly, the recommended approach is a scoped `<style>` tag inside the modal component (matches how `ResultsMap.jsx` handles media queries):
+
+```jsx
+// Inside PricingModal, above the JSX return:
+<style>{`
+  .pm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .pm-testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 520px) {
+    .pm-grid { grid-template-columns: 1fr; }
+    .pm-testimonials { grid-template-columns: 1fr; }
+    .pm-plus-card { order: -1; }  /* bump Plus to top on mobile */
+  }
+`}</style>
 ```
 
 Existing mobile breakpoints in the codebase:
 - `ResultsMap.jsx:74`: `@media(max-width:560px)` — adjusts font and padding
 - `Landing.jsx:92`: `@media (prefers-reduced-motion: reduce)` — not a width breakpoint
 
-The DemoTierSwitcher pill will need to shrink on small screens. Options: shorten labels to `Fr | Ba | +  | ★`, or reduce font size + padding. The `flex-wrap` or horizontal scroll are fallbacks. Recommend the abbreviated-label approach.
+The DemoTierSwitcher pill will need to shrink on small screens. Options: shorten labels to `Fr | Ba | + | ★`, or reduce font size + padding. Recommend the abbreviated-label approach.
 
 ---
 
@@ -620,6 +842,7 @@ Key mechanics from `NOTES.md` that directly map to Phase 8 decisions:
 | TIER-02 | Rank-gate: `showUpTo(results, tier)` returns correct N cities per tier | unit | `npm test -- --grep "rankGate"` | Wave 0 |
 | TIER-01, TIER-03 | `<LockGate>` renders children when unlocked | component | `npm test -- --grep "LockGate unlocked"` | Wave 0 |
 | TIER-01, TIER-03 | `<LockGate>` renders padlock + blur wrapper when locked | component | `npm test -- --grep "LockGate locked"` | Wave 0 |
+| TIER-01, TIER-03 | `<LockGate>` renders FrostedSkeleton when locked and children is null | component | `npm test -- --grep "LockGate skeleton"` | Wave 0 |
 | TIER-02 | `<DemoTierSwitcher>` does not render when presenterMode=false | component | `npm test -- --grep "DemoTierSwitcher"` | Wave 0 |
 | D-06 | `<RunsBadge>` displays correct string per tier | component | `npm test -- --grep "RunsBadge"` | Wave 0 |
 
@@ -637,9 +860,45 @@ Key mechanics from `NOTES.md` that directly map to Phase 8 decisions:
 
 ### Wave 0 Gaps
 - [ ] `shared/tierGate.test.ts` — covers `canAccess` (16 tier-pair assertions) + `rankGate` (4 tier assertions)
-- [ ] `tests/lock-gate.test.tsx` — LockGate renders children / renders padlock
+- [ ] `tests/lock-gate.test.tsx` — LockGate renders children / renders padlock / renders FrostedSkeleton when children null
 - [ ] `tests/demo-switcher.test.tsx` — DemoTierSwitcher visibility, tier selection
 - [ ] `tests/runs-badge.test.tsx` — RunsBadge output per tier
+
+---
+
+## Security Domain
+
+> `security_enforcement` is absent from `.planning/config.json` — absent = enabled. Section required.
+
+### Applicable ASVS Categories
+
+| ASVS Category | Applies | Rationale / Standard Control |
+|---------------|---------|-------------------------------|
+| V2 Authentication | No | No real auth in this phase. Tiers are in-memory UI state. No credentials are checked. |
+| V3 Session Management | No | No sessions, no cookies, no persistence. Tier resets to "free" on page reload by design. |
+| V4 Access Control | No | The gate is presentation-layer only — it hides/blurs UI, does not protect server resources. There are no server resources being gated. Real access control is v2-deferred. |
+| V5 Input Validation | Partial | The only "input" is the tier switch (4 known string values) and the presenter gesture (tap count). Neither involves user-provided data that reaches a server. Validate that `setTier` only accepts values in the `Tier` union. |
+| V6 Cryptography | No | No cryptographic operations. |
+| V7 Error Handling | N/A | No network calls in this phase. |
+| V8 Data Protection | No | No user data is collected, stored, or transmitted in this phase. |
+
+### Security-by-Obscurity Acknowledgment (D-05)
+
+The presenter mode is intentionally security-by-obscurity. The DemoTierSwitcher is hidden from judges by a corner triple-tap gesture known only to the presenter. This is **not real access control** — it is a demo UX device. There is nothing confidential behind the gate in this v1 implementation (no real payment data, no real user accounts, no real server authorization). The correct framing:
+
+- Obscurity is appropriate here because the "protected" thing is a demo control panel, not sensitive data.
+- If a judge stumbles on the gesture, they see tier controls — not a security breach.
+- Document this clearly in phase notes so a future developer does not mistake it for a security boundary.
+
+### Known Threat Patterns for This Phase
+
+| Pattern | STRIDE | Status |
+|---------|--------|--------|
+| Tier bypass (user opens DevTools and sets `window.__tier = "premium"`) | Elevation of Privilege | Acceptable for v1. This is a demo; there is no server resource being unlocked. A user bypassing the blur in DevTools sees blurred content unblurred — not a meaningful attack surface. |
+| Presenter mode discovery | Information Disclosure | Low risk. Discovering the gesture reveals the DemoTierSwitcher, not secrets. |
+| XSS via testimonial text | Tampering | Not applicable — testimonials are static hardcoded strings, not user input. |
+
+**Overall security posture for Phase 8:** The phase has no attack surface that requires mitigation. It handles no user data, makes no network calls, and provides no server-side access control. All security work for real access control is deferred to v2 (real auth + payments).
 
 ---
 
@@ -664,10 +923,10 @@ Key mechanics from `NOTES.md` that directly map to Phase 8 decisions:
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | FrostedSkeleton `Math.random()` line widths should be static values `[85,70,90,60]` | Code Examples | Minor visual inconsistency on re-render; low impact |
-| A2 | `presenterMode` defaults to `false` (hidden) is the right UX for demo judges | State Architecture | If judges accidentally discover the gesture, it's not a real risk; low impact |
+| A1 | FrostedSkeleton static line widths `[85,70,90,60]` are reasonable placeholders | Code Examples | Minor visual; low impact |
+| A2 | `presenterMode` defaults to `false` (hidden) is the right UX for demo judges | State Architecture | If judges accidentally discover the gesture, not a real risk; low impact |
 | A3 | "2 of 3 runs left" for Plus badge is the right illustrative value (mid-usage) | Runs Badge | Could show `3 of 3` instead; user preference |
-| A4 | `pitch/business-model.md:42` "Single most optimal city" is the only stale doc; qa-bank.md also says "full financial snapshot for #1 city" which is also stale vs D-12 | Cross-doc conflicts | If qa-bank text is recited verbatim in rehearsal, it will contradict the demo that shows top-3 |
+| A4 | `pitch/qa-bank.md` still says "full financial snapshot for #1 city" for Basic — stale vs D-12 | Cross-doc conflicts | If qa-bank text is recited verbatim in rehearsal, it will contradict the demo that shows top-3 |
 
 ---
 
@@ -685,7 +944,7 @@ Key mechanics from `NOTES.md` that directly map to Phase 8 decisions:
 - Option A: Add money-back guarantee. Update `pitch/business-model.md:48` and the Q&A bank to match. This is what 16Personalities does ($29 Premium with 30-day guarantee). Planner adds this as a doc-update task.
 - Option B: Drop the money-back line from D-10. Modal shows "credits never expire · no subscription" only. Consistent with current business-model.md. Simpler.
 
-**Recommendation:** Raise to user before the modal-copy task executes. The planner can write the task as "insert money-back copy here — pending OQ-1 resolution" rather than blocking the plan.
+**Recommendation:** Raise to user before the modal-copy task executes. The planner can write the task as "insert money-back copy here — pending OQ-1 resolution" rather than blocking the plan. The Pattern 6 code above already has the OQ-1 comment slot in place.
 
 ### OQ-2 (lower severity — stale doc): Basic tier description in qa-bank
 
@@ -709,11 +968,13 @@ Key mechanics from `NOTES.md` that directly map to Phase 8 decisions:
 - `pitch/business-model.md` — pricing model and the "no money-back guarantee" decision
 - `package.json` — confirmed dependency inventory (React 19, Vitest, @testing-library/react)
 - `vite.config.js` — Vitest jsdom environment confirmed
+- `.planning/config.json` — `security_enforcement` absent (treated as enabled); `nyquist_validation: true`
 
 ### Secondary (MEDIUM confidence)
 - CSS `filter` vs `backdrop-filter` distinction — standard CSS specification [CITED: MDN, established spec]
 - `will-change: filter` GPU optimization guidance — standard performance practice
 - `prefers-reduced-motion` pattern — established accessibility pattern already honored in Landing.jsx
+- ASVS V2–V8 applicability — derived from OWASP ASVS 4.0 category definitions applied to this phase's actual scope
 
 ---
 
@@ -724,6 +985,7 @@ Key mechanics from `NOTES.md` that directly map to Phase 8 decisions:
 - Architecture: HIGH — existing patterns extrapolated; `TIER_FEATURES` matrix derived directly from D-01/D-02/D-12 decisions
 - Pitfalls: HIGH — derived from direct codebase inspection (filter vs backdrop-filter, gesture scoping)
 - Cross-doc conflicts: HIGH — both documents read directly; conflict is unambiguous
+- Security domain: HIGH — ASVS categories confirmed not applicable; reasoning is directly from phase scope (no auth, no server, no user data)
 
 **Research date:** 2026-06-05
 **Valid until:** Phase competition date (stable codebase, no fast-moving dependencies)
