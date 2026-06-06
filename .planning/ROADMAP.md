@@ -182,7 +182,7 @@ Plans:
 
 **Wave 4** *(optional; blocked on Wave 2 + the Phase 5 capture script)*
 
-- [ ] 06-05-PLAN.md — OPTIONAL build-time prose-enrich bake, validator-gated, non-blocking (ROAD-02)
+- [x] 06-05-PLAN.md — OPTIONAL build-time prose-enrich bake, validator-gated, non-blocking (ROAD-02)
 
 **UI hint**: yes
 
