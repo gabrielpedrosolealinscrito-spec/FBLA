@@ -63,13 +63,16 @@ const CSS = `
   .mk .dot{fill:var(--gold-500)}
   .mk .tick{stroke:var(--gold-500);stroke-width:1.1;opacity:.85}
   .mk .lab{font-family:var(--mono);fill:#A7977C;font-size:9px;letter-spacing:2.2px;text-transform:uppercase;text-anchor:middle;paint-order:stroke;stroke:rgba(7,10,17,.55);stroke-width:2.4px}
-  .mk .sc{font-family:var(--mono);fill:var(--gold-500);font-size:8.4px;letter-spacing:1.4px;text-anchor:middle;opacity:0;transition:opacity .2s var(--ease);paint-order:stroke;stroke:rgba(7,10,17,.6);stroke-width:2.4px}
+  /* always-on match % chip — plate keeps it legible over any terrain/line */
+  .mk .scbg{fill:rgba(7,10,17,.82);stroke:rgba(226,181,107,.3);stroke-width:.8}
+  .mk .sc{font-family:var(--mono);fill:var(--gold-500);font-size:8.4px;letter-spacing:.4px;text-anchor:middle;dominant-baseline:central}
   .mk:hover .ring,.mk.hot .ring{opacity:1}
-  .mk:hover .sc,.mk.hot .sc{opacity:1}
   .mk:hover .lab,.mk.hot .lab{fill:var(--ivory)}
+  .mk:hover .scbg,.mk.hot .scbg{stroke:rgba(226,181,107,.65)}
   .mk.best .ring{stroke-width:1.3;opacity:.95}
   .mk.best .lab{fill:var(--gold-500);font-size:11px;letter-spacing:2.6px}
-  .mk.best .sc{opacity:1;font-size:9px}
+  .mk.best .sc{font-size:9px;font-weight:500}
+  .mk.best .scbg{stroke:rgba(226,181,107,.55)}
   .mk.best{filter:drop-shadow(0 0 10px rgba(226,181,107,.5))}
   .mk.sel .ring{opacity:1;stroke-width:1.5}
   .mk.sel{filter:drop-shadow(0 0 11px rgba(226,181,107,.6))}
@@ -253,8 +256,13 @@ export default function ResultsMap({ results, profile, onSelect, onEdit }) {
           inner.append("line").attr("class", "tick").attr("x1", Math.sin(a) * rr).attr("y1", -Math.cos(a) * rr)
             .attr("x2", Math.sin(a) * (rr + 4)).attr("y2", -Math.cos(a) * (rr + 4)); });
         inner.append("circle").attr("class", "dot").attr("cx", 0).attr("cy", 0).attr("r", best ? 2.6 : 2.1);
-        inner.append("text").attr("class", "lab").attr("x", 0).attr("y", rr + 15).text((c.name + (c.st ? ", " + c.st : "")).toUpperCase());
-        inner.append("text").attr("class", "sc").attr("x", 0).attr("y", rr + 26).text(c.score + "% match");
+        inner.append("text").attr("class", "lab").attr("x", 0).attr("y", rr + 13).text((c.name + (c.st ? ", " + c.st : "")).toUpperCase());
+        // always-on match % with a legibility plate sized to the text
+        const sw = inner.append("g").attr("class", "scwrap").attr("transform", `translate(0,${rr + 25})`);
+        const sct = sw.append("text").attr("class", "sc").attr("x", 0).attr("y", 0).text(c.score + "%");
+        const bb = sct.node().getBBox();
+        sw.insert("rect", "text.sc").attr("class", "scbg")
+          .attr("x", bb.x - 5).attr("y", bb.y - 2).attr("width", bb.width + 10).attr("height", bb.height + 4).attr("rx", 4);
         g.on("mouseenter", () => setHot(c.name)).on("mouseleave", () => setHot(null))
           .on("click", (e) => { e.stopPropagation(); setActive(c); });
       });
