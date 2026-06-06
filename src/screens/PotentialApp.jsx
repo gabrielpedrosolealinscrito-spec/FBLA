@@ -248,8 +248,8 @@ export default function Potential() {
       <div style={{ ...css, padding:0 }}>
         {/* Header */}
         <div style={{ padding:"20px 24px", borderBottom:"1px solid var(--border)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <button onClick={() => { setSelectedCity(null); setExpandedSection(null); setAnim(false); setTimeout(() => setAnim(true), 60); }} style={{ background:"none", border:"none", color:"var(--text2)", cursor:"pointer", fontSize:13, fontFamily:"inherit" }}>← All cities</button>
-          <span style={{ ...heading, fontSize:18, color:"var(--text3)" }}>potential</span>
+          <button onClick={() => { setSelectedCity(null); setExpandedSection(null); setAnim(false); setTimeout(() => setAnim(true), 60); }} style={{ background:"none", border:"none", color:"var(--text2)", cursor:"pointer", ...mono, fontSize:11, letterSpacing:"0.16em", textTransform:"uppercase" }}>← All cities</button>
+          <span style={{ ...heading, fontSize:22, color:"var(--text)", opacity:0.9, letterSpacing:"0.5px" }}>Potential <span style={{ color:"var(--accent)", fontStyle:"italic" }}>°</span></span>
         </div>
 
         <div style={{ maxWidth:700, margin:"0 auto", padding:"24px 24px 60px", ...fadeIn }}>
@@ -276,19 +276,18 @@ export default function Potential() {
 
           {/* Financial Summary */}
           <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
-            <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:16, fontWeight:700 }}>💰 Financial Overview</h3>
+            <h3 style={{ ...mono, fontSize:11, textTransform:"uppercase", letterSpacing:"0.18em", color:"var(--accent)", marginBottom:16, fontWeight:600 }}>Financial Overview</h3>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))", gap:10 }}>
               {[
-                { icon:"💼", lbl:"Est. Salary", val:fmtFull(salary), sub: c.stateTax === 0 ? "No state tax!" : `${c.stateTax}% state tax` },
-                { icon:"🏠", lbl:"Monthly Take-Home", val:fmtFull(takeHome) },
-                { icon:"📊", lbl:"Monthly Savings", val:`${savings >= 0 ? "+" : ""}${fmtFull(Math.abs(savings))}`, sub: savings >= 0 ? "After all expenses" : "⚠️ Over budget" },
-                { icon:"🏡", lbl: profile.housing === "rent" ? "Median 1BR Rent" : "Median Home Price", val: profile.housing === "rent" ? `${fmtFull(c.medianRent)}/mo` : fmtFull(c.medianHome) },
+                { lbl:"Est. Salary", val:fmtFull(salary), sub: c.stateTax === 0 ? "No state tax" : `${c.stateTax}% state tax` },
+                { lbl:"Monthly Take-Home", val:fmtFull(takeHome) },
+                { lbl:"Monthly Savings", val:`${savings >= 0 ? "+" : ""}${fmtFull(Math.abs(savings))}`, sub: savings >= 0 ? "After all expenses" : "Over budget" },
+                { lbl: profile.housing === "rent" ? "Median 1BR Rent" : "Median Home Price", val: profile.housing === "rent" ? `${fmtFull(c.medianRent)}/mo` : fmtFull(c.medianHome) },
               ].map((s, i) => (
-                <div key={i} style={{ background:"var(--surface)", borderRadius:10, padding:"14px 16px", border:"1px solid var(--border)" }}>
-                  <div style={{ fontSize:18, marginBottom:4 }}>{s.icon}</div>
-                  <div style={{ fontSize:20, ...mono, fontWeight:700, lineHeight:1.1, color: s.lbl === "Monthly Savings" ? (savings >= 0 ? "var(--pos)" : "var(--neg)") : "var(--text)" }}>{s.val}</div>
-                  <div style={{ fontSize:10, color:"var(--text3)", textTransform:"uppercase", letterSpacing:"0.06em", marginTop:4 }}>{s.lbl}</div>
-                  {s.sub && <div style={{ fontSize:11, color:"var(--text3)", marginTop:2 }}>{s.sub}</div>}
+                <div key={i} style={{ background:"var(--surface)", borderRadius:10, padding:"16px", border:"1px solid var(--border)" }}>
+                  <div style={{ fontSize:22, ...mono, fontWeight:700, lineHeight:1.1, color: s.lbl === "Monthly Savings" ? (savings >= 0 ? "var(--pos)" : "var(--neg)") : "var(--text)" }}>{s.val}</div>
+                  <div style={{ ...mono, fontSize:10, color:"var(--text3)", textTransform:"uppercase", letterSpacing:"0.1em", marginTop:6 }}>{s.lbl}</div>
+                  {s.sub && <div style={{ fontSize:11, color:"var(--text3)", marginTop:3 }}>{s.sub}</div>}
                 </div>
               ))}
             </div>
@@ -296,7 +295,7 @@ export default function Potential() {
 
           {/* Expense Breakdown */}
           <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
-            <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:14, fontWeight:700 }}>📋 Monthly Expenses</h3>
+            <h3 style={{ ...mono, fontSize:11, textTransform:"uppercase", letterSpacing:"0.18em", color:"var(--accent)", marginBottom:14, fontWeight:600 }}>Monthly Expenses</h3>
             {(() => {
               const items = [
                 { label: profile.housing === "rent" ? "Rent (1BR)" : "Mortgage est.", val: expenses.rent, color:"#E2B56B" },
