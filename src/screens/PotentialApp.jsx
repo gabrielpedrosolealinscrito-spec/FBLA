@@ -7,6 +7,8 @@ import ResultsMap from './ResultsMap.jsx';
 import Roadmap from './Roadmap.jsx';
 import Visa from './Visa.jsx';
 import LockGate from '../components/LockGate.jsx';
+import DemoTierSwitcher from '../components/DemoTierSwitcher.jsx';
+import RunsBadge from '../components/RunsBadge.jsx';
 import { canAccess } from '../../shared/types';
 
 // ═══════════════════════════════════════════
@@ -54,10 +56,37 @@ export default function Potential() {
   const [showVisa, setShowVisa] = useState(false);
   const [tier, setTier] = useState("free");
   const [modalOpen, setModalOpen] = useState(false);
+  const [presenterMode, setPresenterMode] = useState(false);
 
   // Animate on mount — fonts load from index.html, no font useEffect needed
   useEffect(() => {
     setTimeout(() => setAnim(true), 80);
+  }, []);
+
+  // ── Presenter gesture: corner triple-tap (bottom-right 80×80px, 3 taps/600ms) ──
+  // Attached at root (not inside a screen) so it survives all step/selectedCity changes.
+  // Works for both mouse click and touchstart (D-13 mobile-responsive).
+  useEffect(() => {
+    let tapCount = 0;
+    let tapTimer = null;
+
+    function onPresenterGesture(e) {
+      const clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+      const clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+      const inCorner = clientX > window.innerWidth - 80 && clientY > window.innerHeight - 80;
+      if (!inCorner) { tapCount = 0; return; }
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => { tapCount = 0; }, 600);
+      if (tapCount >= 3) { tapCount = 0; setPresenterMode(m => !m); }
+    }
+
+    window.addEventListener("click", onPresenterGesture);
+    window.addEventListener("touchstart", onPresenterGesture, { passive: true });
+    return () => {
+      window.removeEventListener("click", onPresenterGesture);
+      window.removeEventListener("touchstart", onPresenterGesture);
+    };
   }, []);
 
   const goStep = (s) => { setStep(s); setAnim(false); setTimeout(() => setAnim(true), 60); };
@@ -132,6 +161,9 @@ export default function Potential() {
     display:"block", marginBottom:8, fontWeight:600
   };
   const sectionGap = { marginBottom: 28 };
+
+  // ── Screen switch — wrapped so DemoTierSwitcher overlay can render alongside ──
+  const renderScreen = () => {
 
   // ═══════════════════════════════════════════
   // LANDING (cinematic, ported prototype)
@@ -262,7 +294,10 @@ export default function Potential() {
         {/* Header */}
         <div style={{ padding:"20px 24px", borderBottom:"1px solid var(--border)", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <button onClick={() => { setSelectedCity(null); setExpandedSection(null); setAnim(false); setTimeout(() => setAnim(true), 60); }} style={{ background:"none", border:"none", color:"var(--text2)", cursor:"pointer", fontSize:13, fontFamily:"inherit" }}>← All cities</button>
-          <span style={{ ...heading, fontSize:18, color:"var(--text3)" }}>potential</span>
+          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <RunsBadge tier={tier} />
+            <span style={{ ...heading, fontSize:18, color:"var(--text3)" }}>potential</span>
+          </div>
         </div>
 
         <div style={{ maxWidth:700, margin:"0 auto", padding:"24px 24px 60px", ...fadeIn }}>
@@ -422,4 +457,14 @@ export default function Potential() {
   }
 
   return null;
+  }; // end renderScreen
+
+  // ── Root return — DemoTierSwitcher renders on top of every screen ──
+  // presenterMode toggles via corner triple-tap; hidden by default (D-05).
+  return (
+    <>
+      {renderScreen()}
+      <DemoTierSwitcher tier={tier} onTier={setTier} visible={presenterMode} />
+    </>
+  );
 }
