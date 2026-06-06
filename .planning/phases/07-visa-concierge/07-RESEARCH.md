@@ -45,7 +45,7 @@
 
 | ID | Description | Research Support |
 |----|-------------|------------------|
-| VISA-01 | Eligibility screener mapping profile to likely visa pathways | Screener design: D-01/D-02; citizenship+destination-keyed VISA_PATHWAYS; graded-fit thresholds documented below |
+| VISA-01 | Eligibility screener mapping profile to likely visa pathways | Screener design: D-01/D-02; citizenship-keyed VISA_PATHWAYS (flat VisaPathway[]); matchedCountry used for emphasis only; graded-fit thresholds documented below |
 | VISA-02 | Side-by-side comparison for Portugal D8 + Canada Express Entry (type, requirements, time, fee, pros/cons) | Full figures researched and documented; VisaPathway contract already locked in shared/types.ts |
 | VISA-03 | Per-pathway document checklist + cost/timeline with every figure cited to official source + "data as of" | Document checklists + fee/time figures + source authorities documented; FX-dated USD conversions provided |
 | VISA-04 | UPL boundary — informational only, attorney-referral CTA | Disclaimer copy + CTA design in UI-SPEC; UPL framing discipline documented in this research |
@@ -57,11 +57,11 @@
 
 Phase 7 is a **data-authoring and UI-wiring phase**, not a library-addition phase. There are zero new npm packages — the entire deliverable is: (1) an authored `VISA_PATHWAYS` TypeScript data module in `shared/data/`, (2) a pure screener/grading helper in `shared/engine/`, and (3) the `src/screens/Visa.jsx` screen rendering the UI-SPEC contract. The critical path is getting the authored figures right, not architecture.
 
-The primary technical complication is the **demo destination mismatch** (see Open Questions Q-1): the live golden-path cache and the only authored Phase 6 roadmap currently target London/UK, not Lisbon/Portugal. CONTEXT D-05 pins Phase 7 to Lisbon/Portugal, but the screener is keyed to `matchedDestination.country`, which for the current demo persona resolves to `"UK"` — not `"Portugal"`. This means the authored Portugal D8 pathway will NOT surface for the scripted demo unless either (a) the demo persona's top international city is changed to Lisbon, or (b) the screener is designed to show all citizenship-relevant pathways regardless of top-matched destination. The planner must surface this conflict as a gated decision before authoring content.
+The screener uses a **flagship model**: `VISA_PATHWAYS[citizenship]: VisaPathway[]` returns ALL authored pathways for a citizenship (Portugal D8 + Canada Express Entry for US citizens) regardless of matched destination. `matchedCountry` is used only for accent-border emphasis (highlighting the column whose `destinationCountry` matches the persona's top city) — it is NOT a filter. This resolves the demo destination mismatch: both pathways always render side-by-side even when the demo persona's top city is London/UK. The only cosmetic effect is that neither column gets the accent border when the matched city is not Portugal or Canada — which will be corrected when Lisbon/Toronto are added to `cities.ts` in Phase 4 (see Open Questions Q-1).
 
 All Portugal D8 figures use the 4× Portuguese minimum wage formula (€920/month × 4 = €3,680/month as of January 2026). All Canada Express Entry government fees reflect the April 30, 2026 IRCC increase. USD conversions use dated exchange rates (EUR/USD 1.164, CAD/USD 0.719, both as of June 5, 2026) and must be re-verified at authoring time.
 
-**Primary recommendation:** Author the `VISA_PATHWAYS` data module first (Wave 0), gate all authored figures behind a `checkpoint:human-verify` task against AIMA and IRCC official pages, then wire the screener helper and Visa screen. Resolve the destination-mismatch open question before any content authoring.
+**Primary recommendation:** Author the `VISA_PATHWAYS` data module first (Wave 0), gate all authored figures behind a `checkpoint:human-verify` task against AIMA and IRCC official pages, then wire the screener helper and Visa screen. The flagship model (flat `Record<string, VisaPathway[]>`) ensures both pathways always render — demo destination mismatch is a Phase 4 polish concern, not a Wave 0 blocker.
 
 ---
 
@@ -110,7 +110,7 @@ Profile (citizenship, income, hasRemote, destination)
          │
          ▼
   selectVisaPathways(profile, matchedDestination)   ← shared/engine/visa.ts
-         │  keys VISA_PATHWAYS[citizenship][country]
+         │  keys VISA_PATHWAYS[citizenship] → all flagship pathways
          │  or → GENERIC_SKELETON if no authored pair
          │
          ▼
@@ -174,7 +174,7 @@ export const PORTUGAL_D8: VisaPathway = {
     'Portuguese or foreign bank account showing income history',
   ],
   processingTime: '4–9 months total (consulate: 4–8 weeks; AIMA appointment: 90–120 days backlog; card: 2–6 weeks)',
-  feeRangeUSD: '$120–$330 (consulate visa ~€110; AIMA residence permit ~€170; EUR/USD 1.164 Jun 2026)',
+  feeRangeUSD: '$300–$330 in gov fees (consulate visa €90–110 + AIMA residence permit €170; EUR/USD 1.164 Jun 2026 — verify at authoring)',
   pros: [
     'No Portuguese employer required — remote income from non-PT clients qualifies',
     'Schengen Area travel with residence permit',
@@ -280,11 +280,8 @@ export const GENERIC_SKELETON: VisaPathway = {
   ],
 };
 
-export const VISA_PATHWAYS: Record<string, Record<string, VisaPathway[]>> = {
-  US: {
-    Portugal: [PORTUGAL_D8],
-    Canada: [CANADA_EXPRESS_ENTRY],
-  },
+export const VISA_PATHWAYS: Record<string, VisaPathway[]> = {
+  US: [PORTUGAL_D8, CANADA_EXPRESS_ENTRY],
 };
 ```
 
@@ -306,13 +303,15 @@ export interface VisaScreenerResult {
 }
 
 /**
- * Returns 0–N screener results for the given citizenship × destination.
- * Falls back to GENERIC_SKELETON if no authored pathways exist.
+ * Returns ALL authored flagship VisaPathway results for the citizenship.
+ * Falls back to GENERIC_SKELETON if no authored pathways exist for that citizenship.
+ * matchedCountry is NOT a filter — it is used only to determine which column
+ * receives the accent-border emphasis (the strong-fit destination signal).
  * Makes zero network calls — fully deterministic (D-01, D-02, offline-safe).
  */
 export function selectVisaPathways(
   profile: Profile,
-  matchedCountry: string,
+  matchedCountry: string,  // emphasis input only — NOT a filter
 ): VisaScreenerResult[] { ... }
 
 /**
@@ -373,7 +372,7 @@ function computeGradedFit(pathway: VisaPathway, profile: Profile): GradedFit { .
 | Total government fees (single applicant) | ~€280 (visa + permit) | [CITED: derived from above] | MEDIUM |
 | Total government fees in USD (Jun 2026) | ~$326 | [ASSUMED: FX-derived] | LOW |
 | VFS/BLS service fee (if applicable) | ~€40 | [CITED: liveinpt.com] | LOW |
-| feeRangeUSD string for VisaPathway | "$120–$330 in government fees (consulate visa ~€90–110 + AIMA permit ~€170; EUR/USD 1.164 Jun 2026 — verify at authoring)" | [ASSUMED: range captures variation; verify current fees at AIMA and your consulate] | LOW |
+| feeRangeUSD string for VisaPathway | "$300–$330 in gov fees (consulate visa €90–110 + AIMA permit €170; EUR/USD 1.164 Jun 2026 — verify at authoring)" | [ASSUMED: range captures variation; both endpoints include visa + permit; verify current fees at AIMA and your consulate] | LOW |
 
 **Authority to verify:** AIMA fee schedule PDF (linked from aima.gov.pt); your specific consulate's fee page (US consulates in Portugal may have slightly different amounts).
 
@@ -602,11 +601,11 @@ These five disciplines, consistently applied, keep Phase 7 on the informational 
 
 ## Common Pitfalls
 
-### Pitfall 1: Demo Destination Mismatch (CRITICAL — Open Question Q-1)
-**What goes wrong:** The screener surfaces pathways keyed to `matchedDestination.country`. The current demo golden-path persona has London/UK as the top international match. Portugal D8 is authored for country `"Portugal"`. If the demo persona's matched destination is UK, the Portugal D8 pathway will not surface — the visa "wow" falls to the generic skeleton.
-**Why it happens:** Phase 5 golden-path and Phase 6 roadmap templates were authored for US→UK (London) first. Phase 7 CONTEXT pins to Lisbon, but the actual matched city data does not yet include Lisbon.
-**How to avoid:** The planner must surface this as a blocking decision before content authoring. Options: (a) add Lisbon to `cities.ts` so it can appear as a match; (b) change the screener to show all citizenship-eligible pathways regardless of matched destination (drops the citizenship×destination scoping); (c) wire the demo persona to produce Portugal as a top match.
-**Warning signs:** Checking `shared/data/cities.ts` — only London/UK is in the international cities. No Lisbon record exists as of research date.
+### Pitfall 1: Demo Destination Mismatch (NON-BLOCKING under flagship model — Open Question Q-1)
+**What goes wrong (old model):** A citizenship×destination keyed screener would fail to surface Portugal D8 when the demo persona's top match is London/UK, because Portugal D8 is keyed to "Portugal" not "UK".
+**Why it is NOT blocking now:** The corrected flagship model (`VISA_PATHWAYS[citizenship]: VisaPathway[]`) returns ALL authored pathways for the citizenship — both Portugal D8 and Canada Express Entry — regardless of the matched destination. `matchedCountry` is only used to determine which column gets the accent border (emphasis), not to filter pathways. VISA-02 (both pathways always shown) is satisfied even when the demo persona's top city is London/UK.
+**Residual risk:** The accent-border emphasis column will highlight the UK-keyed pathway (no authored flagship for "UK" → no emphasis border appears). When Lisbon or Toronto are added to cities.ts, the emphasis will correctly highlight the matching pathway column.
+**Warning signs:** Check which column gets the accent border in the demo — if neither pathway's `destinationCountry` matches the persona's top city, neither column gets emphasis (both appear neutral). This is cosmetically suboptimal but not a functional failure.
 
 ### Pitfall 2: Profile.education String Values Unknown
 **What goes wrong:** `computeGradedFit()` for Express Entry needs to check if `profile.education` represents a post-secondary degree. Phase 2 education question strings are not yet final (Phase 2 not executed).
@@ -617,7 +616,7 @@ These five disciplines, consistently applied, keep Phase 7 on the informational 
 ### Pitfall 3: FX Rate in the feeRangeUSD String
 **What goes wrong:** `feeRangeUSD` is an authored string. If FX is baked in at a stale rate, judges or users see misleading USD figures.
 **Why it happens:** The VisaPathway contract stores a pre-converted USD string. The EUR/USD and CAD/USD rates shift over time.
-**How to avoid:** Author `feeRangeUSD` as a range with the FX date embedded: e.g. `"$120–$330 gov fees (EUR/USD 1.164, Jun 2026)"`. This communicates transparency. The "data as of" label on the Visa screen also covers this.
+**How to avoid:** Author `feeRangeUSD` as a range with the FX date embedded: e.g. `"$300–$330 gov fees (consulate visa €90–110 + AIMA permit €170; EUR/USD 1.164 Jun 2026)"`. This communicates transparency. The "data as of" label on the Visa screen also covers this.
 
 ### Pitfall 4: LLM Inventing Visa Facts
 **What goes wrong:** Any pathway that asks an LLM to generate fees, document requirements, or processing times risks hallucinated figures that fail Q&A scrutiny.
@@ -648,12 +647,12 @@ export const ROADMAP_TEMPLATES: Record<string, Record<string, RoadmapTemplate>> 
 ROADMAP_TEMPLATES.US['US'] = US_DOMESTIC_TEMPLATE;
 ROADMAP_TEMPLATES.US['UK'] = US_TO_UK_TEMPLATE;
 
-// visa-pathways.ts — apply same keying pattern
-export const VISA_PATHWAYS: Record<string, Record<string, VisaPathway[]>> = {
-  US: {},
+// visa-pathways.ts — flat citizenship-keyed structure (all flagship pathways per citizenship)
+// NOTE: inner key is citizenship, value is ALL authored pathways shown side-by-side
+// matchedCountry is NOT used to filter — it is the accent-emphasis signal in the UI
+export const VISA_PATHWAYS: Record<string, VisaPathway[]> = {
+  US: [PORTUGAL_D8, CANADA_EXPRESS_ENTRY],
 };
-VISA_PATHWAYS.US['Portugal'] = [PORTUGAL_D8];
-VISA_PATHWAYS.US['Canada'] = [CANADA_EXPRESS_ENTRY];
 ```
 
 Outer key = `profile.citizenship`; inner key = `city.country`. For Canada: city.country would need to be `"Canada"` — verify against `cities.ts` when Lisbon and Toronto records are added.
@@ -664,14 +663,14 @@ Outer key = `profile.citizenship`; inner key = `city.country`. For Canada: city.
 // shared/engine/visa.ts
 export function selectVisaPathways(
   profile: Profile,
-  matchedCountry: string,
+  matchedCountry: string,  // used for accent emphasis only — NOT a filter
 ): VisaScreenerResult[] {
   const citizenship = profile.citizenship || 'US';
-  const citizenshipPathways = VISA_PATHWAYS[citizenship] ?? {};
-  const pathways = citizenshipPathways[matchedCountry];
+  const pathways = VISA_PATHWAYS[citizenship];  // flat array: all authored flagships
 
   if (!pathways || pathways.length === 0) {
     // D-06: generic honest skeleton — never a dead-end
+    // matchedCountry is the destination for the skeleton label
     return [{
       pathway: { ...GENERIC_SKELETON, destinationCountry: matchedCountry },
       fit: { grade: 'possible', gatingFactor: 'verify requirements at the official immigration authority' },
@@ -690,12 +689,12 @@ export function selectVisaPathways(
 ```typescript
 // shared/engine/visa.test.ts
 describe('selectVisaPathways', () => {
-  it('returns Portugal D8 for US citizen, Portugal destination', () => { ... });
-  it('returns Canada EE for US citizen, Canada destination', () => { ... });
-  it('returns generic skeleton for unlisted citizenship×destination', () => { ... });
-  it('grades Strong fit for hasRemote=true AND income >= D8 minimum', () => { ... });
-  it('grades Long shot for hasRemote=false', () => { ... });
-  it('grades Strong fit for age ≤ 35 with post-secondary degree (Express Entry)', () => { ... });
+  it('returns BOTH Portugal D8 AND Canada EE for US citizen (flagship model)', () => { ... });
+  it('returns generic skeleton for unlisted citizenship (no authored flagships)', () => { ... });
+  it('grades Strong fit for D8: hasRemote=true AND income >= threshold', () => { ... });
+  it('grades Long shot for D8: hasRemote=false', () => { ... });
+  it('grades Strong fit for Express Entry: age ≤ 35 + post-secondary degree', () => { ... });
+  it('matchedCountry="Portugal" sets accent emphasis on D8 column, not Canada column', () => { ... });
 });
 ```
 
@@ -714,10 +713,10 @@ describe('selectVisaPathways', () => {
 
 ## Open Questions
 
-1. **[BLOCKING — must resolve before authoring content] Demo persona destination: Portugal or UK?**
-   - What we know: The golden-path cache (`data/golden-path/demo-results.json`) shows London/UK as the scripted demo international destination. `shared/data/cities.ts` has only London/UK as an international city. CONTEXT D-05 pins Phase 7 to Portugal/D8. The screener keys pathways to `matchedDestination.country`. For the demo to surface Portugal D8, the matched destination must be `"Portugal"`.
-   - What's unclear: Has the demo script been updated to use Lisbon? Will Lisbon be added to `cities.ts` before Phase 7 ships? Or should the screener surface all citizenship-eligible pathways regardless of matched destination?
-   - Recommendation: The planner should surface this as a Wave 0 decision task. Option A (add Lisbon) is the cleanest demo path and required for Phase 4 anyway. Option B (show all pathways regardless of destination) degrades the "magic" of destination-keyed concierge. Option C (change screener to use citizenship only) is workable but changes D-02.
+1. **[NON-BLOCKING — polish concern] Demo destination accent emphasis: which column gets the accent border?**
+   - What we know: Under the corrected flagship model, `VISA_PATHWAYS['US']` returns [PORTUGAL_D8, CANADA_EXPRESS_ENTRY] for any US-citizen profile, regardless of matched destination. Both pathways always render side-by-side. VISA-02 is satisfied. The golden-path demo persona matches London/UK — no authored flagship for "UK" exists, so neither column gets an accent-border emphasis.
+   - What's unclear: When is Lisbon (or Toronto) added to `cities.ts` and `demo-results.json`? That is a Phase 4 concern, not Phase 7.
+   - Recommendation: Phase 7 can ship with both pathways rendering correctly. The emphasis logic (`matchedCountry === pathway.destinationCountry ? borderLeft: "3px solid var(--accent)" : ""`) will silently produce no accent when the matched city is London/UK — both columns appear neutral. When Lisbon is added (Phase 4), the D8 column will automatically get the accent. The planner should note this as a Phase 4 dependency, NOT a Wave 0 blocker.
 
 2. **What exact string values does `Profile.education` hold?**
    - What we know: `shared/quiz-engine/questions.ts` contains the education question. The screener's `isPostSecondaryDegree()` helper needs to match against these exact values.
@@ -760,9 +759,9 @@ nyquist_validation: true (from .planning/config.json)
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
-| VISA-01 | selectVisaPathways returns Portugal D8 for US+Portugal | unit | `npm test -- --reporter=verbose shared/engine/visa.test.ts` | ❌ Wave 0 |
-| VISA-01 | selectVisaPathways returns Canada EE for US+Canada | unit | same | ❌ Wave 0 |
-| VISA-01 | Generic skeleton returned for unlisted citizenship×destination | unit | same | ❌ Wave 0 |
+| VISA-01 | selectVisaPathways returns BOTH D8 AND Canada EE for US citizen | unit | `npm test -- --reporter=verbose shared/engine/visa.test.ts` | ❌ Wave 0 |
+| VISA-01 | Generic skeleton returned for unlisted citizenship (no authored flagships) | unit | same | ❌ Wave 0 |
+| VISA-01 | matchedCountry does not filter results — both pathways returned for any matched city | unit | same | ❌ Wave 0 |
 | VISA-01 | gradeD8: Strong fit when hasRemote=true AND income≥threshold | unit | same | ❌ Wave 0 |
 | VISA-01 | gradeD8: Long shot when hasRemote=false | unit | same | ❌ Wave 0 |
 | VISA-01 | gradeExpressEntry: Strong fit for age≤35 + post-secondary | unit | same | ❌ Wave 0 |
@@ -822,8 +821,8 @@ nyquist_validation: true (from .planning/config.json)
 | A8 | Job offer points removed from Express Entry CRS as of March 25, 2025 | CRS Factors | If partially reinstated, authored "pros" and gating-factor notes may be misleading |
 | A9 | Profile.hasRemote is the primary D8 screener gate | Gating-Factor Logic | If Phase 2 emits hasRemote differently, or if D8 applies to employees of foreign companies, gate logic may need revision |
 | A10 | isPostSecondaryDegree() can be derived from existing Phase 2 education question values | Gating-Factor Logic | Education string values from Phase 2 quiz unknown until Phase 2 is read; helper may be authored against wrong strings |
-| A11 | VISA_PATHWAYS outer key = profile.citizenship (e.g. "US"), inner key = city.country (e.g. "Portugal", "Canada") | Module Structure | City records for Portugal and Canada not yet in cities.ts; these country strings must match when added |
-| A12 | Lisbon and Toronto are NOT yet in cities.ts — Phase 7 cannot surface authored pathways without them | Open Questions | Demo persona will match to UK (London) not Portugal or Canada; pathway "wow" fails silently |
+| A11 | VISA_PATHWAYS key = profile.citizenship (e.g. "US"); value = VisaPathway[] containing ALL authored flagships for that citizenship | Module Structure | Flat structure; city.country NOT used as a filter key — used only for emphasis column detection |
+| A12 | Lisbon and Toronto are NOT yet in cities.ts — accent-border emphasis will not highlight either column for the current demo persona (London/UK) | Open Questions | Cosmetically suboptimal (no column emphasis) but functionally correct; both pathways render; Phase 4 dependency |
 
 ---
 
