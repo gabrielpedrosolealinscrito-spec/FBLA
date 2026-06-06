@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 05
 current_plan: 4
 status: executing
-stopped_at: Completed 05-03-PLAN.md — fetchLive.js and PotentialApp rewire, full suite GREEN
-last_updated: "2026-06-05T23:54:34.420Z"
-last_activity: 2026-06-05
+stopped_at: Completed 05-05-PLAN.md — self-hosted fonts, Google Fonts CDN removed, Task 3 offline visual proof pending
+last_updated: "2026-06-06T01:50:47.478Z"
+last_activity: 2026-06-06
 progress:
   total_phases: 10
   completed_phases: 5
   total_plans: 29
-  completed_plans: 26
+  completed_plans: 27
   percent: 50
 ---
 
@@ -21,10 +21,10 @@ progress:
 ## Current Position
 
 Phase: 05 (proxy-live-ai-golden-path-cache) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 **Status:** Ready to execute
 **Current Phase:** 05
-**Last Activity:** 2026-06-05
+**Last Activity:** 2026-06-06
 **Last Activity Description:** Phase 05 Plan 01 completed — SDK + golden-path cache + Wave 0 RED tests
 
 > **Pitch track: COMPLETE.** Phases 9 (Business Substance) and 10 (Deck, Rehearsal & Protocol) both done 2026-05-31. All business-substance deliverables, deck outline, Q&A bank, and protocol checklist authored, source-tagged, and goal-verified under `pitch/`. Phase 10's timed rehearsals are specified but gated on Phase 8 (live demo, not yet built).
@@ -53,6 +53,7 @@ Plan: 4 of 5
 - [Phase ?]: fetchCategoryLive uses 20s AbortController timeout — 7s reliably aborts live web_search (Pitfall 2)
 - [Phase ?]: AIList returns null before first pull — prevents blank/stuck state under button model
 - [Phase ?]: pullLiveData uses parallel forEach fan-out so one slow/failed category never blocks another (D-04/D-05)
+- [Phase ?]: Static @fontsource/* not @fontsource-variable/* for self-hosted fonts — variable packages register '... Variable' names breaking existing bare font-family CSS
 
 ## Performance Metrics
 
@@ -66,10 +67,11 @@ Plan: 4 of 5
 | Phase 09 P03 | 15min | 2 tasks | 2 files |
 | Phase 05 P02 | 25min | 2 tasks | 2 files |
 | Phase 05 P03 | 15min | 2 tasks | 2 files |
+| Phase 05 P05 | 12min | 2 tasks | 4 files |
 
 ## Session Continuity
 
-**Stopped At:** Completed 05-03-PLAN.md — fetchLive.js and PotentialApp rewire, full suite GREEN
+**Stopped At:** Completed 05-05-PLAN.md — self-hosted fonts, Google Fonts CDN removed, Task 3 offline visual proof pending
 **Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
 **Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
