@@ -44,10 +44,10 @@ Declared values (must be multiples of 4):
 | 3xl | 64px | Not used in Phase 8 components |
 
 Exceptions:
-- DemoTierSwitcher pill: 6px top/bottom padding, 8px left/right padding (matches existing `.pill` pattern from ResultsMap.jsx — inheriting, not introducing)
 - LockGate padlock overlay: `inset: 0` with `border-radius: 14px` — radii match existing card pattern
 - PricingModal "most popular" badge: offset `-13px` top from card edge (negative positioning, not a spacing token)
 - Corner triple-tap hotspot: 80×80px (touch target, not a layout spacing value)
+- DemoTierSwitcher pill: **8px uniform padding** (top/bottom/left/right all 8px); outer gap between buttons 4px. No 6px value is declared or used.
 
 Source: ResultsMap.jsx `.wrap{padding:30px 24px}`, `.row{padding:12px 14px}`, Landing.jsx `.panel{padding:20px}`.
 
@@ -55,21 +55,18 @@ Source: ResultsMap.jsx `.wrap{padding:30px 24px}`, `.row{padding:12px 14px}`, La
 
 ## Typography
 
-Five named roles for Phase 8 components. The contract is by role — the executor inherits exact px values from upstream RESEARCH.md component code. Sizes are drawn from existing screen patterns; no new values introduced.
+Four named roles for Phase 8 components. The contract is by role — the executor inherits exact px values from upstream RESEARCH.md component code. Sizes are drawn from existing screen patterns; no new values introduced.
 
 | Role | Family | Size | Weight | Line Height | Phase 8 Usage |
 |------|--------|------|--------|-------------|---------------|
-| Display | Instrument Serif | 28px | 400 (regular) | 1.2 | PricingModal header: "Unlock Your Full Potential" |
+| Display | Instrument Serif | 28px | 400 (regular) | 1.2 | PricingModal header: "Unlock Your Full Potential". **Price figures** (e.g. "$9.99", "$0.99", "$29.99") use JetBrains Mono at 26px — within this Display hierarchy level, the 2px visual difference is negligible; treat 26px price numbers as a usage variant of the Display scale, not a separate declared role. |
 | Heading | Instrument Serif | 20px | 400 (regular) | 1.2 | Per-tier label inside PricingModal tier cards (e.g., "Plus") |
 | Body | Manrope | 14px | 400 (regular) | 1.5 | Feature bullet text in pricing cards; testimonial body copy; locked-section CTA label |
-| Numeric | JetBrains Mono | 26px | 400 (regular) | 1.0 | Headline price in PricingModal ("$9.99", "$0.99", "$29.99") |
-| Caption/Micro | Manrope (body) or JetBrains Mono (numeric) | 11–13px range | 400 (regular) | 1.5 | Price note suffix ("1 run · never expires"); RunsBadge ("Plus · 2 of 3 runs left") at 11px; testimonial attribution ("— Alex M.") at 11px; dismiss button, trust footer at 12–13px; match-score chip at 11px |
+| Caption/Micro | Manrope (body) or JetBrains Mono (numeric) | 11px | 400 (regular) | 1.5 | RunsBadge ("Plus · 2 of 3 runs left"); testimonial attribution ("— Alex M."); match-score chip. Secondary copy at 12px (price note suffix, dismiss button, trust footer) uses the same Caption/Micro role — 12px is the upper bound of this single declared size role. |
 
 Weights declared: **400 (regular) + 600 (semibold)**.
 
-Weight 600 reserved for: active tier button label in DemoTierSwitcher; CTA button labels ("Get Plus", "Get Basic", "Get Premium").
-
-Exception — weight 700: "MOST POPULAR" badge label only (10px all-caps). Required for legibility at that size. This is the one case where 700 appears.
+Weight 600 reserved for: active tier button label in DemoTierSwitcher; CTA button labels ("Get Plus", "Get Basic", "Get Premium"); "MOST POPULAR" badge label (10px all-caps at weight 600 — legibility is sufficient; no weight 700 is declared or used in this phase).
 
 Source: RESEARCH.md Pattern 6 PricingModal code (`fontSize: 26` for prices, `fontSize: 13` for secondary copy, `fontSize: 11` for RunsBadge) + ResultsMap.jsx CSS block `.row .sc{font-size:11px}` + Landing.jsx `.hint{font-size:12px}`.
 
@@ -105,6 +102,9 @@ Accent is NOT used for: borders on non-Plus tier cards; non-active DemoTierSwitc
 
 **Lock overlay background:**
 - `rgba(8,9,12,0.35)` — semi-transparent dark that does not fully obscure blurred content beneath (purpose: imply content exists behind the gate, not hide it entirely). Source: RESEARCH.md LockGate code example.
+
+**Primary visual anchor — ResultsMap free-tier screen:**
+The #1 city name + accent match-% chip (e.g. "Lisbon, Portugal — 94% match") is the focal point of the free-tier ResultsMap view. The city name renders in Instrument Serif at heading scale and the match-% chip uses `--accent` background — these two elements together are the dominant visual at that hierarchy level and the key attention target before any locked content is encountered.
 
 Source: ResultsMap.jsx `const CSS` variable definitions (lines 34–36), confirmed by Landing.jsx CSS custom properties.
 
@@ -187,6 +187,10 @@ This is the "graceful degradation" state (D-03). The skeleton looks locked-but-p
 ### Destructive Actions
 
 **None.** No destructive actions exist in Phase 8. There is no delete, no irreversible state change, no payment processing, and no account persistence. Tier switching is freely reversible. Source: CONTEXT.md Deferred section — "no real auth, no account persistence."
+
+### Modal Dismiss
+
+The PricingModal close action is labeled **"Dismiss"** — a single-word conventional close label. This is the accepted convention for modals with no pending state change; no rename is required.
 
 ---
 
