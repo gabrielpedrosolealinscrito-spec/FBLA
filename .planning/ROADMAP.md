@@ -170,7 +170,7 @@ Plans:
 
 **Wave 1** *(blocked on Wave 0)*
 
-- [ ] 06-02-PLAN.md — Engine: authoring types + GENERIC_TEMPLATE + targetFundUSD + pure offline buildRoadmap + acceptEnrichment validator (ROAD-01/02/03)
+- [x] 06-02-PLAN.md — Engine: authoring types + GENERIC_TEMPLATE + targetFundUSD + pure offline buildRoadmap + acceptEnrichment validator (ROAD-01/02/03)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -267,7 +267,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
-| 6. Relocation Roadmap | 1/5 | In Progress|  |
+| 6. Relocation Roadmap | 2/5 | In Progress|  |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
