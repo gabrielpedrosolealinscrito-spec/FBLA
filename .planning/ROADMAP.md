@@ -204,7 +204,7 @@ Plans:
 
 **Wave 0**
 
-- [ ] 07-01-PLAN.md — RED visa.test.ts suite + visa.ts stub locking selectVisaPathways + graded fit + skeleton + non-filtering invariant (VISA-01/02/03)
+- [x] 07-01-PLAN.md — RED visa.test.ts suite + visa.ts stub locking selectVisaPathways + graded fit + skeleton + non-filtering invariant (VISA-01/02/03)
 
 **Wave 1** *(blocked on Wave 0)*
 
@@ -286,7 +286,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 4/5 | In Progress|  |
-| 7. Visa Concierge | 0/TBD | Not started | - |
+| 7. Visa Concierge | 1/4 | In Progress|  |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
