@@ -23,6 +23,43 @@
 //   Default international (TARGET_FUND_USD.default = $10,000):
 //     Conservative blended estimate for unlisted destinations. No single URL;
 //     derived from domestic + typical international buffer premium.
+//
+//   US domestic template — authored figures (Plan 03):
+//     Tech sector salary context (US): BLS Occupational Employment Statistics,
+//     "Software Developers, Quality Assurance Analysts, and Testers", May 2023
+//     median $130,160/yr. https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm
+//     US job market growth (tech): BLS OOH "Software Developers" 2022-32 projected
+//     growth 25% (much faster than average).
+//     https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm
+//     Texas income tax: no state income tax per Texas Comptroller.
+//     https://comptroller.texas.gov/taxes/
+//     Address change — IRS Form 8822:
+//     https://www.irs.gov/forms-pubs/about-form-8822
+//     USPS mail forwarding:
+//     https://www.usps.com/manage/mail-forwarding.htm
+//
+//   UK (London) international template — authored figures (Plan 03):
+//     Skilled Worker visa (UK): GOV.UK official guidance — salary threshold
+//     £38,700/yr (general threshold as of April 2024; confirm current on gov.uk),
+//     application fee £719–£1,420 depending on duration (as of 2024).
+//     https://www.gov.uk/skilled-worker-visa
+//     Global Talent visa (UK): GOV.UK official guidance — no salary threshold;
+//     requires endorsement from a designated body; no cap on numbers.
+//     https://www.gov.uk/global-talent
+//     London tech market context: Tech Nation "State of the Nation 2023" —
+//     London is Europe's largest tech hub, tech sector employs 500K+.
+//     https://technation.io/report2023/
+//     London median rent (USD): cities.ts record — $3,186/month (2024 estimate).
+//     London median home (USD): cities.ts record — $740,000 (2024 estimate).
+//     NHS registration: NHS England "Registering with a GP surgery."
+//     https://www.nhs.uk/using-the-nhs/nhs-services/gps/how-to-register-with-a-gp-practice/
+//     BRP (Biometric Residence Permit): GOV.UK guidance.
+//     https://www.gov.uk/biometric-residence-permits
+//     UK bank account for new arrivals: GOV.UK "Open a bank account."
+//     https://www.gov.uk/government/publications/banking-for-new-residents
+//     Passport validity: US passport typically 10 years; UK entry requires
+//     validity for duration of stay (check gov.uk/check-uk-visa for latest).
+//     https://www.gov.uk/check-uk-visa
 // ─────────────────────────────────────────────────────────────────
 
 import type { RoadmapSection } from '../types.js';
@@ -86,12 +123,13 @@ export const TARGET_FUND_USD: Record<string, number> = {
   default: 10000, // conservative fallback for unlisted destinations
 };
 
-// ── Template registry — Plan 03 appends US.US and US.UK entries here ─────────
+// ── Template registry — populated by US_DOMESTIC_TEMPLATE and US_TO_UK_TEMPLATE below ─
 
 /**
  * Outer key: profile.citizenship (e.g. 'US').
  * Inner key: city.country (e.g. 'US', 'UK').
  * Plan 02 ships an empty US bucket; Plan 03 authors the two persona pairs.
+ * The registry is mutated after the templates are declared (declaration ordering).
  */
 export const ROADMAP_TEMPLATES: Record<string, Record<string, RoadmapTemplate>> = {
   US: {},
@@ -219,3 +257,261 @@ export const GENERIC_TEMPLATE: RoadmapTemplate = [
     ],
   },
 ];
+
+// ── US Domestic Template (Plan 03 — ROAD-01/ROAD-02) ─────────────────────────
+//
+// US-citizen → top US match. A domestic move requires no visa; the visa section
+// is light but still carries the immutable UPL line (VISA-04) + Premium teaser.
+// All authored figures are cited in the Sources block above.
+
+const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
+  {
+    id: 'timeline',
+    title: 'Move Timeline',
+    steps: [
+      {
+        label: 'Savings runway to fund your move',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Your projected budget shows a monthly deficit at current expenses in ${ctx.cityName}. Before setting a move date, close the gap: either increase income or reduce ongoing costs so that monthly savings are positive. Use the Financial section below for specific levers.`;
+          }
+          return `Based on your projected $${ctx.monthlySavings.toLocaleString()}/month of savings, your ~$${ctx.targetFundUSD.toLocaleString()} domestic move fund is reachable in about ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'} — covering first month + deposit, movers, and a 3-month emergency buffer. Start a dedicated savings transfer now so the fund builds automatically.`;
+        },
+      },
+      {
+        label: 'Planning milestones',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Set milestones once the deficit is resolved. A realistic plan: 1) stabilize cash flow, 2) build a 3-month emergency buffer, 3) add a move-fund line item once savings turn positive.`;
+          }
+          const phase1 = Math.max(1, Math.floor(ctx.monthsToFund / 3));
+          const phase2 = Math.max(phase1 + 1, Math.floor(ctx.monthsToFund * 2 / 3));
+          return `Suggested ${ctx.monthsToFund}-month plan for your move to ${ctx.cityName}: months 1-${phase1} research neighborhoods and compare job listings; months ${phase1 + 1}-${phase2} secure an employment offer or confirm remote arrangement; final month book movers, secure housing, and file admin paperwork.`;
+        },
+      },
+    ],
+  },
+  {
+    id: 'financial',
+    title: 'Financial Preparation',
+    steps: [
+      {
+        label: 'Monthly budget snapshot',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Current expense estimate leaves a deficit — expenses exceed income at this location. Review each expense category and identify reductions before committing to a move date.`;
+          }
+          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. Protect this margin — it is your runway to fund the move and build reserves.`;
+        },
+      },
+      {
+        label: 'Move fund target',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Target domestic relocation fund: $${ctx.targetFundUSD.toLocaleString()} (first + last month deposit, movers, 3-month emergency buffer). With the current deficit, focus on closing the gap before earmarking move funds.`;
+          }
+          return `Target domestic relocation fund: $${ctx.targetFundUSD.toLocaleString()} — covers first + last month deposit, moving logistics, and a 3-month emergency reserve. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Automate a dedicated transfer so the fund grows without manual discipline.`;
+        },
+      },
+    ],
+  },
+  {
+    id: 'jobs',
+    title: 'Job Market & Career',
+    steps: [
+      {
+        label: 'Research the local market',
+        detail: (ctx) =>
+          `${ctx.profession} roles in ${ctx.cityName}: search LinkedIn, Indeed, and Glassdoor with city-specific filters. The US tech sector (BLS 2023) reports a median salary of ~$130,000/year for software professionals nationwide — your projected figure of $${ctx.estSalary.toLocaleString()}/year reflects the local market. Post salary ranges are shifting: apply to roles that list compensation openly and use those as your negotiating floor.`,
+        sourceUrl: 'https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm',
+      },
+      {
+        label: 'Network before you arrive',
+        detail: (ctx) =>
+          `Find ${ctx.profession} meetups, professional associations, and LinkedIn connections in ${ctx.cityName} at least 60 days before your move. A local referral compresses time-to-offer by weeks. Remote first-round interviews are now standard — start applying before relocating. If you have a remote arrangement, confirm your employer's multi-state payroll setup and any state-tax implications for ${ctx.cityName}.`,
+      },
+    ],
+  },
+  {
+    id: 'housing',
+    title: 'Housing',
+    steps: [
+      {
+        label: 'Housing cost baseline',
+        detail: (ctx) => {
+          if (ctx.housing === 'rent') {
+            return `Median rent in ${ctx.cityName}: $${ctx.medianRent.toLocaleString()}/month. Budget for first month + security deposit (typically 1-2 months rent = $${(ctx.medianRent * 2).toLocaleString()} upfront). Search 60-90 days before your target move date and use Zillow, Apartments.com, or local property managers. Confirm lease terms and pet/parking policies before signing.`;
+          }
+          return `Median home price in ${ctx.cityName}: $${ctx.medianHome.toLocaleString()}. A conventional 20% down payment would be $${Math.round(ctx.medianHome * 0.2).toLocaleString()}. Factor in inspection, closing costs (~2-5%), and a 3-6 month emergency reserve before committing. Get pre-approved before making offers in competitive markets.`;
+        },
+      },
+      {
+        label: 'Neighborhood research',
+        detail: (ctx) =>
+          `Before signing a lease or offer in ${ctx.cityName}, visit the neighborhood at different times of day. Use Walk Score and transit maps to validate commute assumptions against your actual workplace location. Short-term furnished rentals (30-60 days) let you validate the area before a long-term commitment — especially useful when relocating without a prior local visit.`,
+      },
+    ],
+  },
+  {
+    id: 'logistics',
+    title: 'Logistics & Practical Steps',
+    steps: [
+      {
+        label: 'Moving logistics',
+        detail: (ctx) =>
+          `Get at least 3 quotes for your domestic move to ${ctx.cityName}. Declutter before quoting — movers price by weight and volume. Ship books and non-essentials via USPS Media Mail or a freight carrier. Book moving trucks or full-service movers 4-8 weeks in advance, especially for summer moves (peak season).`,
+      },
+      {
+        label: 'Admin checklist — domestic move',
+        detail: (_ctx) =>
+          `Key admin steps for a US domestic move: (1) File IRS Form 8822 to update your address with the IRS. (2) Submit a USPS change-of-address form (usps.com) — mail forwarding lasts 12 months. (3) Notify your bank, employer HR/payroll, and subscription services. (4) Transfer your driver's license and vehicle registration within the state's required window — typically 30-90 days of establishing residency. (5) Transfer healthcare coverage before your old plan lapses; confirm in-network providers in the new city. (6) Update voter registration in your new state.`,
+        sourceUrl: 'https://www.irs.gov/forms-pubs/about-form-8822',
+      },
+    ],
+  },
+  {
+    id: 'visa',
+    title: 'Visa & Immigration',
+    steps: [
+      {
+        label: 'Visa requirement — domestic move',
+        detail: (_ctx) =>
+          `A US citizen moving within the United States does not require a visa — freedom of movement between states is unrestricted. No immigration filings are needed for a domestic relocation. This is informational only and not legal advice. If your situation involves employer sponsorship, international travel, or dual-citizenship considerations, consult a licensed attorney who handles immigration matters for guidance specific to your situation. Potential Premium includes a full visa concierge for international moves with pathway comparison and document checklists.`,
+      },
+    ],
+  },
+];
+
+// Assign the domestic template to the US.US slot in the registry
+ROADMAP_TEMPLATES.US.US = US_DOMESTIC_TEMPLATE;
+
+// ── US → UK (London) International Template (Plan 03 — ROAD-01/ROAD-02) ──────
+//
+// US-citizen → London, UK. The visa section's headline pathway is the UK
+// Skilled Worker visa or Global Talent visa — official GOV.UK routes, cited to
+// gov.uk. UK routes ONLY — not a Lisbon roadmap (see 06-RESEARCH Pitfall 1
+// and the hard constraint in 06-03-PLAN.md).
+// UPL line is immutable and identical to all other templates (VISA-04 / D-08).
+// All authored figures cited in the Sources block above.
+
+const US_TO_UK_TEMPLATE: RoadmapTemplate = [
+  {
+    id: 'timeline',
+    title: 'Move Timeline',
+    steps: [
+      {
+        label: 'Savings runway to fund your international move',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Your projected budget shows a monthly deficit at current expenses for ${ctx.cityName}. Before setting a move date, close the gap: either increase income or reduce ongoing costs so that monthly savings are positive. An international relocation requires a larger upfront fund — use the Financial section below for specific levers.`;
+          }
+          return `Based on your projected $${ctx.monthlySavings.toLocaleString()}/month of savings, your ~$${ctx.targetFundUSD.toLocaleString()} international relocation fund for ${ctx.cityName} is reachable in about ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'} — covering visa fees, international shipping, first month + deposit, and a 3-month emergency buffer. International moves carry more uncertainty; build the full fund before committing to a move date.`;
+        },
+      },
+      {
+        label: 'Planning milestones',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Set milestones once the deficit is resolved. For an international move: 1) stabilize cash flow, 2) build a 3-month emergency buffer, 3) research UK visa options and initiate the application process once savings turn positive.`;
+          }
+          const phase1 = Math.max(1, Math.floor(ctx.monthsToFund / 3));
+          const phase2 = Math.max(phase1 + 1, Math.floor(ctx.monthsToFund * 2 / 3));
+          return `Suggested ${ctx.monthsToFund}-month plan for your international move to ${ctx.cityName}: months 1-${phase1} research UK visa pathways (Skilled Worker / Global Talent), secure a job offer if required, and begin your visa application; months ${phase1 + 1}-${phase2} arrange international shipping, open a UK bank account remotely if possible, and secure temporary housing; final month complete BRP biometrics appointment, book flights, and close domestic obligations.`;
+        },
+      },
+    ],
+  },
+  {
+    id: 'financial',
+    title: 'Financial Preparation',
+    steps: [
+      {
+        label: 'Monthly budget snapshot',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month (USD equivalent). Current expense estimate leaves a deficit — expenses exceed income at this location. Review each expense category and identify reductions before committing to an international move date.`;
+          }
+          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month (USD equivalent). Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. International relocations require a larger cash reserve — protect this margin and target a minimum 6-month buffer before your move date.`;
+        },
+      },
+      {
+        label: 'International move fund target',
+        detail: (ctx) => {
+          if (ctx.monthsToFund === null) {
+            return `Target international relocation fund: $${ctx.targetFundUSD.toLocaleString()} (visa fees, international shipping, first + last month deposit in ${ctx.cityName}, flights, and 3-month emergency buffer). With the current deficit, focus on closing the gap before earmarking move funds.`;
+          }
+          return `Target international relocation fund: $${ctx.targetFundUSD.toLocaleString()} — covers UK visa application fees, international shipping or storage, first + last month deposit in ${ctx.cityName}, transatlantic flights, and a 3-month emergency reserve. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Currency risk is real — consider converting a portion to GBP when your fund is near target.`;
+        },
+      },
+    ],
+  },
+  {
+    id: 'jobs',
+    title: 'Job Market & Career',
+    steps: [
+      {
+        label: 'Research the London market',
+        detail: (ctx) =>
+          `${ctx.profession} roles in ${ctx.cityName}: London is Europe's largest tech hub, home to 500K+ tech workers across finance, fintech, and enterprise software (Tech Nation 2023). Search LinkedIn, CWJobs, and Hired with a UK location filter. Your projected UK salary of $${ctx.estSalary.toLocaleString()}/year (USD equivalent) reflects the local market; note that UK offers are typically quoted in GBP and your take-home depends on UK income tax and National Insurance contributions. Many US tech employers have a London office — an internal transfer may simplify your visa path.`,
+        sourceUrl: 'https://technation.io/report2023/',
+      },
+      {
+        label: 'Network before you arrive',
+        detail: (ctx) =>
+          `Find ${ctx.profession} meetups, conferences, and LinkedIn connections in ${ctx.cityName} at least 90 days before your move — international job searches take longer. Tech communities like Silicon Roundabout (East London) host regular meetups. Remote first-round interviews are standard; many London companies are comfortable hiring US candidates who are visa-eligible. Secure your job offer before applying for a Skilled Worker visa, as most UK work routes require an employer sponsor with a valid sponsorship licence.`,
+      },
+    ],
+  },
+  {
+    id: 'housing',
+    title: 'Housing',
+    steps: [
+      {
+        label: 'Housing cost baseline',
+        detail: (ctx) => {
+          if (ctx.housing === 'rent') {
+            return `Median rent in ${ctx.cityName}: $${ctx.medianRent.toLocaleString()}/month (USD equivalent). London landlords typically require a 5-week deposit plus one month in advance — budget ~$${Math.round(ctx.medianRent * 2.25).toLocaleString()} upfront (USD equivalent). Search Rightmove, Zoopla, or SpareRoom. Book temporary furnished accommodation (Airbnb or serviced apartment) for your first 30-60 days so you can view properties in person before signing.`;
+          }
+          return `Median home price in ${ctx.cityName}: $${ctx.medianHome.toLocaleString()} (USD equivalent). London's market is competitive; a 10-20% deposit is standard. As a US buyer without UK credit history, you may face higher mortgage rates initially — some buyers rent for 12-24 months to build UK credit before purchasing. Factor in Stamp Duty Land Tax (SDLT) and legal fees (~2-4% of purchase price).`;
+        },
+      },
+      {
+        label: 'Neighborhood research',
+        detail: (ctx) =>
+          `Before signing a lease in ${ctx.cityName}, research neighborhoods by Tube/Overground zone — Zone 1-2 commands a significant premium but cuts commute time. Explore areas like Shoreditch (tech cluster), Brixton, Peckham, or East London for a balance of cost and access. Use the TfL Journey Planner and Rightmove's commute-time filter. Short-term furnished accommodation in your target area for the first month is the most reliable way to validate a neighborhood before committing to a 12-month tenancy.`,
+      },
+    ],
+  },
+  {
+    id: 'logistics',
+    title: 'Logistics & Practical Steps',
+    steps: [
+      {
+        label: 'International moving logistics',
+        detail: (ctx) =>
+          `For your move to ${ctx.cityName}: (1) Passport — ensure it is valid for the full duration of your planned UK stay; renew early if needed. (2) International shipping — get quotes from at least 3 international freight companies (sea freight takes 4-6 weeks; air freight is faster but costly). Declutter aggressively — ship only what is worth the cost. (3) Flights — book transatlantic flights (typically US East Coast → Heathrow) 4-8 weeks in advance. (4) Storage — consider keeping a US storage unit for the first 6 months until you confirm your London arrangements.`,
+      },
+      {
+        label: 'UK arrival admin checklist',
+        detail: (_ctx) =>
+          `Key admin steps on or after arrival in the UK: (1) BRP (Biometric Residence Permit) — collect from the designated Post Office within 10 days of arrival; your visa letter will specify the location. (2) NHS registration — register with a local GP surgery through the NHS website; as a visa holder your access to NHS care depends on paying the Immigration Health Surcharge (IHS) as part of your visa application. (3) UK bank account — HSBC, Barclays, and Monzo all offer accounts to new UK residents; Monzo/Starling can be opened before arrival via app. (4) National Insurance Number (NI) — apply at your local DWP office or online once you have a UK address; required for employment. (5) USPS mail forwarding — set up international mail forwarding before you leave the US.`,
+        sourceUrl: 'https://www.gov.uk/biometric-residence-permits',
+      },
+    ],
+  },
+  {
+    id: 'visa',
+    title: 'Visa & Immigration',
+    steps: [
+      {
+        label: 'UK work visa pathway — Skilled Worker or Global Talent',
+        detail: (_ctx) =>
+          `The two primary UK work routes for a US professional: (1) Skilled Worker visa — requires a job offer from a UK employer with a Home Office-approved sponsorship licence. The general salary threshold is approximately £38,700/year (as of April 2024; confirm current figures at gov.uk). Application fees range approximately £719-£1,420 depending on visa duration (2024 rates; confirm current on gov.uk). Processing typically takes 3-8 weeks for an out-of-country application. (2) Global Talent visa — no job offer required; requires an endorsement from a designated body such as Tech Nation (for digital technology) or the British Academy. Suited for recognized leaders or emerging talent in their field. Both routes require a valid passport, biometric enrollment, and may require an English language test. This is informational only and not legal advice. Consult a licensed attorney who handles UK immigration matters for guidance specific to your situation. Potential Premium includes a full visa concierge with UK pathway comparison, eligibility screening, and document checklists.`,
+        sourceUrl: 'https://www.gov.uk/skilled-worker-visa',
+      },
+    ],
+  },
+];
+
+// Assign the UK template to the US.UK slot in the registry
+ROADMAP_TEMPLATES.US.UK = US_TO_UK_TEMPLATE;
