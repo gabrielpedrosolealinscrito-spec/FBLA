@@ -119,7 +119,7 @@ const CSS = `
  * @param {object} profile - The quiz profile (citizenship, profession, housing)
  * @param {function} onBack - Called when user presses Back to return to city detail
  */
-export default function Roadmap({ row, profile, onBack }) {
+export default function Roadmap({ row, profile, onBack, onVisa }) {
   // Compile the roadmap offline — pure, deterministic, no network (ROAD-03).
   const roadmap = buildRoadmapForRow(profile, row);
 
@@ -174,6 +174,16 @@ export default function Roadmap({ row, profile, onBack }) {
                 )}
               </div>
             ))}
+            {/* D-07: Visa-section teaser CTA — funnels to the Premium visa concierge */}
+            {section.id === 'visa' && onVisa && (
+              <button
+                className="rdm-btn no-print"
+                onClick={() => onVisa?.()}
+                style={{ marginTop: 16 }}
+              >
+                See full visa pathways →
+              </button>
+            )}
           </div>
         ))}
       </div>

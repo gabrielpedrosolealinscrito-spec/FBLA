@@ -5,6 +5,7 @@ import Landing from './Landing.jsx';
 import Quiz from './Quiz.jsx';
 import ResultsMap from './ResultsMap.jsx';
 import Roadmap from './Roadmap.jsx';
+import Visa from './Visa.jsx';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
@@ -48,6 +49,7 @@ export default function Potential() {
   const [sortBy, setSortBy] = useState("match");
   const [expandedSection, setExpandedSection] = useState(null);
   const [showRoadmap, setShowRoadmap] = useState(false);
+  const [showVisa, setShowVisa] = useState(false);
 
   // Animate on mount — fonts load from index.html, no font useEffect needed
   useEffect(() => {
@@ -147,6 +149,22 @@ export default function Potential() {
 
 
   // ═══════════════════════════════════════════
+  // VISA — Premium visa concierge (VISA-02/VISA-04)
+  // Guard placed BEFORE Roadmap so showVisa wins even when showRoadmap is true
+  // (D-07 dual entry: city-detail CTA + roadmap visa-section teaser).
+  // ═══════════════════════════════════════════
+  if (step === 2 && showVisa) {
+    const visaRow = selectedCity ?? (results && results[0]);
+    return (
+      <Visa
+        profile={profile}
+        matchedCountry={visaRow?.city?.country ?? ''}
+        onBack={() => setShowVisa(false)}
+      />
+    );
+  }
+
+  // ═══════════════════════════════════════════
   // ROADMAP — offline 6-section relocation plan (ROAD-01 / ROAD-03)
   // Must come BEFORE the step===2 checks so it takes precedence when active.
   // ═══════════════════════════════════════════
@@ -157,6 +175,7 @@ export default function Potential() {
         row={roadmapRow}
         profile={profile}
         onBack={() => setShowRoadmap(false)}
+        onVisa={() => { setShowRoadmap(false); setShowVisa(true); }}
       />
     );
   }
@@ -253,7 +272,8 @@ export default function Potential() {
             {c.vibe.map(v => <span key={v} style={{ fontSize:11, color:"var(--text2)", background:"var(--card)", padding:"4px 12px", borderRadius:6, border:"1px solid var(--border)" }}>{v}</span>)}
           </div>
           {/* Roadmap CTA — opens the offline 6-section relocation roadmap */}
-          <div style={{ marginBottom:20 }}>
+          {/* Visa CTA — opens the Premium visa concierge (D-07 entry point 1) */}
+          <div style={{ marginBottom:20, display:"flex", gap:10, flexWrap:"wrap" }}>
             <button
               onClick={() => setShowRoadmap(true)}
               style={{
@@ -263,6 +283,17 @@ export default function Potential() {
               }}
             >
               View relocation roadmap
+            </button>
+            <button
+              onClick={() => setShowVisa(true)}
+              style={{
+                padding:"11px 22px", background:"var(--card)", color:"var(--text2)",
+                border:"1px solid var(--border-active)",
+                borderRadius:12, fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit",
+                letterSpacing:"0.03em", display:"inline-flex", alignItems:"center", gap:8
+              }}
+            >
+              View visa pathways
             </button>
           </div>
 
