@@ -55,7 +55,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 - [x] **VISA-01**: User completes an eligibility screener that maps their profile to likely visa pathway(s)
 - [x] **VISA-02**: User sees a pathway comparison (visa type, requirements, processing time, fee range, pros/cons) for at least Portugal D8 and Canada Express Entry
 - [x] **VISA-03**: User gets a per-pathway document checklist and cost/timeline estimate, with all figures cited to official government sources
-- [ ] **VISA-04**: All visa copy stays within the UPL boundary (informational only; "consult a licensed attorney" framing; attorney-referral CTA)
+- [x] **VISA-04**: All visa copy stays within the UPL boundary (informational only; "consult a licensed attorney" framing; attorney-referral CTA)
 
 ### Freemium Tier Gate
 
@@ -128,7 +128,7 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | VISA-01 | Phase 7: Visa Concierge | Complete |
 | VISA-02 | Phase 7: Visa Concierge | Complete |
 | VISA-03 | Phase 7: Visa Concierge | Complete |
-| VISA-04 | Phase 7: Visa Concierge | Pending |
+| VISA-04 | Phase 7: Visa Concierge | Complete |
 | TIER-01 | Phase 8: Freemium Tier Gate | Complete |
 | TIER-02 | Phase 8: Freemium Tier Gate | Complete |
 | TIER-03 | Phase 8: Freemium Tier Gate | Complete |

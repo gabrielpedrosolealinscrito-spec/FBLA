@@ -17,7 +17,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 - [ ] **Phase 4: International Destinations & Country Models** - 4 intl cities with sourced data and country-correct financials
 - [x] **Phase 5: Proxy, Live AI & Golden-Path Cache** - Server-side proxy, live AI data, bundled offline fallback tested as actual fallback (completed 2026-06-06)
 - [ ] **Phase 6: Relocation Roadmap** - Template-first authored roadmap generator for all 6 sections, PDF export
-- [ ] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations
+- [x] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations (completed 2026-06-06)
 - [x] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers (completed 2026-06-06)
 - [x] **Phase 9: Pitch — Business Substance** - Sourced market sizing, competitive positioning, business model, financials, marketing (completed 2026-05-31)
 - [x] **Phase 10: Pitch — Deck, Rehearsal & Protocol** - Slide deck, Q&A bank, timed rehearsals, protocol compliance checklist (completed 2026-05-31)
@@ -217,7 +217,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 07-04-PLAN.md — Visa.jsx side-by-side comparison + checklists + sources-as-text + disclaimer/CTA + skeleton + PotentialApp nav wiring; browser human-verify (VISA-02/03/04)
+- [x] 07-04-PLAN.md — Visa.jsx side-by-side comparison + checklists + sources-as-text + disclaimer/CTA + skeleton + PotentialApp nav wiring; browser human-verify (VISA-02/03/04)
 
 **UI hint**: yes
 
@@ -304,7 +304,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 4/5 | In Progress|  |
-| 7. Visa Concierge | 3/4 | In Progress|  |
+| 7. Visa Concierge | 4/4 | Complete   | 2026-06-06 |
 | 8. Freemium Tier Gate | 4/4 | Complete   | 2026-06-06 |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
