@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 08
-current_plan: 2
-status: executing
-stopped_at: Phase 08 Plan 02 complete — LockGate + tier state wiring + rank-gate delivered
-last_updated: "2026-06-06T17:44:45.181Z"
+current_plan: 1
+status: verifying
+stopped_at: Phase 08 Plan 03 complete — DemoTierSwitcher + RunsBadge + presenterMode wiring delivered
+last_updated: "2026-06-06T17:54:23.309Z"
 last_activity: 2026-06-06
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 42
-  completed_plans: 38
+  completed_plans: 39
   percent: 70
 ---
 
@@ -69,6 +69,9 @@ Plan: 4 of 4
 - [Phase 08-02]: FrostedSkeleton hardcodes gold literals — PotentialApp green host scope (#6EE7B7) would corrupt card colors
 - [Phase 08-02]: Rank-gate owned by ResultsMap; section-gate owned by LockGate — Architectural Responsibility Map separation
 - [Phase 08-02]: modalOpen wired but PricingModal deferred to Wave 3 (08-04) — intentional stub
+- [Phase ?]: renderScreen() wrap keeps per-step JSX byte-identical; DemoTierSwitcher renders as root sibling overlay
+- [Phase ?]: RunsBadge sources labels from TIER_RUNS_MAP only — no re-hardcoded strings
+- [Phase ?]: Corner triple-tap gesture (80x80px bottom-right, 3 taps/600ms) chosen over keyboard chord for D-05/D-13 mobile compliance
 
 ## Performance Metrics
 
@@ -92,10 +95,11 @@ Plan: 4 of 4
 | 07 | 03 | 8min | 1 | 1 |
 | Phase 08 P01 | 15min | 3 tasks | 7 files |
 | Phase 08 P02 | 5min | 3 tasks | 3 files |
+| Phase 08 P03 | 3min | 3 tasks | 3 files |
 
 ## Session Continuity
 
-**Stopped At:** Phase 8 UI-SPEC approved
+**Stopped At:** Phase 08 Plan 03 complete — DemoTierSwitcher + RunsBadge + presenterMode wiring delivered
 **Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
 **Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8

@@ -247,7 +247,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 08-03-PLAN.md — Tier-switching slice: hidden DemoTierSwitcher + corner-triple-tap presenter gesture + RunsBadge (TIER-02)
+- [x] 08-03-PLAN.md — Tier-switching slice: hidden DemoTierSwitcher + corner-triple-tap presenter gesture + RunsBadge (TIER-02)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -305,6 +305,6 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 4/5 | In Progress|  |
 | 7. Visa Concierge | 3/4 | In Progress|  |
-| 8. Freemium Tier Gate | 2/4 | In Progress|  |
+| 8. Freemium Tier Gate | 3/4 | In Progress|  |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
