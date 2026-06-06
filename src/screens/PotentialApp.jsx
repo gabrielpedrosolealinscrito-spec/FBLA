@@ -532,9 +532,37 @@ export default function Potential() {
             </div>
           </LockGate>
 
-          {/* Visa Concierge — frosted skeleton (no real inline visa content; premium tier) */}
+          {/* Visa Concierge — premium inline teaser + entry into the full screener (VISA-01) */}
           <LockGate tier={tier} requiredTier="premium" lockedLabel="Unlock Visa Concierge" onUnlock={() => setModalOpen(true)}>
-            {null}
+            {(() => {
+              const isDomestic = c.country === "US";
+              return (
+                <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
+                  <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:8, fontWeight:700 }}>🛂 Visa Concierge</h3>
+                  {isDomestic ? (
+                    <p style={{ fontSize:13, color:"var(--text2)", lineHeight:1.55, margin:"0 0 16px" }}>
+                      {c.name} is a domestic move — no visa required. The visa concierge maps immigration pathways for international destinations.
+                    </p>
+                  ) : (
+                    <p style={{ fontSize:13, color:"var(--text2)", lineHeight:1.55, margin:"0 0 16px" }}>
+                      See the immigration pathways from your citizenship to {c.name} — visa types, eligibility, document checklists, and cost/timeline cited to official government sources.
+                    </p>
+                  )}
+                  <button
+                    onClick={() => setShowVisa(true)}
+                    style={{
+                      background:"var(--accent)", color:"#08090C", border:"none", borderRadius:10,
+                      padding:"12px 20px", fontFamily:"inherit", fontSize:14, fontWeight:700, cursor:"pointer",
+                    }}
+                  >
+                    Open Visa Concierge →
+                  </button>
+                  <p style={{ fontSize:11, color:"var(--text3)", margin:"12px 0 0", lineHeight:1.5 }}>
+                    Not legal advice — consult a licensed immigration attorney.
+                  </p>
+                </div>
+              );
+            })()}
           </LockGate>
         </div>
       </div>
