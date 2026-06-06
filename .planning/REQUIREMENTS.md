@@ -14,8 +14,8 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 - [x] **FOUND-01**: Diverged git branches reconciled — `potential_v2.jsx` prototype, README, PDF, and `.planning/` all live on one coherent `main`
 - [x] **FOUND-02**: Project builds and runs locally with a real toolchain (Vite + React), prototype ported in with no visual regression
-- [ ] **FOUND-03**: Server-side proxy handles all Anthropic API calls — no API key is ever present in client code
-- [ ] **FOUND-04**: App runs end-to-end on a laptop on battery with the live layer served from a bundled offline cache when no network is available
+- [x] **FOUND-03**: Server-side proxy handles all Anthropic API calls — no API key is ever present in client code
+- [x] **FOUND-04**: App runs end-to-end on a laptop on battery with the live layer served from a bundled offline cache when no network is available
 
 ### Quiz / Profile Capture
 
@@ -44,29 +44,29 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Live AI Data Layer (Plus tier centerpiece)
 
-- [ ] **LIVE-01**: User sees real current job listings for their profession in a selected city, fetched live via the proxy
-- [ ] **LIVE-02**: User sees real current housing listings (rent or buy per their preference) for a selected city
-- [ ] **LIVE-03**: User sees an AI-generated "day in your life" narrative personalized to their profile and city
-- [ ] **LIVE-04**: Live results gracefully fall back to cached golden-path data on API/parse failure (never a blank or broken state on stage)
+- [x] **LIVE-01**: User sees real current job listings for their profession in a selected city, fetched live via the proxy
+- [x] **LIVE-02**: User sees real current housing listings (rent or buy per their preference) for a selected city
+- [x] **LIVE-03**: User sees an AI-generated "day in your life" narrative personalized to their profile and city
+- [x] **LIVE-04**: Live results gracefully fall back to cached golden-path data on API/parse failure (never a blank or broken state on stage)
 
 ### Relocation Roadmap (Plus tier differentiator)
 
-- [ ] **ROAD-01**: User gets a step-by-step relocation roadmap for their top city covering timeline, financial prep, job-search path, housing path, and logistics checklist
-- [ ] **ROAD-02**: Roadmap content is template-first (authored from real knowledge) and only LLM-enriched for prose — no invented procedural/legal steps
-- [ ] **ROAD-03**: Roadmap is readable offline and exportable (e.g., PDF) for the demo
+- [x] **ROAD-01**: User gets a step-by-step relocation roadmap for their top city covering timeline, financial prep, job-search path, housing path, and logistics checklist
+- [x] **ROAD-02**: Roadmap content is template-first (authored from real knowledge) and only LLM-enriched for prose — no invented procedural/legal steps
+- [x] **ROAD-03**: Roadmap is readable offline and exportable (e.g., PDF) for the demo
 
 ### Immigration / Visa Concierge (Premium tier)
 
-- [ ] **VISA-01**: User completes an eligibility screener that maps their profile to likely visa pathway(s)
-- [ ] **VISA-02**: User sees a pathway comparison (visa type, requirements, processing time, fee range, pros/cons) for at least Portugal D8 and Canada Express Entry
-- [ ] **VISA-03**: User gets a per-pathway document checklist and cost/timeline estimate, with all figures cited to official government sources
-- [ ] **VISA-04**: All visa copy stays within the UPL boundary (informational only; "consult a licensed attorney" framing; attorney-referral CTA)
+- [x] **VISA-01**: User completes an eligibility screener that maps their profile to likely visa pathway(s)
+- [x] **VISA-02**: User sees a pathway comparison (visa type, requirements, processing time, fee range, pros/cons) for at least Portugal D8 and Canada Express Entry
+- [x] **VISA-03**: User gets a per-pathway document checklist and cost/timeline estimate, with all figures cited to official government sources
+- [x] **VISA-04**: All visa copy stays within the UPL boundary (informational only; "consult a licensed attorney" framing; attorney-referral CTA)
 
 ### Freemium Tier Gate
 
-- [ ] **TIER-01**: Free tier shows a minimal teaser (that a #1 match exists); deeper results and detail sections are visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style)
-- [ ] **TIER-02**: Basic ($0.99, 1 run) / Plus ($9.99, 3 runs) / Premium ($29.99, unlimited runs) tiers each unlock the correct run-based feature set, demonstrable by switching tier state in the UI
-- [ ] **TIER-03**: Tier-locked features display a clear "what you unlock" upsell, with Plus positioned as the primary upsell target
+- [x] **TIER-01**: Free tier shows a minimal teaser (that a #1 match exists); deeper results and detail sections are visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style)
+- [x] **TIER-02**: Basic ($0.99, 1 run) / Plus ($9.99, 3 runs) / Premium ($29.99, unlimited runs) tiers each unlock the correct run-based feature set, demonstrable by switching tier state in the UI
+- [x] **TIER-03**: Tier-locked features display a clear "what you unlock" upsell, with Plus positioned as the primary upsell target
 
 ### Pitch Package (what the judges score)
 
@@ -121,22 +121,22 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | FIN-01 | Phase 3: Matching & US Financial Spine | Complete |
 | MATCH-02 | Phase 4: International Destinations & Country Models | Pending |
 | FIN-02 | Phase 4: International Destinations & Country Models | Pending |
-| FOUND-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| LIVE-01 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| LIVE-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Pending |
-| ROAD-01 | Phase 6: Relocation Roadmap | Pending |
-| ROAD-02 | Phase 6: Relocation Roadmap | Pending |
-| ROAD-03 | Phase 6: Relocation Roadmap | Pending |
-| VISA-01 | Phase 7: Visa Concierge | Pending |
-| VISA-02 | Phase 7: Visa Concierge | Pending |
-| VISA-03 | Phase 7: Visa Concierge | Pending |
-| VISA-04 | Phase 7: Visa Concierge | Pending |
-| TIER-01 | Phase 8: Freemium Tier Gate | Pending |
-| TIER-02 | Phase 8: Freemium Tier Gate | Pending |
-| TIER-03 | Phase 8: Freemium Tier Gate | Pending |
+| FOUND-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| FOUND-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| LIVE-01 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| LIVE-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
+| ROAD-01 | Phase 6: Relocation Roadmap | Complete |
+| ROAD-02 | Phase 6: Relocation Roadmap | Complete |
+| ROAD-03 | Phase 6: Relocation Roadmap | Complete |
+| VISA-01 | Phase 7: Visa Concierge | Complete |
+| VISA-02 | Phase 7: Visa Concierge | Complete |
+| VISA-03 | Phase 7: Visa Concierge | Complete |
+| VISA-04 | Phase 7: Visa Concierge | Complete |
+| TIER-01 | Phase 8: Freemium Tier Gate | Complete |
+| TIER-02 | Phase 8: Freemium Tier Gate | Complete |
+| TIER-03 | Phase 8: Freemium Tier Gate | Complete |
 | PITCH-01 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-02 | Phase 9: Pitch — Business Substance | Complete |
 | PITCH-03 | Phase 9: Pitch — Business Substance | Complete |

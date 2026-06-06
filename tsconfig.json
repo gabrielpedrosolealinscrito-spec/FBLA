@@ -7,7 +7,8 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": ["shared/**/*.ts", "api/**/*.ts"],
   "exclude": ["**/*.test.ts", "node_modules"]

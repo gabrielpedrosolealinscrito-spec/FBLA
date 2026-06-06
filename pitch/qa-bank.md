@@ -119,7 +119,7 @@ Routing reflects primary expertise and Q&A ownership; it is not a filter on who 
 **Routed to:** Luke
 
 - The $0.99 entry is a deliberate psychological bridge: it reduces purchase friction to near-zero (an impulse buy below the price of a coffee) while crossing the "paid user" threshold that resets the customer's relationship with the product [SOURCE: pitch/business-model.md §4 conversion mechanics]
-- After paying $0.99, sunk-cost psychology plus genuine curiosity drives approximately 30–40% of Basic buyers to upgrade to Plus ($9.99) — the primary upsell target and the tier with the highest value delivery [SOURCE: pitch/business-model.md §4 conversion ladder — [ASSUMED]]
+- Basic ($0.99) unlocks top 3 cities fully — name, "why it matched," and core financials for each. After seeing three full results, sunk-cost psychology plus genuine curiosity drives approximately 30–40% of Basic buyers to upgrade to Plus ($9.99) for the full ranked list, live-AI layer, and relocation roadmap [SOURCE: pitch/business-model.md §2 D-12; §4 conversion ladder — [ASSUMED]]
 - Even at $0.99, API COGS per Basic run are approximately $0.01–$0.03 — the tier is margin-positive from the first sale. The $0.99 price does not erode the business; it feeds the conversion funnel [SOURCE: pitch/financials/summary.md §per-run margin proof]
 
 ---
