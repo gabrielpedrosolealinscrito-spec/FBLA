@@ -713,19 +713,22 @@ describe('selectVisaPathways', () => {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **[NON-BLOCKING — polish concern] Demo destination accent emphasis: which column gets the accent border?**
+   - RESOLVED — NON-BLOCKING cosmetic; the flagship `Record<string, VisaPathway[]>` model returns both pathways regardless of matchedCountry, so VISA-02 holds. Deferred to Phase 4 when Lisbon/Toronto enter cities.ts.
    - What we know: Under the corrected flagship model, `VISA_PATHWAYS['US']` returns [PORTUGAL_D8, CANADA_EXPRESS_ENTRY] for any US-citizen profile, regardless of matched destination. Both pathways always render side-by-side. VISA-02 is satisfied. The golden-path demo persona matches London/UK — no authored flagship for "UK" exists, so neither column gets an accent-border emphasis.
    - What's unclear: When is Lisbon (or Toronto) added to `cities.ts` and `demo-results.json`? That is a Phase 4 concern, not Phase 7.
    - Recommendation: Phase 7 can ship with both pathways rendering correctly. The emphasis logic (`matchedCountry === pathway.destinationCountry ? borderLeft: "3px solid var(--accent)" : ""`) will silently produce no accent when the matched city is London/UK — both columns appear neutral. When Lisbon is added (Phase 4), the D8 column will automatically get the accent. The planner should note this as a Phase 4 dependency, NOT a Wave 0 blocker.
 
 2. **What exact string values does `Profile.education` hold?**
+   - RESOLVED — Plans 07-01 and 07-03 mandate reading shared/quiz-engine/questions.ts in `<read_first>` and pin the exact strings ('bachelors' etc.) with a grep guard in acceptance criteria.
    - What we know: `shared/quiz-engine/questions.ts` contains the education question. The screener's `isPostSecondaryDegree()` helper needs to match against these exact values.
    - What's unclear: Phase 2 has not been executed. The education question options are in the questions file but the exact emitted string values need to be confirmed.
    - Recommendation: The planner should include a task at the start of engine authoring to read `shared/quiz-engine/questions.ts` education question options and author `isPostSecondaryDegree()` against them.
 
 3. **Should Toronto and Lisbon be added to `cities.ts` in this phase or a prior phase?**
+   - RESOLVED — obviated by the flagship model (both pathways always render); residual is the same Phase-4 cosmetic as Q-1.
    - What we know: REQUIREMENTS.md states the golden path includes Lisbon, Berlin, Toronto, London — "fully-built visa pathways for Premium demo: Portugal D8 + Canada Express Entry." Lisbon = Canada EE? No — Lisbon = D8. Toronto = Canada EE. Neither is in `cities.ts` yet.
    - What's unclear: Phase 4 (International Destinations) was supposed to add all 4 international cities. It hasn't shipped yet (Status: not started).
    - Recommendation: Explicitly flag that Phase 7 cannot surface the authored pathways without matching international city records in `cities.ts`. If Phases 2–4 remain unexecuted, Phase 7 should at minimum stub Lisbon and Toronto as minimal City records, or the planner should note the hard dependency on Phase 4.
