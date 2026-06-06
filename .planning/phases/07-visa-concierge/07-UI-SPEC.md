@@ -294,7 +294,7 @@ Each column is a `var(--card)` background card:
   background: "var(--card)",
   borderRadius: 16,
   border: "1px solid var(--border)",
-  padding: 22,
+  padding: 24,
   display: "flex",
   flexDirection: "column",
   gap: 16,
