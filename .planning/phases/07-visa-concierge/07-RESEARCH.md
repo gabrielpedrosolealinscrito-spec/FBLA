@@ -59,6 +59,8 @@ Phase 7 is a **data-authoring and UI-wiring phase**, not a library-addition phas
 
 The screener uses a **flagship model**: `VISA_PATHWAYS[citizenship]: VisaPathway[]` returns ALL authored pathways for a citizenship (Portugal D8 + Canada Express Entry for US citizens) regardless of matched destination. `matchedCountry` is used only for accent-border emphasis (highlighting the column whose `destinationCountry` matches the persona's top city) — it is NOT a filter. This resolves the demo destination mismatch: both pathways always render side-by-side even when the demo persona's top city is London/UK. The only cosmetic effect is that neither column gets the accent border when the matched city is not Portugal or Canada — which will be corrected when Lisbon/Toronto are added to `cities.ts` in Phase 4 (see Open Questions Q-1).
 
+**D-02 reconciliation:** D-02 says pathways are "driven by citizenship + matched destination." Under the flagship model, citizenship drives which pathways are returned; matched destination drives which column receives the accent-border emphasis. Both roles for destination are preserved — it just does not filter out pathways. This is consistent with the UI-SPEC (user-approved), which mandates both columns always visible.
+
 All Portugal D8 figures use the 4× Portuguese minimum wage formula (€920/month × 4 = €3,680/month as of January 2026). All Canada Express Entry government fees reflect the April 30, 2026 IRCC increase. USD conversions use dated exchange rates (EUR/USD 1.164, CAD/USD 0.719, both as of June 5, 2026) and must be re-verified at authoring time.
 
 **Primary recommendation:** Author the `VISA_PATHWAYS` data module first (Wave 0), gate all authored figures behind a `checkpoint:human-verify` task against AIMA and IRCC official pages, then wire the screener helper and Visa screen. The flagship model (flat `Record<string, VisaPathway[]>`) ensures both pathways always render — demo destination mismatch is a Phase 4 polish concern, not a Wave 0 blocker.
@@ -637,25 +639,25 @@ These five disciplines, consistently applied, keep Phase 7 on the informational 
 
 ## Code Examples
 
-### Existing Pattern to Mirror: roadmap-templates.ts → visa-pathways.ts
+### Reference Pattern: roadmap-templates.ts (nested) vs. visa-pathways.ts (flat)
 
 ```typescript
-// roadmap-templates.ts pattern (existing — mirror this for visa-pathways.ts)
+// roadmap-templates.ts (existing — NESTED: outer=citizenship, inner=destination country)
 export const ROADMAP_TEMPLATES: Record<string, Record<string, RoadmapTemplate>> = {
   US: {},
 };
 ROADMAP_TEMPLATES.US['US'] = US_DOMESTIC_TEMPLATE;
 ROADMAP_TEMPLATES.US['UK'] = US_TO_UK_TEMPLATE;
 
-// visa-pathways.ts — flat citizenship-keyed structure (all flagship pathways per citizenship)
-// NOTE: inner key is citizenship, value is ALL authored pathways shown side-by-side
-// matchedCountry is NOT used to filter — it is the accent-emphasis signal in the UI
+// visa-pathways.ts — FLAT: citizenship key only; value is ALL authored flagship pathways
+// No inner/destination key. matchedCountry is NOT used to filter pathways —
+// it is the accent-emphasis signal in the UI (which column gets the border highlight)
 export const VISA_PATHWAYS: Record<string, VisaPathway[]> = {
   US: [PORTUGAL_D8, CANADA_EXPRESS_ENTRY],
 };
 ```
 
-Outer key = `profile.citizenship`; inner key = `city.country`. For Canada: city.country would need to be `"Canada"` — verify against `cities.ts` when Lisbon and Toronto records are added.
+Key = `profile.citizenship` (single level — no inner country key). The value is a VisaPathway[] array containing ALL authored flagship pathways for that citizenship. Both pathways are always returned. `matchedCountry` is passed separately to the screener as the accent-emphasis signal; it does not affect which pathways are returned.
 
 ### Screener Selection (mirrors buildRoadmap pattern)
 
