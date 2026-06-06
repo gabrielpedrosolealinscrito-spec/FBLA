@@ -51,6 +51,24 @@ export default function Potential() {
     setTimeout(() => setAnim(true), 80);
   }, []);
 
+  // ── DEV shortcut — skip Landing + Quiz while iterating on the results UI ──
+  // Visit  /?dev=breakdown  to jump to a city's full-breakdown page, or
+  //        /?dev=results    to jump to the results map.
+  // Dev builds only (import.meta.env.DEV); never fires in the Vercel build.
+  // Temporary scaffolding — delete when the results UI is settled.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const target = new URLSearchParams(window.location.search).get("dev");
+    if (target !== "breakdown" && target !== "results") return;
+    const devProfile = { ...profile, profession: profile.profession || "Software Engineer" };
+    const scored = scoreProfile(devProfile);
+    if (!scored.length) return;
+    setProfile(devProfile);
+    setResults(scored);
+    if (target === "breakdown") setSelectedCity(scored[0]);
+    setStep(2);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const goStep = (s) => { setStep(s); setAnim(false); setTimeout(() => setAnim(true), 60); };
   const goProfile = (s) => { setProfileStep(s); setAnim(false); setTimeout(() => setAnim(true), 60); };
 
