@@ -15,7 +15,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 - [ ] **Phase 2: Quiz & Profile Capture** - Multi-step profile quiz capturing all fields including citizenship/immigration status
 - [ ] **Phase 3: Matching & US Financial Spine** - Scoring engine, US financial model, ranked results — first fully offline demo
 - [ ] **Phase 4: International Destinations & Country Models** - 4 intl cities with sourced data and country-correct financials
-- [ ] **Phase 5: Proxy, Live AI & Golden-Path Cache** - Server-side proxy, live AI data, bundled offline fallback tested as actual fallback
+- [x] **Phase 5: Proxy, Live AI & Golden-Path Cache** - Server-side proxy, live AI data, bundled offline fallback tested as actual fallback (completed 2026-06-06)
 - [ ] **Phase 6: Relocation Roadmap** - Template-first authored roadmap generator for all 6 sections, PDF export
 - [ ] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations
 - [ ] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers
@@ -144,7 +144,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (FOUND-03/04, LIVE-01..04)
+- [x] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (FOUND-03/04, LIVE-01..04)
 
 **UI hint**: yes
 
@@ -244,7 +244,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 2. Quiz & Profile Capture | 0/4 | Not started | - |
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
-| 5. Proxy, Live AI & Golden-Path Cache | 4/5 | In Progress|  |
+| 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 0/TBD | Not started | - |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
