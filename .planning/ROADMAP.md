@@ -211,7 +211,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
 
   1. A user in the free tier sees a minimal teaser (that a #1 match exists) with deeper results and detail sections visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style locked results)
-  2. Switching tiers reveals the correct run-based feature set with no broken states: Basic $0.99 (1 run — the single most optimal city + core financials), Plus $9.99 (3 runs — full ranked list + live-AI layer + roadmap), Premium $29.99 (unlimited runs — adds the visa concierge)
+  2. Switching tiers reveals the correct run-based feature set with no broken states: Basic $0.99 (1 run — the top 3 cities fully: name + why + core financials; cities #4+ stay locked), Plus $9.99 (3 runs — full ranked list + live-AI layer + roadmap), Premium $29.99 (unlimited runs — adds the visa concierge)
   3. Every locked section displays a "what you unlock" upsell message with Plus ($9.99, badged "most popular") positioned as the primary call-to-action
   4. The DemoTierSwitcher control cycles through all four tiers during a live demo, making every tier visible to judges in under 60 seconds
 
