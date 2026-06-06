@@ -1,6 +1,6 @@
 // Vitest + jest-dom setup
 // Registers custom DOM matchers (toBeInTheDocument, toHaveValue, etc.)
-// Used by all component tests (ResultsView.test.jsx and future UI tests).
+// Used by all component tests (UI tests).
 import '@testing-library/jest-dom';
 
 // ── jsdom matchMedia mock (appended Phase 2 Plan 02-01) ──

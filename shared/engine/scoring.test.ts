@@ -7,7 +7,7 @@
 //
 // CR-01 fix verification: with normalized personal weights [0,1], rawScore must be
 // comfortably below 99 in normal operation, so clamp is never active and the
-// contribution bars in CityDetail reconcile with the badge exactly.
+// per-factor score contributions reconcile with the displayed match badge exactly.
 
 import { computeRawScore, BASE_SCORE } from './scoring.js';
 import type { Profile, City } from '../types.js';
