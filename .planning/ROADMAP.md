@@ -18,7 +18,7 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 - [x] **Phase 5: Proxy, Live AI & Golden-Path Cache** - Server-side proxy, live AI data, bundled offline fallback tested as actual fallback (completed 2026-06-06)
 - [ ] **Phase 6: Relocation Roadmap** - Template-first authored roadmap generator for all 6 sections, PDF export
 - [ ] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations
-- [ ] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers
+- [x] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers (completed 2026-06-06)
 - [x] **Phase 9: Pitch — Business Substance** - Sourced market sizing, competitive positioning, business model, financials, marketing (completed 2026-05-31)
 - [x] **Phase 10: Pitch — Deck, Rehearsal & Protocol** - Slide deck, Q&A bank, timed rehearsals, protocol compliance checklist (completed 2026-05-31)
 
@@ -251,7 +251,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 08-04-PLAN.md — Upsell slice: 4-tier PricingModal (Plus 'most popular', money-back guarantee, testimonials) wired to every locked padlock (TIER-03)
+- [x] 08-04-PLAN.md — Upsell slice: 4-tier PricingModal (Plus 'most popular', money-back guarantee, testimonials) wired to every locked padlock (TIER-03) (2026-06-06)
 **UI hint**: yes
 
 ### Phase 9: Pitch — Business Substance
@@ -305,6 +305,6 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 4/5 | In Progress|  |
 | 7. Visa Concierge | 3/4 | In Progress|  |
-| 8. Freemium Tier Gate | 3/4 | In Progress|  |
+| 8. Freemium Tier Gate | 4/4 | Complete   | 2026-06-06 |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |

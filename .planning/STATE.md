@@ -3,29 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 08
-current_plan: 1
-status: verifying
-stopped_at: Phase 08 Plan 03 complete — DemoTierSwitcher + RunsBadge + presenterMode wiring delivered
-last_updated: "2026-06-06T17:54:23.309Z"
+current_plan: 4
+status: complete
+stopped_at: Phase 08 Plan 04 complete — PricingModal upsell slice + human-verify approved; Phase 8 all 4 plans done
+last_updated: "2026-06-06T18:15:00.000Z"
 last_activity: 2026-06-06
 progress:
   total_phases: 10
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 42
-  completed_plans: 39
-  percent: 70
+  completed_plans: 41
+  percent: 81
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 08 (freemium-tier-gate) — EXECUTING
-Plan: 4 of 4
-**Status:** Phase complete — ready for verification
-**Current Phase:** 08
+Phase: 08 (freemium-tier-gate) — COMPLETE
+Plan: 4 of 4 (all plans done)
+**Status:** Phase 8 complete — PricingModal upsell slice shipped + human-verified
+**Current Phase:** 08 (complete)
 **Last Activity:** 2026-06-06
-**Last Activity Description:** Phase 08 execution started
+**Last Activity Description:** Phase 08 Plan 04 complete — upsell slice, SC3 met, full freemium funnel closed
 
 > **Pitch track: COMPLETE.** Phases 9 (Business Substance) and 10 (Deck, Rehearsal & Protocol) both done 2026-05-31. All business-substance deliverables, deck outline, Q&A bank, and protocol checklist authored, source-tagged, and goal-verified under `pitch/`. Phase 10's timed rehearsals are specified but gated on Phase 8 (live demo, not yet built).
 
@@ -72,6 +72,10 @@ Plan: 4 of 4
 - [Phase ?]: renderScreen() wrap keeps per-step JSX byte-identical; DemoTierSwitcher renders as root sibling overlay
 - [Phase ?]: RunsBadge sources labels from TIER_RUNS_MAP only — no re-hardcoded strings
 - [Phase ?]: Corner triple-tap gesture (80x80px bottom-right, 3 taps/600ms) chosen over keyboard chord for D-05/D-13 mobile compliance
+- [Phase 08-04]: PricingModal renders null when open=false — no DOM footprint in the closed state
+- [Phase 08-04]: lp-locked reused from Landing.jsx for body scroll-lock — no new CSS class invented; backdrop-filter on card only (GPU-safe)
+- [Phase 08-04]: OQ-1 resolved: 30-day money-back guarantee included verbatim from UI-SPEC; RESEARCH PENDING placeholder ignored
+- [Phase 08-04]: onTier fires only with four TIERS_CONFIG keys — no free-text reaches setTier (T-08-05 mitigate satisfied)
 
 ## Performance Metrics
 
@@ -96,10 +100,12 @@ Plan: 4 of 4
 | Phase 08 P01 | 15min | 3 tasks | 7 files |
 | Phase 08 P02 | 5min | 3 tasks | 3 files |
 | Phase 08 P03 | 3min | 3 tasks | 3 files |
+| 08 | 04 | 8min | 3 | 2 |
+| Phase 08 P04 | 8min | 3 tasks | 2 files |
 
 ## Session Continuity
 
-**Stopped At:** Phase 08 Plan 03 complete — DemoTierSwitcher + RunsBadge + presenterMode wiring delivered
+**Stopped At:** Phase 08 Plan 04 complete — PricingModal upsell slice + human-verify approved; Phase 8 all 4 plans done; SC3 met end-to-end
 **Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
 **Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
