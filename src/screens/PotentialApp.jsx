@@ -4,6 +4,7 @@ import { fetchCategoryLive } from '../lib/fetchLive.js';
 import Landing from './Landing.jsx';
 import Quiz from './Quiz.jsx';
 import ResultsMap from './ResultsMap.jsx';
+import Roadmap from './Roadmap.jsx';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
@@ -46,6 +47,7 @@ export default function Potential() {
   const [aiLoading, setAiLoading] = useState({});
   const [sortBy, setSortBy] = useState("match");
   const [expandedSection, setExpandedSection] = useState(null);
+  const [showRoadmap, setShowRoadmap] = useState(false);
 
   // Animate on mount — fonts load from index.html, no font useEffect needed
   useEffect(() => {
@@ -145,6 +147,21 @@ export default function Potential() {
 
 
   // ═══════════════════════════════════════════
+  // ROADMAP — offline 6-section relocation plan (ROAD-01 / ROAD-03)
+  // Must come BEFORE the step===2 checks so it takes precedence when active.
+  // ═══════════════════════════════════════════
+  if (step === 2 && showRoadmap) {
+    const roadmapRow = selectedCity ?? (results && results[0]);
+    return (
+      <Roadmap
+        row={roadmapRow}
+        profile={profile}
+        onBack={() => setShowRoadmap(false)}
+      />
+    );
+  }
+
+  // ═══════════════════════════════════════════
   // RESULTS — cinematic map with a pin per city
   // ═══════════════════════════════════════════
   if (step === 2 && !selectedCity) {
@@ -232,8 +249,21 @@ export default function Potential() {
               <p style={{ color:"var(--text3)", fontSize:13, margin:"4px 0 0" }}>{c.pop} · {c.climate}</p>
             </div>
           </div>
-          <div style={{ display:"flex", gap:6, marginBottom:28, flexWrap:"wrap" }}>
+          <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
             {c.vibe.map(v => <span key={v} style={{ fontSize:11, color:"var(--text2)", background:"var(--card)", padding:"4px 12px", borderRadius:6, border:"1px solid var(--border)" }}>{v}</span>)}
+          </div>
+          {/* Roadmap CTA — opens the offline 6-section relocation roadmap */}
+          <div style={{ marginBottom:20 }}>
+            <button
+              onClick={() => setShowRoadmap(true)}
+              style={{
+                padding:"11px 22px", background:"var(--accent)", color:"#08090C", border:"none",
+                borderRadius:12, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit",
+                letterSpacing:"0.03em", display:"inline-flex", alignItems:"center", gap:8
+              }}
+            >
+              View relocation roadmap
+            </button>
           </div>
 
           {/* Financial Summary */}
