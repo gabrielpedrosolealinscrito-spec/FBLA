@@ -13,8 +13,17 @@
 // ═══════════════════════════════════════════════════════════════
 
 const NOTE = (m) => 440 * Math.pow(2, (m - 69) / 12); // midi -> Hz
-// i – VI – III – VII voicings (Am – F – C – G): contemplative, dawn-leaning
-const CHORDS = [[45, 60, 64, 69], [41, 57, 60, 65], [48, 64, 67, 72], [43, 59, 62, 67]];
+// Ambient harmony: a constant low A pedal anchors everything (never changes
+// key) while four upper voices drift slowly through lush sus / extended colors.
+// Thirds are mostly omitted (sus2/sus4/add9/11) for an open, mode-agnostic,
+// hypnotic quality; voice 3 holds a high A as an upper pedal for continuity.
+const PEDAL = 33; // A1 — the held drone
+const VOICINGS = [
+  [64, 71, 76, 81], // Asus2 / add9     E4  B4  E5  A5
+  [62, 67, 71, 81], // A11 (Em over A)  D4  G4  B4  A5
+  [64, 69, 74, 81], // Aadd9 / sus4     E4  A4  D5  A5
+  [64, 72, 74, 81], // Am9 (lush)       E4  C5  D5  A5
+];
 const LEVEL = 0.32;
 
 let actx = null, master = null, reverb = null, padFilter = null;
@@ -30,19 +39,20 @@ function makeReverb() {
 
 function setChord(notes) {
   const t = actx.currentTime;
+  // Long, overlapping glides — the voices morph into the next color rather than
+  // stepping to it. The pedal (subOsc) deliberately never moves.
   voices.forEach((v, i) => {
     const f = NOTE(notes[i % notes.length]);
-    v.a.frequency.setTargetAtTime(f, t, 1.8); v.b.frequency.setTargetAtTime(f, t, 1.8);
-    v.vg.gain.setTargetAtTime(v.base * .55, t, 1.0);   // dip
-    v.vg.gain.setTargetAtTime(v.base, t + 2.4, 2.2);   // swell back
+    v.a.frequency.setTargetAtTime(f, t, 3.6); v.b.frequency.setTargetAtTime(f, t, 3.6);
+    v.vg.gain.setTargetAtTime(v.base * .72, t, 2.2);   // gentle breath
+    v.vg.gain.setTargetAtTime(v.base, t + 4.5, 3.2);
   });
-  if (subOsc) subOsc.frequency.setTargetAtTime(NOTE(notes[0] - 12), t, 2.2);
 }
 
 function shimmer() {
   if (!actx || actx.state === "closed") return;
-  const chord = CHORDS[chordIx];
-  const m = chord[1 + Math.floor(Math.random() * (chord.length - 1))] + 24; // 2 octaves up
+  const chord = VOICINGS[chordIx];
+  const m = chord[Math.floor(Math.random() * chord.length)] + 12; // an octave above the voicing
   const osc = actx.createOscillator(), g = actx.createGain();
   osc.type = "sine"; osc.frequency.value = NOTE(m); g.gain.value = 0; osc.connect(g);
   if (actx.createStereoPanner) { const p = actx.createStereoPanner(); p.pan.value = Math.random() * 1.6 - .8; g.connect(p); p.connect(reverb); p.connect(master); }
@@ -58,28 +68,29 @@ function build() {
   if (built) return;
   actx = new (window.AudioContext || window.webkitAudioContext)();
   master = actx.createGain(); master.gain.value = 0; master.connect(actx.destination);
-  // space
-  reverb = makeReverb(); const wet = actx.createGain(); wet.gain.value = .85; reverb.connect(wet); wet.connect(master);
+  // space — long, washy reverb tail for texture
+  reverb = makeReverb(); const wet = actx.createGain(); wet.gain.value = .95; reverb.connect(wet); wet.connect(master);
   // pad: voices -> filter -> bus -> (dry + reverb send)
-  padFilter = actx.createBiquadFilter(); padFilter.type = "lowpass"; padFilter.frequency.value = 760; padFilter.Q.value = .7;
+  padFilter = actx.createBiquadFilter(); padFilter.type = "lowpass"; padFilter.frequency.value = 720; padFilter.Q.value = .7;
   const bus = actx.createGain(); bus.gain.value = .55; padFilter.connect(bus); bus.connect(master); bus.connect(reverb);
-  // slow filter sweep for movement
-  const fl = actx.createOscillator(), fg = actx.createGain(); fl.frequency.value = .035; fg.gain.value = 430; fl.connect(fg); fg.connect(padFilter.frequency); fl.start();
-  // sub drone for body/warmth
-  subOsc = actx.createOscillator(); const sg = actx.createGain(); subOsc.type = "sine"; subOsc.frequency.value = NOTE(CHORDS[0][0] - 12); sg.gain.value = .11; subOsc.connect(sg); sg.connect(master); subOsc.start();
+  // very slow filter sweep — timbral movement without harmonic movement
+  const fl = actx.createOscillator(), fg = actx.createGain(); fl.frequency.value = .025; fg.gain.value = 480; fl.connect(fg); fg.connect(padFilter.frequency); fl.start();
+  // fixed low pedal/drone — the anchor; it never changes
+  subOsc = actx.createOscillator(); const sg = actx.createGain(); subOsc.type = "sine"; subOsc.frequency.value = NOTE(PEDAL); sg.gain.value = .12; subOsc.connect(sg); sg.connect(master); subOsc.start();
   // four detuned pad voices
-  voices = CHORDS[0].map((m, i) => {
+  voices = VOICINGS[0].map((m, i) => {
     const vg = actx.createGain(); vg.gain.value = 0; vg.connect(padFilter);
     const a = actx.createOscillator(), b = actx.createOscillator();
-    a.type = "triangle"; b.type = "sine"; a.frequency.value = NOTE(m); b.frequency.value = NOTE(m); a.detune.value = -6; b.detune.value = 7;
+    a.type = "triangle"; b.type = "sine"; a.frequency.value = NOTE(m); b.frequency.value = NOTE(m); a.detune.value = -7; b.detune.value = 8;
     a.connect(vg); b.connect(vg); a.start(); b.start();
-    const lfo = actx.createOscillator(), lg = actx.createGain(); lfo.frequency.value = .05 + i * .021; lg.gain.value = .03; lfo.connect(lg); lg.connect(vg.gain); lfo.start();
-    const base = [.17, .13, .12, .11][i]; vg.gain.setTargetAtTime(base, actx.currentTime, 2.6);
+    const lfo = actx.createOscillator(), lg = actx.createGain(); lfo.frequency.value = .03 + i * .017; lg.gain.value = .028; lfo.connect(lg); lg.connect(vg.gain); lfo.start();
+    const base = [.17, .13, .12, .11][i]; vg.gain.setTargetAtTime(base, actx.currentTime, 3.5);
     return { a, b, vg, base };
   });
-  // drift through the progression + sparse shimmer
-  chordTimer = setInterval(() => { chordIx = (chordIx + 1) % CHORDS.length; setChord(CHORDS[chordIx]); }, 11000);
-  shimmerTimer = setTimeout(shimmer, 3500 + Math.random() * 3500);
+  // drift slowly + organically through the voicings (no metronomic cadence) + sparse shimmer
+  const advance = () => { chordIx = (chordIx + 1) % VOICINGS.length; setChord(VOICINGS[chordIx]); chordTimer = setTimeout(advance, 18000 + Math.random() * 9000); };
+  chordTimer = setTimeout(advance, 20000 + Math.random() * 8000);
+  shimmerTimer = setTimeout(shimmer, 4000 + Math.random() * 4000);
   built = true;
 }
 
@@ -103,7 +114,7 @@ const ambient = {
   toggle() { this.setEnabled(!enabled); return enabled; },
   isEnabled() { return enabled; },
   // Full teardown (not used during normal navigation; tab close handles it).
-  stop() { clearInterval(chordTimer); clearTimeout(shimmerTimer); if (actx) { try { actx.close(); } catch (e) {} } actx = null; master = null; built = false; voices = []; },
+  stop() { clearTimeout(chordTimer); clearTimeout(shimmerTimer); if (actx) { try { actx.close(); } catch (e) {} } actx = null; master = null; built = false; voices = []; },
 };
 
 export default ambient;
