@@ -76,14 +76,17 @@ export default function Potential() {
     setCityAIData(prev => ({ ...prev, [key]: "coming_soon" }));
   }, [cityAIData]);
 
-  // ── CSS ──
+  // ── CSS — gold cinematic palette (matches ResultsMap / Landing / Pricing) ──
+  // Token keys are unchanged so every existing var(--…) reference re-skins in place.
   const css = {
-    "--bg":"#08090C","--surface":"#111318","--card":"#171B22","--card-hover":"#1C2029",
-    "--border":"rgba(255,255,255,0.05)","--border-active":"rgba(255,255,255,0.12)",
-    "--accent":"#6EE7B7","--accent2":"#FBBF24","--accent3":"#818CF8","--accent-dim":"rgba(110,231,183,0.08)",
-    "--text":"#EEF2F7","--text2":"#8896AB","--text3":"#505C6F",
-    "--neg":"#F87171","--pos":"#6EE7B7",
-    fontFamily:"'Manrope', sans-serif", background:"var(--bg)", color:"var(--text)", minHeight:"100vh"
+    "--bg":"#050710","--surface":"#0D1119","--card":"#10141D","--card-hover":"#161B26",
+    "--border":"rgba(243,237,225,0.10)","--border-active":"rgba(226,181,107,0.40)",
+    "--accent":"#E2B56B","--accent2":"#EFD2A0","--accent3":"#C99A5B","--accent-dim":"rgba(226,181,107,0.10)",
+    "--text":"#F3EDE1","--text2":"rgba(243,237,225,0.62)","--text3":"rgba(243,237,225,0.38)",
+    "--neg":"#E0816A","--pos":"#8FD6A8",
+    fontFamily:"'Manrope', sans-serif",
+    background:"radial-gradient(125% 90% at 50% -8%, #131A26 0%, #0D1119 38%, #070A11 74%, #050710 100%)",
+    color:"var(--text)", minHeight:"100vh"
   };
   const heading = { fontFamily:"'Instrument Serif', serif" };
   const mono = { fontFamily:"'JetBrains Mono', monospace" };
@@ -214,7 +217,7 @@ export default function Potential() {
             <a href={url} target="_blank" rel="noopener noreferrer" style={{
               display:"inline-flex", alignItems:"center", gap:5, marginTop:10, fontSize:12, fontWeight:600,
               color:"var(--accent)", textDecoration:"none", padding:"5px 12px", borderRadius:6,
-              background:"var(--accent-dim)", border:"1px solid rgba(110,231,183,0.15)", transition:"all 0.15s"
+              background:"var(--accent-dim)", border:"1px solid rgba(226,181,107,0.22)", transition:"all 0.15s"
             }}>
               View listing ↗
             </a>
@@ -236,7 +239,16 @@ export default function Potential() {
           <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:8 }}>
             <span style={{ fontSize:48 }}>{c.emoji}</span>
             <div>
-              <h2 style={{ ...heading, fontSize:36, margin:0, lineHeight:1.1 }}>{c.name}</h2>
+              <div style={{ display:"flex", alignItems:"center", gap:12, flexWrap:"wrap" }}>
+                <h2 style={{ ...heading, fontSize:36, margin:0, lineHeight:1.1, letterSpacing:"-0.01em" }}>{c.name}</h2>
+                {c.matchScore != null && (
+                  <span style={{
+                    ...mono, fontSize:12, fontWeight:600, color:"var(--accent)",
+                    background:"var(--accent-dim)", border:"1px solid rgba(226,181,107,0.25)",
+                    padding:"3px 10px", borderRadius:100, letterSpacing:"0.04em"
+                  }}>{Math.round(c.matchScore)}% match</span>
+                )}
+              </div>
               <p style={{ color:"var(--text3)", fontSize:13, margin:"4px 0 0" }}>{c.pop} · {c.climate}</p>
             </div>
           </div>
@@ -269,16 +281,16 @@ export default function Potential() {
             <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:14, fontWeight:700 }}>📋 Monthly Expenses</h3>
             {(() => {
               const items = [
-                { label: profile.housing === "rent" ? "Rent (1BR)" : "Mortgage est.", val: expenses.rent, color:"#6EE7B7" },
-                { label:"Food & Groceries", val:expenses.food, color:"#FBBF24" },
-                { label:"Transportation", val:expenses.transport, color:"#818CF8" },
-                { label:"Utilities", val:expenses.utilities, color:"#FB923C" },
-                { label:"Health Insurance", val:expenses.insurance, color:"#60A5FA" },
-                { label:"Personal / Misc", val:expenses.personal, color:"#F472B6" },
+                { label: profile.housing === "rent" ? "Rent (1BR)" : "Mortgage est.", val: expenses.rent, color:"#E2B56B" },
+                { label:"Food & Groceries", val:expenses.food, color:"#EFD2A0" },
+                { label:"Transportation", val:expenses.transport, color:"#C99A5B" },
+                { label:"Utilities", val:expenses.utilities, color:"#B5784A" },
+                { label:"Health Insurance", val:expenses.insurance, color:"#A89377" },
+                { label:"Personal / Misc", val:expenses.personal, color:"#D9A06C" },
               ];
-              if (expenses.childcare > 0) items.push({ label:`Childcare (${profile.numDependents} kid${profile.numDependents > 1 ? "s" : ""})`, val:expenses.childcare, color:"#A78BFA" });
-              if (expenses.pets > 0) items.push({ label:"Pet expenses", val:expenses.pets, color:"#34D399" });
-              if (expenses.debtPay > 0) items.push({ label:"Debt payments", val:expenses.debtPay, color:"#F87171" });
+              if (expenses.childcare > 0) items.push({ label:`Childcare (${profile.numDependents} kid${profile.numDependents > 1 ? "s" : ""})`, val:expenses.childcare, color:"#8A6F4E" });
+              if (expenses.pets > 0) items.push({ label:"Pet expenses", val:expenses.pets, color:"#8FD6A8" });
+              if (expenses.debtPay > 0) items.push({ label:"Debt payments", val:expenses.debtPay, color:"#E0816A" });
               return (
                 <>
                   <div style={{ display:"flex", height:8, borderRadius:4, overflow:"hidden", marginBottom:14 }}>
