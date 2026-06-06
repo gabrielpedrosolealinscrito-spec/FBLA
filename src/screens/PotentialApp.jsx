@@ -51,13 +51,13 @@ export default function Potential() {
     setTimeout(() => setAnim(true), 80);
   }, []);
 
-  // ── DEV shortcut — skip Landing + Quiz while iterating on the results UI ──
+  // ── Review shortcut — skip Landing + Quiz while iterating on the results UI ──
   // Visit  /?dev=breakdown  to jump to a city's full-breakdown page, or
   //        /?dev=results    to jump to the results map.
-  // Dev builds only (import.meta.env.DEV); never fires in the Vercel build.
-  // Temporary scaffolding — delete when the results UI is settled.
+  // Fires in prod too (for phone review of the deployed site), but ONLY behind
+  // the explicit ?dev= param — normal visitors never trigger it.
+  // TEMPORARY scaffolding — delete before the competition demo / launch.
   useEffect(() => {
-    if (!import.meta.env.DEV) return;
     const target = new URLSearchParams(window.location.search).get("dev");
     if (target !== "breakdown" && target !== "results") return;
     const devProfile = { ...profile, profession: profile.profession || "Software Engineer" };
