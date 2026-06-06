@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { scoreProfile } from '../lib/matchEngine.js';
 import Landing from './Landing.jsx';
 import Quiz from './CenteredQuiz.jsx';
-import ResultsMap from './ResultsMap.jsx';
+import ResultsMap from './ResultsMapNight.jsx';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
