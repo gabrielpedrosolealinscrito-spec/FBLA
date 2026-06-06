@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 06
-current_plan: 3
+current_plan: 2
 status: executing
 stopped_at: Completed 06-02-PLAN.md — Wave 1 roadmap engine; all 10 tests GREEN (695980d, d72f3eb)
-last_updated: "2026-06-06T05:04:01.075Z"
+last_updated: "2026-06-06T05:08:33.141Z"
 last_activity: 2026-06-06
 progress:
   total_phases: 10
@@ -54,6 +54,8 @@ Plan: 3 of 5
 - [Phase ?]: AIList returns null before first pull — prevents blank/stuck state under button model
 - [Phase ?]: pullLiveData uses parallel forEach fan-out so one slow/failed category never blocks another (D-04/D-05)
 - [Phase ?]: Static @fontsource/* not @fontsource-variable/* for self-hosted fonts — variable packages register '... Variable' names breaking existing bare font-family CSS
+- [Phase ?]: All 10 Wave 0 roadmap tests GREEN in Wave 1 — GENERIC_TEMPLATE serves all US-citizen fixtures since ROADMAP_TEMPLATES.US is empty; no test weakened
+- [Phase ?]: monthsToFund=null for non-positive monthlySavings (D-02) — deficit text in timeline/financial, no fabricated countdown (N months pattern blocked)
 
 ## Performance Metrics
 
