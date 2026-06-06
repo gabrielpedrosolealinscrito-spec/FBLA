@@ -55,27 +55,23 @@ Source: ResultsMap.jsx `.wrap{padding:30px 24px}`, `.row{padding:12px 14px}`, La
 
 ## Typography
 
-These four roles cover all new Phase 8 components. Sizes are drawn from existing screen patterns — no new sizes introduced.
+Five named roles for Phase 8 components. The contract is by role — the executor inherits exact px values from upstream RESEARCH.md component code. Sizes are drawn from existing screen patterns; no new values introduced.
 
 | Role | Family | Size | Weight | Line Height | Phase 8 Usage |
 |------|--------|------|--------|-------------|---------------|
 | Display | Instrument Serif | 28px | 400 (regular) | 1.2 | PricingModal header: "Unlock Your Full Potential" |
 | Heading | Instrument Serif | 20px | 400 (regular) | 1.2 | Per-tier label inside PricingModal tier cards (e.g., "Plus") |
 | Body | Manrope | 14px | 400 (regular) | 1.5 | Feature bullet text in pricing cards; testimonial body copy; locked-section CTA label |
-| Mono | JetBrains Mono | 13px | 400 (regular) | 1.0 | Price figures in PricingModal ("$9.99"); RunsBadge text ("Plus · 2 of 3 runs left") |
+| Numeric | JetBrains Mono | 26px | 400 (regular) | 1.0 | Headline price in PricingModal ("$9.99", "$0.99", "$29.99") |
+| Caption/Micro | Manrope (body) or JetBrains Mono (numeric) | 11–13px range | 400 (regular) | 1.5 | Price note suffix ("1 run · never expires"); RunsBadge ("Plus · 2 of 3 runs left") at 11px; testimonial attribution ("— Alex M.") at 11px; dismiss button, trust footer at 12–13px; match-score chip at 11px |
 
 Weights declared: **400 (regular) + 600 (semibold)**.
 
-Weight 600 reserved for: active tier button label in DemoTierSwitcher; CTA button labels ("Get Plus", "Get Basic", "Get Premium"); price note labels.
+Weight 600 reserved for: active tier button label in DemoTierSwitcher; CTA button labels ("Get Plus", "Get Basic", "Get Premium").
 
-Exception — weight 700: "MOST POPULAR" badge label only. Tiny all-caps badge requires heavier weight for legibility at 10px. This is the one case where 700 appears; all other text uses 400 or 600.
+Exception — weight 700: "MOST POPULAR" badge label only (10px all-caps). Required for legibility at that size. This is the one case where 700 appears.
 
-Supporting sizes (carried over from existing screens, not new introductions):
-- 11px: match-score chip label (`var(--mono)`, in RunsBadge and score pills) — source: ResultsMap.jsx `.row .sc{font-size:11px}`
-- 13px: secondary microcopy (PricingModal subhead, testimonial attribution "— Alex M.", DismissButton, price-note suffix) — source: Landing.jsx/ResultsMap.jsx consistent pattern
-- 12px: trust footer line ("30-day money-back guarantee · Credits never expire · No subscription") — source: Landing.jsx `.hint{font-size:12px}`
-
-Source: RESEARCH.md code examples + ResultsMap.jsx CSS block (lines 38–72).
+Source: RESEARCH.md Pattern 6 PricingModal code (`fontSize: 26` for prices, `fontSize: 13` for secondary copy, `fontSize: 11` for RunsBadge) + ResultsMap.jsx CSS block `.row .sc{font-size:11px}` + Landing.jsx `.hint{font-size:12px}`.
 
 ---
 
