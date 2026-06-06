@@ -174,7 +174,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 06-03-PLAN.md — Authored content: ROADMAP_TEMPLATES.US.US (domestic) + US.UK (London, UK visa pathway — never Portugal D8), sourced (ROAD-01/02)
+- [x] 06-03-PLAN.md — Authored content: ROADMAP_TEMPLATES.US.US (domestic) + US.UK (London, UK visa pathway — never Portugal D8), sourced (ROAD-01/02)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -267,7 +267,7 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 3. Matching & US Financial Spine | 0/TBD | Not started | - |
 | 4. International Destinations & Country Models | 0/TBD | Not started | - |
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
-| 6. Relocation Roadmap | 2/5 | In Progress|  |
+| 6. Relocation Roadmap | 3/5 | In Progress|  |
 | 7. Visa Concierge | 0/TBD | Not started | - |
 | 8. Freemium Tier Gate | 0/TBD | Not started | - |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
