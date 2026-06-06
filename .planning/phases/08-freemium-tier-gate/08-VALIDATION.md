@@ -1,8 +1,8 @@
 ---
 phase: 8
 slug: freemium-tier-gate
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-06
 ---
@@ -38,13 +38,13 @@ created: 2026-06-06
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists |
 |--------|----------|-----------|-------------------|-------------|
-| TIER-01, TIER-02 | `canAccess(active, required)` returns correct bool for all 16 tier pairs | unit | `npm test -- --grep "canAccess"` | ❌ W0 |
-| TIER-02 | Rank-gate `showUpTo(results, tier)` returns correct N cities per tier (Basic=3, Plus/Premium=all) | unit | `npm test -- --grep "rankGate"` | ❌ W0 |
-| TIER-01, TIER-03 | `<LockGate>` renders children when unlocked | component | `npm test -- --grep "LockGate unlocked"` | ❌ W0 |
-| TIER-01, TIER-03 | `<LockGate>` renders padlock + blur wrapper when locked | component | `npm test -- --grep "LockGate locked"` | ❌ W0 |
-| TIER-01, TIER-03 | `<LockGate>` renders FrostedSkeleton when locked and children is null | component | `npm test -- --grep "LockGate skeleton"` | ❌ W0 |
-| TIER-02 | `<DemoTierSwitcher>` does not render when presenterMode=false | component | `npm test -- --grep "DemoTierSwitcher"` | ❌ W0 |
-| D-06 | `<RunsBadge>` displays correct string per tier | component | `npm test -- --grep "RunsBadge"` | ❌ W0 |
+| TIER-01, TIER-02 | `canAccess(active, required)` returns correct bool for all 16 tier pairs | unit | `npm test -- -t "canAccess"` | ❌ W0 |
+| TIER-02 | Rank-gate `showUpTo(results, tier)` returns correct N cities per tier (Basic=3, Plus/Premium=all) | unit | `npm test -- -t "rankGate"` | ❌ W0 |
+| TIER-01, TIER-03 | `<LockGate>` renders children when unlocked | component | `npm test -- -t "LockGate unlocked"` | ❌ W0 |
+| TIER-01, TIER-03 | `<LockGate>` renders padlock + blur wrapper when locked | component | `npm test -- -t "LockGate locked"` | ❌ W0 |
+| TIER-01, TIER-03 | `<LockGate>` renders FrostedSkeleton when locked and children is null | component | `npm test -- -t "LockGate skeleton"` | ❌ W0 |
+| TIER-02 | `<DemoTierSwitcher>` does not render when presenterMode=false | component | `npm test -- -t "DemoTierSwitcher"` | ❌ W0 |
+| D-06 | `<RunsBadge>` displays correct string per tier | component | `npm test -- -t "RunsBadge"` | ❌ W0 |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
