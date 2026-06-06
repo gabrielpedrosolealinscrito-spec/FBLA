@@ -57,6 +57,10 @@ No real payments, no real auth, no account persistence (all v1 out-of-scope / v2
 ### Claude's Discretion
 - Exact secret gesture for hidden presenter mode (keyboard chord vs corner triple-click) — pick the most demo-reliable, document it clearly so the presenter can rehearse it.
 - Exact blur radius / padlock iconography / modal layout — match the existing dark theme (Instrument Serif / Manrope / JetBrains Mono).
+
+### Resolved Open Questions (plan-phase research, 2026-06-05)
+- **OQ-1 RESOLVED — money-back guarantee: ADD it.** RESEARCH.md flagged a conflict: D-10 includes a "30-day money-back guarantee" but `pitch/business-model.md:48` said Potential elected NOT to offer one. User decision: **honor D-10 — include the 30-day money-back guarantee in the pricing modal.** Consequence: `pitch/business-model.md` and `pitch/qa-bank.md` must be updated so the deck and Q&A match the demo (Wave 0 doc-sync task).
+- **OQ-2 — stale Basic copy in pitch docs.** `pitch/qa-bank.md` (and any matching line in `pitch/business-model.md`) still describes Basic as the "#1 city / single-city snapshot." Per D-12 Basic is now **top 3 cities fully**. Fold into the same Wave 0 doc-sync task as OQ-1.
 </decisions>
 
 <canonical_refs>
