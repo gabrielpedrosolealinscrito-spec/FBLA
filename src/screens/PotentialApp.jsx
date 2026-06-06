@@ -27,6 +27,31 @@ const fmt = (n) => n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1000 ? `$${Math.r
 const fmtFull = (n) => `$${n.toLocaleString()}`;
 
 // ═══════════════════════════════════════════
+// DEV SKIP — jump straight to fully-populated, fully-unlocked results
+// Guarded by import.meta.env.DEV so it can NEVER fire on the deployed pitch
+// build (a judge stumbling into #dev would otherwise see premium content free).
+// Activate locally with the #dev hash (e.g. http://localhost:5173/#dev).
+// Persona is chosen so the #1 match and the authored visa pathway tell one
+// coherent story (openness-to-abroad on, US citizen → intl pathways apply).
+// ═══════════════════════════════════════════
+const DEV_DEMO_PROFILE = {
+  name: "Alex Rivera", age: 29, profession: "Software Engineer", customProfession: "",
+  income: 95000, savings: 45000, debt: 0,
+  housing: "rent",
+  hasPartner: false, partnerIncome: 0,
+  hasDependents: false, numDependents: 0,
+  hasRemote: false,
+  hasPets: false, petType: "",
+  education: "bachelors",
+  lifestyleTags: ["walkable", "nightlife", "culture", "food"],
+  dealBreakers: [],
+  currentCity: "Austin, TX",
+  citizenship: "US Citizen",
+  opennessToAbroad: 80,
+  importanceRank: ["lifestyle", "cost", "career", "safety"],
+};
+
+// ═══════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════
 export default function Potential() {
@@ -62,6 +87,21 @@ export default function Potential() {
   // Animate on mount — fonts load from index.html, no font useEffect needed
   useEffect(() => {
     setTimeout(() => setAnim(true), 80);
+  }, []);
+
+  // ── DEV SKIP (import.meta.env.DEV only) ──
+  // #dev → land directly on the full, premium-unlocked results with a scored
+  // demo persona. Lets us (and Gabriel) evaluate the whole product instantly
+  // without the ~20s landing + 4-panel story + 33-question quiz every time.
+  // Cannot fire on the production build (env.DEV is false there).
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    if (!window.location.hash.toLowerCase().includes("dev")) return;
+    setProfile(DEV_DEMO_PROFILE);
+    setResults(scoreProfile(DEV_DEMO_PROFILE));
+    setTier("premium");           // everything unlocked for evaluation
+    setStep(2);                   // straight to results
+    setAnim(true);
   }, []);
 
   // ── Presenter gesture: corner triple-tap (bottom-right 80×80px, 3 taps/600ms) ──
