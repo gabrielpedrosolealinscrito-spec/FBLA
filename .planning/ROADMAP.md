@@ -199,7 +199,25 @@ Plans:
   3. Each pathway shows a document checklist and cost/timeline estimate with every figure cited to an official government source (AIMA, IRCC, etc.) and a "data as of [date]" label
   4. All immigration content displays a visible "not legal advice — consult a licensed immigration attorney" disclaimer and an attorney-referral CTA
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 0**
+
+- [ ] 07-01-PLAN.md — RED visa.test.ts suite + visa.ts stub locking selectVisaPathways + graded fit + skeleton + non-filtering invariant (VISA-01/02/03)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [ ] 07-02-PLAN.md — Authored visa-pathways.ts: Portugal D8 + Canada Express Entry (citation-perfect) + GENERIC_SKELETON + flat registry; figures human-verify checkpoint (VISA-02/03)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 07-03-PLAN.md — Engine GREEN: real selectVisaPathways + computeGradedFit (gradeD8/gradeExpressEntry/isPostSecondaryDegree); all Wave 0 tests pass (VISA-01)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 07-04-PLAN.md — Visa.jsx side-by-side comparison + checklists + sources-as-text + disclaimer/CTA + skeleton + PotentialApp nav wiring; browser human-verify (VISA-02/03/04)
+
 **UI hint**: yes
 
 ### Phase 8: Freemium Tier Gate
