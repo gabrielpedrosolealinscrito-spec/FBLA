@@ -233,7 +233,24 @@ Plans:
   3. Every locked section displays a "what you unlock" upsell message with Plus ($9.99, badged "most popular") positioned as the primary call-to-action
   4. The DemoTierSwitcher control cycles through all four tiers during a live demo, making every tier visible to judges in under 60 seconds
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 0**
+
+- [ ] 08-01-PLAN.md — Tier-gate contract (canAccess/TIER_FEATURES/TIER_RUNS_MAP) + RED test scaffold + pitch doc-sync (TIER-01/02/03)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [ ] 08-02-PLAN.md — Free-teaser slice: LockGate (blur-real/frosted-skeleton) + tier state + gated city-detail + ResultsMap rank cutoff (TIER-01/02)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 08-03-PLAN.md — Tier-switching slice: hidden DemoTierSwitcher + corner-triple-tap presenter gesture + RunsBadge (TIER-02)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 08-04-PLAN.md — Upsell slice: 4-tier PricingModal (Plus 'most popular', money-back guarantee, testimonials) wired to every locked padlock (TIER-03)
 **UI hint**: yes
 
 ### Phase 9: Pitch — Business Substance
