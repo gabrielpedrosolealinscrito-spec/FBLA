@@ -6,6 +6,8 @@ import Quiz from './Quiz.jsx';
 import ResultsMap from './ResultsMap.jsx';
 import Roadmap from './Roadmap.jsx';
 import Visa from './Visa.jsx';
+import LockGate from '../components/LockGate.jsx';
+import { canAccess } from '../../shared/types';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
@@ -50,6 +52,8 @@ export default function Potential() {
   const [expandedSection, setExpandedSection] = useState(null);
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showVisa, setShowVisa] = useState(false);
+  const [tier, setTier] = useState("free");
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Animate on mount — fonts load from index.html, no font useEffect needed
   useEffect(() => {
@@ -192,6 +196,8 @@ export default function Potential() {
         setSortBy={setSortBy}
         onSelect={(city) => { setSelectedCity(city); setAnim(false); setTimeout(() => setAnim(true), 60); }}
         onEdit={() => { goStep(1); setProfileStep(0); }}
+        tier={tier}
+        onUnlock={() => setModalOpen(true)}
       />
     );
   }
@@ -271,139 +277,145 @@ export default function Potential() {
           <div style={{ display:"flex", gap:6, marginBottom:16, flexWrap:"wrap" }}>
             {c.vibe.map(v => <span key={v} style={{ fontSize:11, color:"var(--text2)", background:"var(--card)", padding:"4px 12px", borderRadius:6, border:"1px solid var(--border)" }}>{v}</span>)}
           </div>
-          {/* Roadmap CTA — opens the offline 6-section relocation roadmap */}
-          {/* Visa CTA — opens the Premium visa concierge (D-07 entry point 1) */}
+          {/* Roadmap CTA — gated at plus tier (D-07 / D-09) */}
           <div style={{ marginBottom:20, display:"flex", gap:10, flexWrap:"wrap" }}>
-            <button
-              onClick={() => setShowRoadmap(true)}
-              style={{
-                padding:"11px 22px", background:"var(--accent)", color:"#08090C", border:"none",
-                borderRadius:12, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit",
-                letterSpacing:"0.03em", display:"inline-flex", alignItems:"center", gap:8
-              }}
-            >
-              View relocation roadmap
-            </button>
-            <button
-              onClick={() => setShowVisa(true)}
-              style={{
-                padding:"11px 22px", background:"var(--card)", color:"var(--text2)",
-                border:"1px solid var(--border-active)",
-                borderRadius:12, fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit",
-                letterSpacing:"0.03em", display:"inline-flex", alignItems:"center", gap:8
-              }}
-            >
-              View visa pathways
-            </button>
-          </div>
-
-          {/* Financial Summary */}
-          <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
-            <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:16, fontWeight:700 }}>💰 Financial Overview</h3>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))", gap:10 }}>
-              {[
-                { icon:"💼", lbl:"Est. Salary", val:fmtFull(salary), sub: c.stateTax === 0 ? "No state tax!" : `${c.stateTax}% state tax` },
-                { icon:"🏠", lbl:"Monthly Take-Home", val:fmtFull(takeHome) },
-                { icon:"📊", lbl:"Monthly Savings", val:`${savings >= 0 ? "+" : ""}${fmtFull(Math.abs(savings))}`, sub: savings >= 0 ? "After all expenses" : "⚠️ Over budget" },
-                { icon:"🏡", lbl: profile.housing === "rent" ? "Median 1BR Rent" : "Median Home Price", val: profile.housing === "rent" ? `${fmtFull(c.medianRent)}/mo` : fmtFull(c.medianHome) },
-              ].map((s, i) => (
-                <div key={i} style={{ background:"var(--surface)", borderRadius:10, padding:"14px 16px", border:"1px solid var(--border)" }}>
-                  <div style={{ fontSize:18, marginBottom:4 }}>{s.icon}</div>
-                  <div style={{ fontSize:20, ...mono, fontWeight:700, lineHeight:1.1, color: s.lbl === "Monthly Savings" ? (savings >= 0 ? "var(--pos)" : "var(--neg)") : "var(--text)" }}>{s.val}</div>
-                  <div style={{ fontSize:10, color:"var(--text3)", textTransform:"uppercase", letterSpacing:"0.06em", marginTop:4 }}>{s.lbl}</div>
-                  {s.sub && <div style={{ fontSize:11, color:"var(--text3)", marginTop:2 }}>{s.sub}</div>}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Expense Breakdown */}
-          <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
-            <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:14, fontWeight:700 }}>📋 Monthly Expenses</h3>
-            {(() => {
-              const items = [
-                { label: profile.housing === "rent" ? "Rent (1BR)" : "Mortgage est.", val: expenses.rent, color:"#6EE7B7" },
-                { label:"Food & Groceries", val:expenses.food, color:"#FBBF24" },
-                { label:"Transportation", val:expenses.transport, color:"#818CF8" },
-                { label:"Utilities", val:expenses.utilities, color:"#FB923C" },
-                { label:"Health Insurance", val:expenses.insurance, color:"#60A5FA" },
-                { label:"Personal / Misc", val:expenses.personal, color:"#F472B6" },
-              ];
-              if (expenses.childcare > 0) items.push({ label:`Childcare (${profile.numDependents} kid${profile.numDependents > 1 ? "s" : ""})`, val:expenses.childcare, color:"#A78BFA" });
-              if (expenses.pets > 0) items.push({ label:"Pet expenses", val:expenses.pets, color:"#34D399" });
-              if (expenses.debtPay > 0) items.push({ label:"Debt payments", val:expenses.debtPay, color:"#F87171" });
-              return (
-                <>
-                  <div style={{ display:"flex", height:8, borderRadius:4, overflow:"hidden", marginBottom:14 }}>
-                    {items.map((it,i) => <div key={i} style={{ width:`${(it.val/expenses.total)*100}%`, background:it.color, minWidth:2 }} />)}
-                  </div>
-                  {items.map((it,i) => (
-                    <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom: i < items.length - 1 ? "1px solid var(--border)" : "none" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                        <div style={{ width:8, height:8, borderRadius:2, background:it.color }} />
-                        <span style={{ fontSize:13, color:"var(--text2)" }}>{it.label}</span>
-                      </div>
-                      <span style={{ ...mono, fontSize:13, fontWeight:600 }}>${it.val.toLocaleString()}</span>
-                    </div>
-                  ))}
-                  <div style={{ display:"flex", justifyContent:"space-between", marginTop:10, paddingTop:10, borderTop:"2px solid var(--border)" }}>
-                    <span style={{ fontSize:13, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em" }}>Total</span>
-                    <span style={{ ...mono, fontSize:16, fontWeight:700 }}>${expenses.total.toLocaleString()}/mo</span>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-
-          {/* ── AI-Powered Sections ── */}
-          <div style={{ marginTop:8 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <p style={{ fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text3)", margin:0, fontWeight:600 }}>
-                ⚡ Live data — powered by AI search
-              </p>
+            <LockGate tier={tier} requiredTier="plus" lockedLabel="Unlock Relocation Roadmap" onUnlock={() => setModalOpen(true)}>
               <button
-                onClick={() => pullLiveData(c, profile)}
+                onClick={() => setShowRoadmap(true)}
                 style={{
-                  padding:"8px 18px", background:"var(--accent)", color:"#08090C", border:"none",
-                  borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit",
-                  letterSpacing:"0.02em"
+                  padding:"11px 22px", background:"var(--accent)", color:"#08090C", border:"none",
+                  borderRadius:12, fontSize:14, fontWeight:700, cursor:"pointer", fontFamily:"inherit",
+                  letterSpacing:"0.03em", display:"inline-flex", alignItems:"center", gap:8
                 }}
               >
-                Pull live data
+                View relocation roadmap
               </button>
-            </div>
-
-            <Section id="dayinlife" icon="📖" title="A Day in Your Life">
-              <AIList dataKey="dayinlife" renderItem={(text) => <p style={{ color:"var(--text2)", fontSize:14, lineHeight:1.8 }}>{text}</p>} />
-            </Section>
-
-            <Section id="jobs" icon="💼" title={`${profile.profession} Jobs Available Now`}>
-              <AIList dataKey="jobs" renderItem={(job, i) => (
-                <ItemCard key={i}>
-                  <div style={{ fontWeight:700, fontSize:15, marginBottom:2, color:"var(--text)" }}>{job.title}</div>
-                  <div style={{ fontSize:13, color:"var(--accent)", fontWeight:600 }}>{job.company}</div>
-                  {job.salary && job.salary !== "Not listed" && <div style={{ ...mono, fontSize:13, color:"var(--accent2)", marginTop:6, fontWeight:600 }}>{job.salary}</div>}
-                  {job.desc && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6, lineHeight:1.5 }}>{job.desc}</div>}
-                  {job.source && <div style={{ fontSize:11, color:"var(--text3)", marginTop:8, fontWeight:500 }}>{job.source}</div>}
-                </ItemCard>
-              )} />
-            </Section>
-
-            <Section id={profile.housing === "rent" ? "housing_rent" : "housing_buy"} icon="🏠" title={profile.housing === "rent" ? "Apartments for Rent" : "Homes for Sale"}>
-              <AIList dataKey={profile.housing === "rent" ? "housing_rent" : "housing_buy"} renderItem={(h, i) => (
-                <ItemCard key={i}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                    <span style={{ fontWeight:700, fontSize:15, color:"var(--text)" }}>{h.name || h.address || h.neighborhood}</span>
-                    <span style={{ ...mono, fontSize:15, fontWeight:700, color:"var(--accent)", whiteSpace:"nowrap", marginLeft:8 }}>{h.price}</span>
-                  </div>
-                  {h.neighborhood && h.name && <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{h.neighborhood}</div>}
-                  <div style={{ fontSize:12, color:"var(--text2)", marginTop:4 }}>{h.beds} bed{h.sqft ? ` · ${h.sqft}` : ""}</div>
-                  {h.feature && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6 }}>✦ {h.feature}</div>}
-                  {h.source && <div style={{ fontSize:11, color:"var(--text3)", marginTop:8, fontWeight:500 }}>{h.source}</div>}
-                </ItemCard>
-              )} />
-            </Section>
+            </LockGate>
           </div>
+
+          {/* Financial Summary + Expense Breakdown — gated at basic tier */}
+          <LockGate tier={tier} requiredTier="basic" lockedLabel="Unlock Financial Snapshot" onUnlock={() => setModalOpen(true)}>
+            <div>
+              <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
+                <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:16, fontWeight:700 }}>💰 Financial Overview</h3>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))", gap:10 }}>
+                  {[
+                    { icon:"💼", lbl:"Est. Salary", val:fmtFull(salary), sub: c.stateTax === 0 ? "No state tax!" : `${c.stateTax}% state tax` },
+                    { icon:"🏠", lbl:"Monthly Take-Home", val:fmtFull(takeHome) },
+                    { icon:"📊", lbl:"Monthly Savings", val:`${savings >= 0 ? "+" : ""}${fmtFull(Math.abs(savings))}`, sub: savings >= 0 ? "After all expenses" : "⚠️ Over budget" },
+                    { icon:"🏡", lbl: profile.housing === "rent" ? "Median 1BR Rent" : "Median Home Price", val: profile.housing === "rent" ? `${fmtFull(c.medianRent)}/mo` : fmtFull(c.medianHome) },
+                  ].map((s, i) => (
+                    <div key={i} style={{ background:"var(--surface)", borderRadius:10, padding:"14px 16px", border:"1px solid var(--border)" }}>
+                      <div style={{ fontSize:18, marginBottom:4 }}>{s.icon}</div>
+                      <div style={{ fontSize:20, ...mono, fontWeight:700, lineHeight:1.1, color: s.lbl === "Monthly Savings" ? (savings >= 0 ? "var(--pos)" : "var(--neg)") : "var(--text)" }}>{s.val}</div>
+                      <div style={{ fontSize:10, color:"var(--text3)", textTransform:"uppercase", letterSpacing:"0.06em", marginTop:4 }}>{s.lbl}</div>
+                      {s.sub && <div style={{ fontSize:11, color:"var(--text3)", marginTop:2 }}>{s.sub}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Expense Breakdown */}
+              <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
+                <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:14, fontWeight:700 }}>📋 Monthly Expenses</h3>
+                {(() => {
+                  const items = [
+                    { label: profile.housing === "rent" ? "Rent (1BR)" : "Mortgage est.", val: expenses.rent, color:"#6EE7B7" },
+                    { label:"Food & Groceries", val:expenses.food, color:"#FBBF24" },
+                    { label:"Transportation", val:expenses.transport, color:"#818CF8" },
+                    { label:"Utilities", val:expenses.utilities, color:"#FB923C" },
+                    { label:"Health Insurance", val:expenses.insurance, color:"#60A5FA" },
+                    { label:"Personal / Misc", val:expenses.personal, color:"#F472B6" },
+                  ];
+                  if (expenses.childcare > 0) items.push({ label:`Childcare (${profile.numDependents} kid${profile.numDependents > 1 ? "s" : ""})`, val:expenses.childcare, color:"#A78BFA" });
+                  if (expenses.pets > 0) items.push({ label:"Pet expenses", val:expenses.pets, color:"#34D399" });
+                  if (expenses.debtPay > 0) items.push({ label:"Debt payments", val:expenses.debtPay, color:"#F87171" });
+                  return (
+                    <>
+                      <div style={{ display:"flex", height:8, borderRadius:4, overflow:"hidden", marginBottom:14 }}>
+                        {items.map((it,i) => <div key={i} style={{ width:`${(it.val/expenses.total)*100}%`, background:it.color, minWidth:2 }} />)}
+                      </div>
+                      {items.map((it,i) => (
+                        <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom: i < items.length - 1 ? "1px solid var(--border)" : "none" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <div style={{ width:8, height:8, borderRadius:2, background:it.color }} />
+                            <span style={{ fontSize:13, color:"var(--text2)" }}>{it.label}</span>
+                          </div>
+                          <span style={{ ...mono, fontSize:13, fontWeight:600 }}>${it.val.toLocaleString()}</span>
+                        </div>
+                      ))}
+                      <div style={{ display:"flex", justifyContent:"space-between", marginTop:10, paddingTop:10, borderTop:"2px solid var(--border)" }}>
+                        <span style={{ fontSize:13, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.06em" }}>Total</span>
+                        <span style={{ ...mono, fontSize:16, fontWeight:700 }}>${expenses.total.toLocaleString()}/mo</span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          </LockGate>
+
+          {/* Why this city — frosted skeleton (no real content built yet) */}
+          <LockGate tier={tier} requiredTier="basic" lockedLabel="Unlock why this city" onUnlock={() => setModalOpen(true)}>
+            {null}
+          </LockGate>
+
+          {/* ── AI-Powered Sections — gated at plus tier ── */}
+          <LockGate tier={tier} requiredTier="plus" lockedLabel="Unlock Live AI Data" onUnlock={() => setModalOpen(true)}>
+            <div style={{ marginTop:8 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                <p style={{ fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text3)", margin:0, fontWeight:600 }}>
+                  ⚡ Live data — powered by AI search
+                </p>
+                <button
+                  onClick={() => pullLiveData(c, profile)}
+                  style={{
+                    padding:"8px 18px", background:"var(--accent)", color:"#08090C", border:"none",
+                    borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit",
+                    letterSpacing:"0.02em"
+                  }}
+                >
+                  Pull live data
+                </button>
+              </div>
+
+              <Section id="dayinlife" icon="📖" title="A Day in Your Life">
+                <AIList dataKey="dayinlife" renderItem={(text) => <p style={{ color:"var(--text2)", fontSize:14, lineHeight:1.8 }}>{text}</p>} />
+              </Section>
+
+              <Section id="jobs" icon="💼" title={`${profile.profession} Jobs Available Now`}>
+                <AIList dataKey="jobs" renderItem={(job, i) => (
+                  <ItemCard key={i}>
+                    <div style={{ fontWeight:700, fontSize:15, marginBottom:2, color:"var(--text)" }}>{job.title}</div>
+                    <div style={{ fontSize:13, color:"var(--accent)", fontWeight:600 }}>{job.company}</div>
+                    {job.salary && job.salary !== "Not listed" && <div style={{ ...mono, fontSize:13, color:"var(--accent2)", marginTop:6, fontWeight:600 }}>{job.salary}</div>}
+                    {job.desc && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6, lineHeight:1.5 }}>{job.desc}</div>}
+                    {job.source && <div style={{ fontSize:11, color:"var(--text3)", marginTop:8, fontWeight:500 }}>{job.source}</div>}
+                  </ItemCard>
+                )} />
+              </Section>
+
+              <Section id={profile.housing === "rent" ? "housing_rent" : "housing_buy"} icon="🏠" title={profile.housing === "rent" ? "Apartments for Rent" : "Homes for Sale"}>
+                <AIList dataKey={profile.housing === "rent" ? "housing_rent" : "housing_buy"} renderItem={(h, i) => (
+                  <ItemCard key={i}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <span style={{ fontWeight:700, fontSize:15, color:"var(--text)" }}>{h.name || h.address || h.neighborhood}</span>
+                      <span style={{ ...mono, fontSize:15, fontWeight:700, color:"var(--accent)", whiteSpace:"nowrap", marginLeft:8 }}>{h.price}</span>
+                    </div>
+                    {h.neighborhood && h.name && <div style={{ fontSize:12, color:"var(--text2)", marginTop:2 }}>{h.neighborhood}</div>}
+                    <div style={{ fontSize:12, color:"var(--text2)", marginTop:4 }}>{h.beds} bed{h.sqft ? ` · ${h.sqft}` : ""}</div>
+                    {h.feature && <div style={{ fontSize:12, color:"var(--text3)", marginTop:6 }}>✦ {h.feature}</div>}
+                    {h.source && <div style={{ fontSize:11, color:"var(--text3)", marginTop:8, fontWeight:500 }}>{h.source}</div>}
+                  </ItemCard>
+                )} />
+              </Section>
+            </div>
+          </LockGate>
+
+          {/* Visa Concierge — frosted skeleton (no real inline visa content; premium tier) */}
+          <LockGate tier={tier} requiredTier="premium" lockedLabel="Unlock Visa Concierge" onUnlock={() => setModalOpen(true)}>
+            {null}
+          </LockGate>
         </div>
       </div>
     );
