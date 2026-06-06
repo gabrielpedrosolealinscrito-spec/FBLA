@@ -54,8 +54,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   };
 
   try {
-    // Construct Anthropic client inside try so a missing key falls back to cache (LIVE-04)
-    const client = new Anthropic(); // reads ANTHROPIC_API_KEY from process.env
+    // Construct Anthropic client inside try so a missing key falls back to cache (LIVE-04).
+    // maxRetries: 0 — on stage the hotspot is killed while `vercel dev` is still up, so the
+    // SDK hits a connection error. The default (2 retries with backoff) would stall the catch
+    // for seconds, breaking SC4's "instant, no spinner" offline render. With no retries the
+    // failure propagates immediately → serveFallback fires fast. A successful live call never
+    // retries, so the legitimate 8-20s web_search path is unaffected.
+    const client = new Anthropic({ maxRetries: 0 }); // reads ANTHROPIC_API_KEY from process.env
 
     const msg = await client.messages.create({
       model: 'claude-sonnet-4-6',
