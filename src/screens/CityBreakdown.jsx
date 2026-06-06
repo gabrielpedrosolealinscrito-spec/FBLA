@@ -307,7 +307,7 @@ const CSS = `
 .bd *{box-sizing:border-box}
 .bd ::selection{background:var(--gold-500);color:var(--night-800)}
 
-.bd-top{display:flex;align-items:center;justify-content:space-between;padding:20px 34px;
+.bd-top{display:flex;align-items:center;justify-content:space-between;padding:20px clamp(22px,5.5vw,84px);
   border-bottom:1px solid var(--ivory-ghost);position:relative;z-index:5}
 .bd-back{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory-dim);
   background:none;border:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:color .2s var(--ease)}
@@ -371,18 +371,18 @@ const CSS = `
 .rose circle,.rose line{stroke:rgba(226,181,107,.4);fill:none;stroke-width:.8}
 .rose .dot{fill:rgba(226,181,107,.5);stroke:none}
 
-/* ── Editorial Dossier layout ── */
-.lay-ed{width:100%;max-width:1180px;margin:0 auto}
-.lay-ed .hero{position:relative;padding:54px 56px 40px;overflow:hidden;
+/* ── Editorial Dossier layout — full-bleed, padding scales with viewport ── */
+.lay-ed{width:100%}
+.lay-ed .hero{position:relative;padding:clamp(40px,5vw,68px) clamp(22px,5.5vw,84px) 44px;overflow:hidden;
   background:radial-gradient(120% 80% at 80% -10%,#141B27,transparent 60%)}
 .lay-ed .hero .glow{bottom:-60%;width:90%;height:150%}
-.lay-ed .hero .rose{top:28px;right:44px}
+.lay-ed .hero .rose{top:28px;right:clamp(20px,5vw,72px)}
 .lay-ed .rank{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
 .lay-ed .rank .line{height:1px;width:46px;background:rgba(226,181,107,.4)}
 .lay-ed h1{font-family:var(--serif);font-weight:400;font-size:clamp(58px,11vw,104px);line-height:.9;letter-spacing:-.02em;position:relative;z-index:2}
 .lay-ed h1 .st{color:var(--ivory-faint);font-style:italic;font-size:.6em}
 .lay-ed .tag{font-size:19px;color:var(--ivory-dim);max-width:30ch;margin:20px 0 24px;line-height:1.5;text-wrap:balance;position:relative;z-index:2}
-.lay-ed .body{display:grid;grid-template-columns:1.55fr 1fr;gap:28px;padding:36px 56px 30px}
+.lay-ed .body{display:grid;grid-template-columns:1.55fr 1fr;gap:clamp(28px,3vw,52px);padding:clamp(32px,3.5vw,48px) clamp(22px,5.5vw,84px) 34px}
 .lay-ed .money .headrow{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:26px;flex-wrap:wrap}
 .lay-ed .money .th .v{font-size:clamp(44px,9vw,62px)}
 .lay-ed .save-hi{display:flex;align-items:center;justify-content:space-between;gap:16px;
@@ -394,7 +394,7 @@ const CSS = `
 .lay-ed .fithead{display:flex;align-items:center;gap:18px;margin-bottom:22px}
 .lay-ed .daycard{padding:26px 26px 28px}
 .lay-ed .pull{margin:18px 0 0;padding-top:18px;border-top:1px solid var(--ivory-ghost)}
-.lay-ed .foot{padding:24px 56px 40px;border-top:1px solid var(--ivory-ghost);
+.lay-ed .foot{padding:24px clamp(22px,5.5vw,84px) 44px;border-top:1px solid var(--ivory-ghost);
   display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 
 @media(max-width:860px){
