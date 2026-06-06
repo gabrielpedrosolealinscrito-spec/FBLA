@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 06
 current_plan: 2
 status: executing
-stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-06-06T05:20:29.043Z"
+stopped_at: Completed 06-04-PLAN.md
+last_updated: "2026-06-06T06:09:32.723Z"
 last_activity: 2026-06-06
 progress:
   total_phases: 10
   completed_phases: 6
   total_plans: 34
-  completed_plans: 31
+  completed_plans: 32
   percent: 60
 ---
 
@@ -21,7 +21,7 @@ progress:
 ## Current Position
 
 Phase: 06 (relocation-roadmap) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 **Status:** Ready to execute
 **Current Phase:** 06
 **Last Activity:** 2026-06-06
@@ -59,6 +59,7 @@ Plan: 4 of 5
 - [Phase ?]: US_DOMESTIC_TEMPLATE appended; 6 sections; domestic no-visa note
 - [Phase ?]: US_TO_UK_TEMPLATE: Skilled Worker + Global Talent; no Portugal D8; UPL line; all 10 tests green
 - [Phase ?]: topNegativeSavings spreads topUK (country=UK) — routes to UK authored template once registered; D-02 branch authored in timeline+financial
+- [Phase ?]: 06-04
 
 ## Performance Metrics
 
@@ -76,10 +77,11 @@ Plan: 4 of 5
 | Phase 06 P01 | 12min | 1 tasks | 1 files |
 | Phase 06 P02 | 3min | 2 tasks | 2 files |
 | Phase 06 P03 | 5min | 2 tasks | 1 files |
+| Phase 06 P04 | 45min | 4 tasks | 4 files |
 
 ## Session Continuity
 
-**Stopped At:** Phase 7 UI-SPEC approved
+**Stopped At:** Completed 06-04-PLAN.md
 **Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
 **Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
 **Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
