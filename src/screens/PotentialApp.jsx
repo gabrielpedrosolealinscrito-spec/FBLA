@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { scoreProfile } from '../lib/matchEngine.js';
 import { fetchCategoryLive } from '../lib/fetchLive.js';
 import Landing from './Landing.jsx';

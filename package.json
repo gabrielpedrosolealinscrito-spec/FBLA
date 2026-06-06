@@ -23,6 +23,7 @@
   "homepage": "https://github.com/gabrielpedrosolealinscrito-spec/FBLA#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.101.0",
+    "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/instrument-serif": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/manrope": "^5.2.8",
