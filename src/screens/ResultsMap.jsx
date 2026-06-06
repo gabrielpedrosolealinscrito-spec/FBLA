@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TIER_FEATURES } from "../../shared/types";
 
 // ═══════════════════════════════════════════════════════════════
 // RESULTS MAP — cinematic gold map of matched cities. Each city is a
@@ -75,7 +76,7 @@ const CSS = `
 }
 `;
 
-export default function ResultsMap({ results, profile, sortBy, setSortBy, onSelect, onEdit }) {
+export default function ResultsMap({ results, profile, sortBy, setSortBy, onSelect, onEdit, tier = "free", onUnlock }) {
   const [hot, setHot] = useState(null);
   const sorted = [...results].sort((a, b) => {
     if (sortBy === "match") return b.matchScore - a.matchScore;
@@ -85,6 +86,13 @@ export default function ResultsMap({ results, profile, sortBy, setSortBy, onSele
     return 0;
   });
   const bestName = [...results].sort((a, b) => b.matchScore - a.matchScore)[0]?.name;
+
+  // Rank-gate: cut the list at TIER_FEATURES.rankShowUpTo[tier]
+  // free=1, basic=3, plus/premium=all (Infinity)
+  const showN = TIER_FEATURES.rankShowUpTo[tier];
+  const visibleRows = showN === Infinity ? sorted : sorted.slice(0, showN);
+  const hiddenRows = showN === Infinity ? [] : sorted.slice(showN);
+  const remainingCount = hiddenRows.length;
 
   const Pin = ({ c }) => {
     const best = c.name === bestName;
@@ -130,7 +138,7 @@ export default function ResultsMap({ results, profile, sortBy, setSortBy, onSele
         </div>
 
         <div className="legend">
-          {sorted.map(c => (
+          {visibleRows.map(c => (
             <div key={c.name} className={`row ${hot === c.name ? "hot" : ""}`}
               onMouseEnter={() => setHot(c.name)} onMouseLeave={() => setHot(null)} onClick={() => onSelect(c)}>
               <span className="em">{c.emoji}</span>
@@ -138,6 +146,63 @@ export default function ResultsMap({ results, profile, sortBy, setSortBy, onSele
               <span className="mo"><span className="sv" style={{ color: c.monthlySavings >= 0 ? "var(--pos)" : "var(--neg)" }}>{c.monthlySavings >= 0 ? "+" : ""}{fmt(Math.abs(c.monthlySavings))}</span><span style={{ color: "var(--faint)", fontSize: 10 }}>/mo</span></span>
             </div>
           ))}
+
+          {/* Blurred stack — shown when rank is gated (remainingCount > 0) */}
+          {remainingCount > 0 && (
+            <div
+              onClick={onUnlock}
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                borderRadius: 14,
+                overflow: "hidden"
+              }}
+            >
+              {/* Blurred teaser rows (the next 2 hidden rows, or fewer if not enough) */}
+              <div style={{ filter: "blur(5px)", userSelect: "none", pointerEvents: "none" }}>
+                {hiddenRows.slice(0, 2).map((c, i) => (
+                  <div key={c.name} className="row" style={{ marginBottom: i < 1 ? 8 : 0 }}>
+                    <span className="em">{c.emoji}</span>
+                    <span><span className="nm">{c.name}</span><span className="sc">{c.matchScore}%</span></span>
+                    <span className="mo"><span className="sv" style={{ color: c.monthlySavings >= 0 ? "var(--pos)" : "var(--neg)" }}>{c.monthlySavings >= 0 ? "+" : ""}{fmt(Math.abs(c.monthlySavings))}</span><span style={{ color: "var(--faint)", fontSize: 10 }}>/mo</span></span>
+                  </div>
+                ))}
+              </div>
+              {/* Overlay CTA — count + unlock call */}
+              <div style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                background: "rgba(8,9,12,0.55)",
+                borderRadius: 14
+              }}>
+                <span style={{
+                  fontSize: 13,
+                  fontFamily: "'Manrope', sans-serif",
+                  color: "#f3ede1",
+                  textAlign: "center",
+                  fontWeight: 600,
+                  padding: "0 16px"
+                }}>
+                  {remainingCount} more cities matched — unlock your full ranking
+                </span>
+                <span style={{
+                  fontSize: 11,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: "#e2b56b",
+                  background: "rgba(226,181,107,0.13)",
+                  padding: "3px 12px",
+                  borderRadius: 6
+                }}>
+                  Unlock →
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
