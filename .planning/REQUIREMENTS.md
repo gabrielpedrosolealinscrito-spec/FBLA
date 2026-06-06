@@ -46,9 +46,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 
 ### Relocation Roadmap (Plus tier differentiator)
 
-- [ ] **ROAD-01**: User gets a step-by-step relocation roadmap for their top city covering timeline, financial prep, job-search path, housing path, and logistics checklist
-- [ ] **ROAD-02**: Roadmap content is template-first (authored from real knowledge) and only LLM-enriched for prose — no invented procedural/legal steps
-- [ ] **ROAD-03**: Roadmap is readable offline and exportable (e.g., PDF) for the demo
+- [x] **ROAD-01**: User gets a step-by-step relocation roadmap for their top city covering timeline, financial prep, job-search path, housing path, and logistics checklist
+- [x] **ROAD-02**: Roadmap content is template-first (authored from real knowledge) and only LLM-enriched for prose — no invented procedural/legal steps
+- [x] **ROAD-03**: Roadmap is readable offline and exportable (e.g., PDF) for the demo
 
 ### Immigration / Visa Concierge (Premium tier)
 
@@ -122,9 +122,9 @@ Demo "golden path": **US cities (existing 12) + Lisbon, Berlin, Toronto, London*
 | LIVE-02 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
 | LIVE-03 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
 | LIVE-04 | Phase 5: Proxy, Live AI & Golden-Path Cache | Complete |
-| ROAD-01 | Phase 6: Relocation Roadmap | Pending |
-| ROAD-02 | Phase 6: Relocation Roadmap | Pending |
-| ROAD-03 | Phase 6: Relocation Roadmap | Pending |
+| ROAD-01 | Phase 6: Relocation Roadmap | Complete |
+| ROAD-02 | Phase 6: Relocation Roadmap | Complete |
+| ROAD-03 | Phase 6: Relocation Roadmap | Complete |
 | VISA-01 | Phase 7: Visa Concierge | Pending |
 | VISA-02 | Phase 7: Visa Concierge | Pending |
 | VISA-03 | Phase 7: Visa Concierge | Pending |
