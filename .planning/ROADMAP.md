@@ -161,7 +161,29 @@ Plans:
   3. The roadmap renders without any network connection (offline-readable)
   4. User can export or print the roadmap as a PDF from the browser
 
-**Plans**: TBD
+**Plans**: 5 plans (4 + 1 optional)
+Plans:
+
+**Wave 0**
+
+- [ ] 06-01-PLAN.md — RED Wave-0 test suite locking buildRoadmap/acceptEnrichment (ROAD-01/02/03 + D-02/D-05/D-07 + VISA-04)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [ ] 06-02-PLAN.md — Engine: authoring types + GENERIC_TEMPLATE + targetFundUSD + pure offline buildRoadmap + acceptEnrichment validator (ROAD-01/02/03)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 06-03-PLAN.md — Authored content: ROADMAP_TEMPLATES.US.US (domestic) + US.UK (London, UK visa pathway — never Portugal D8), sourced (ROAD-01/02)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 06-04-PLAN.md — UI: Roadmap screen + inline @media print CSS + window.print() export + adapter + nav wiring + human-verify checkpoint (ROAD-01/03)
+
+**Wave 4** *(optional; blocked on Wave 2 + the Phase 5 capture script)*
+
+- [ ] 06-05-PLAN.md — OPTIONAL build-time prose-enrich bake, validator-gated, non-blocking (ROAD-02)
+
 **UI hint**: yes
 
 ### Phase 7: Visa Concierge
