@@ -230,12 +230,16 @@ export default function Potential() {
   // Guard placed BEFORE Roadmap so showVisa wins even when showRoadmap is true
   // (D-07 dual entry: city-detail CTA + roadmap visa-section teaser).
   // ═══════════════════════════════════════════
-  if (step === 2 && showVisa) {
+  // Premium-only (TIER-02): the render guard gates the whole screen so no
+  // non-premium entry path (e.g. the Plus-tier roadmap visa CTA) can reach it.
+  if (step === 2 && showVisa && canAccess(tier, "premium")) {
+    // Rows are flattened (scoreProfile spreads ...r.city), so country is at the
+    // top level — visaRow.country, NOT visaRow.city.country (which is undefined).
     const visaRow = selectedCity ?? (results && results[0]);
     return (
       <Visa
         profile={profile}
-        matchedCountry={visaRow?.city?.country ?? ''}
+        matchedCountry={visaRow?.country ?? ''}
         onBack={() => setShowVisa(false)}
       />
     );
@@ -252,7 +256,12 @@ export default function Potential() {
         row={roadmapRow}
         profile={profile}
         onBack={() => setShowRoadmap(false)}
-        onVisa={() => { setShowRoadmap(false); setShowVisa(true); }}
+        onVisa={() => {
+          // Visa concierge is Premium-only — a Plus user in the roadmap must
+          // be upsold, not handed premium content (TIER-02).
+          if (!canAccess(tier, "premium")) { setModalOpen(true); return; }
+          setShowRoadmap(false); setShowVisa(true);
+        }}
       />
     );
   }
@@ -431,9 +440,44 @@ export default function Potential() {
             </div>
           </LockGate>
 
-          {/* Why this city — frosted skeleton (no real content built yet) */}
+          {/* Why this city — signed contribution bars from the engine's scoreFactors (MATCH-03) */}
           <LockGate tier={tier} requiredTier="basic" lockedLabel="Unlock why this city" onUnlock={() => setModalOpen(true)}>
-            {null}
+            {(() => {
+              const factors = c.scoreFactors || [];
+              if (factors.length === 0) {
+                return (
+                  <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
+                    <p style={{ color:"var(--text3)", fontSize:13, margin:0 }}>No score factors available for this city.</p>
+                  </div>
+                );
+              }
+              const maxAbs = Math.max(1, ...factors.map(f => Math.abs(f.contribution)));
+              return (
+                <div style={{ background:"var(--card)", borderRadius:16, padding:22, border:"1px solid var(--border)", marginBottom:12 }}>
+                  <h3 style={{ fontSize:12, textTransform:"uppercase", letterSpacing:"0.1em", color:"var(--text2)", marginBottom:8, fontWeight:700 }}>Why this city</h3>
+                  <p style={{ fontSize:12, color:"var(--text3)", marginBottom:16, lineHeight:1.5 }}>
+                    Each factor shows how much it added (green) or subtracted (red) from your match score.
+                  </p>
+                  {/* Stacked bar — width proportional to absolute contribution */}
+                  <div style={{ display:"flex", height:8, borderRadius:4, overflow:"hidden", marginBottom:14, background:"var(--surface)" }}>
+                    {factors.map((f, i) => (
+                      <div key={i} style={{ width:`${(Math.abs(f.contribution)/maxAbs)*(100/factors.length)}%`, background: f.contribution >= 0 ? "var(--pos)" : "var(--neg)", minWidth:2, flex:"none" }} />
+                    ))}
+                  </div>
+                  {factors.map((f, i) => (
+                    <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", borderBottom: i < factors.length - 1 ? "1px solid var(--border)" : "none" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <div style={{ width:8, height:8, borderRadius:2, background: f.contribution < 0 ? "var(--neg)" : "var(--pos)", flexShrink:0 }} />
+                        <span style={{ fontSize:13, color:"var(--text2)" }}>{f.factor}</span>
+                      </div>
+                      <span style={{ ...mono, fontSize:13, fontWeight:600, color: f.contribution < 0 ? "var(--neg)" : "var(--pos)" }}>
+                        {f.contribution >= 0 ? "+" : ""}{f.contribution}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </LockGate>
 
           {/* ── AI-Powered Sections — gated at plus tier ── */}
