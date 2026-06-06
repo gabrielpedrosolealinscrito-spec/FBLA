@@ -46,6 +46,11 @@ export async function fetchCategoryLive(city, category, profession) {
     }
 
     const data = await res.json();
+    // A 200 with a malformed body (missing/null items) must not produce a blank
+    // panel — honor the never-undefined contract and fall through to golden-path.
+    if (data == null || data.items == null) {
+      return goldenPath[category]?.[city.name] ?? [];
+    }
     return data.items;
   } catch {
     // Network error, AbortError, timeout, or JSON parse failure — serve golden-path

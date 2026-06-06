@@ -84,13 +84,29 @@ async function main(): Promise<void> {
     }
   }
 
-  // All requests succeeded with fromCache:false — safe to overwrite
+  // All requests succeeded with fromCache:false — safe to write.
+  // Merge into the existing snapshot rather than overwriting wholesale (WR-02):
+  // a persona only captures ONE housing category (rent OR buy), so a blind write
+  // would silently drop the other housing block — and any untouched city — from
+  // the golden path. This script is "re-runnable before pitch day"; preserve
+  // every block it didn't just capture.
   const outputPath = path.resolve(__dirname, '../data/golden-path/demo-results.json');
-  fs.writeFileSync(outputPath, JSON.stringify(result, null, 2) + '\n');
+  let merged: Record<string, Record<string, unknown>> = {};
+  if (fs.existsSync(outputPath)) {
+    try {
+      merged = JSON.parse(fs.readFileSync(outputPath, 'utf-8'));
+    } catch {
+      merged = {};
+    }
+  }
+  for (const cat of categories) {
+    merged[cat] = { ...(merged[cat] ?? {}), ...result[cat] };
+  }
+  fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2) + '\n');
 
   console.log('');
   console.log(`Wrote ${outputPath}`);
-  console.log(`Categories captured: ${Object.keys(result).join(', ')}`);
+  console.log(`Categories captured this run: ${Object.keys(result).join(', ')} (merged into existing snapshot)`);
   console.log(`Cities captured: ${cities.join(', ')}`);
   console.log('Done.');
 }
