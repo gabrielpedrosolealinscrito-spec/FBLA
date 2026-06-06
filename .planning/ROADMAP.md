@@ -62,7 +62,8 @@ Plans:
   6. The quiz adapts based on prior answers (conditional/branching follow-ups), not a fixed linear sequence
   7. When answers reveal conflicting priorities, the quiz surfaces a reconciling follow-up and stores the resolution (a tiebreaker/weight) on the Profile preference output
 
-**Plans**: 4 plansPlans:
+**Plans**: 4 plans
+
 **Wave 1**
 
 - [ ] 02-01-PLAN.md — Test runner + extended Profile/PreferenceProfile contract + City dealbreaker fields + pure tested derive-preferences/conflict-detection/branching engines
