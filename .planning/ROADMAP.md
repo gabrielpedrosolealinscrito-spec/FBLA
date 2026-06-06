@@ -243,7 +243,7 @@ Plans:
 
 **Wave 1** *(blocked on Wave 0)*
 
-- [ ] 08-02-PLAN.md — Free-teaser slice: LockGate (blur-real/frosted-skeleton) + tier state + gated city-detail + ResultsMap rank cutoff (TIER-01/02)
+- [x] 08-02-PLAN.md — Free-teaser slice: LockGate (blur-real/frosted-skeleton) + tier state + gated city-detail + ResultsMap rank cutoff (TIER-01/02)
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -305,6 +305,6 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
 | 6. Relocation Roadmap | 4/5 | In Progress|  |
 | 7. Visa Concierge | 3/4 | In Progress|  |
-| 8. Freemium Tier Gate | 1/4 | In Progress|  |
+| 8. Freemium Tier Gate | 2/4 | In Progress|  |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
