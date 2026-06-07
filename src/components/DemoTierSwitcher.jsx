@@ -22,7 +22,7 @@ const LABELS_SHORT = {
   free: "Fr",
   basic: "Ba",
   plus: "+",
-  premium: "★",
+  premium: "Pr",
 };
 
 export default function DemoTierSwitcher({ tier, onTier, visible }) {
