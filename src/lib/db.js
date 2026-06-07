@@ -41,3 +41,20 @@ export const supabase = isSupabaseConfigured
       },
     })
   : null;
+
+// ── Waitlist ────────────────────────────────────────────────────────────────
+// Paid plans aren't open for purchase yet (checkout = Phase 8). The pricing page
+// collects emails into public.waitlist (insert-only via RLS — the anon key can
+// add a row but cannot read the list back). Returns { error: string|null }.
+// A duplicate email is treated as success (you're already on the list).
+export async function joinWaitlist(email) {
+  if (!isSupabaseConfigured) {
+    return { error: 'The waitlist is offline right now — please try again later.' };
+  }
+  const { error } = await supabase.from('waitlist').insert({ email: email.trim().toLowerCase() });
+  if (error) {
+    if (error.code === '23505') return { error: null }; // unique violation = already joined
+    return { error: error.message };
+  }
+  return { error: null };
+}

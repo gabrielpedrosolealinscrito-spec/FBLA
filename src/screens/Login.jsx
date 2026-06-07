@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../lib/auth.jsx";
+import Compass from "../components/Compass.jsx";
 
 // ═══════════════════════════════════════════════════════════════
 // LOGIN — sign in + create account (package 01, screen N1).
@@ -12,34 +13,8 @@ import { useAuth } from "../lib/auth.jsx";
 // Supabase-backed useAuth this screen needs no change — same contract.
 //
 // Brand: gold-on-near-black, Instrument Serif headings, Manrope body, the
-// counter-rotating compass motif. No emojis (README §6).
+// shared <Compass> motif (README §6 — one compass everywhere). No emojis.
 // ═══════════════════════════════════════════════════════════════
-
-// ── Compass geometry (mirrors Pricing.jsx — a single shared visual motif) ──
-const C = 100;
-const round = (n) => Number(n).toFixed(2);
-const RING = "#8a6a38";
-const TICKS = Array.from({ length: 72 }, (_, i) => {
-  const a = (i / 72) * Math.PI * 2 - Math.PI / 2;
-  const cardinal = i % 18 === 0;
-  const r1 = 72, r2 = cardinal ? 87 : 78;
-  return {
-    x1: round(C + Math.cos(a) * r1), y1: round(C + Math.sin(a) * r1),
-    x2: round(C + Math.cos(a) * r2), y2: round(C + Math.sin(a) * r2),
-    w: cardinal ? 1.5 : 0.7, key: i,
-  };
-});
-function point(angleDeg, len, half) {
-  const a = (angleDeg - 90) * Math.PI / 180;
-  const ax = Math.cos(a), ay = Math.sin(a), px = -ay, py = ax;
-  const tip = `${round(C + ax * len)},${round(C + ay * len)}`;
-  const bl = `${round(C + px * half)},${round(C + py * half)}`;
-  const br = `${round(C - px * half)},${round(C - py * half)}`;
-  return { light: `${tip} ${bl} ${C},${C}`, dark: `${tip} ${br} ${C},${C}` };
-}
-const LIGHT = "#efdca9", DARK = "#c89a4f", LIGHT2 = "#e7c987", DARK2 = "#b07f3a";
-const BACK_PTS = [45, 135, 225, 315].map((ang) => point(ang, 40, 7));
-const FRONT_PTS = [[0, 66], [90, 58], [180, 60], [270, 58]].map(([ang, len]) => point(ang, len, 10));
 
 const CSS = `
 .lg{ --night-1:#070a11; --night-2:#0d1119; --panel:#10141d; --gold:#e2b56b; --gold-soft:#d2a45a;
@@ -68,11 +43,7 @@ const CSS = `
 .lg .home:hover{color:var(--ivory)}
 .lg .home small{font-style:italic;opacity:.6;font-size:12px;margin-left:1px}
 .lg .mark{display:flex;justify-content:center;margin-bottom:8px}
-.lg .mark svg{width:60px;height:60px;opacity:.92;filter:drop-shadow(0 6px 24px rgba(226,181,107,.22))}
-.lg .mark .ring{transform-box:fill-box;transform-origin:center;animation:lg-cw 120s linear infinite}
-.lg .mark .rose{transform-box:fill-box;transform-origin:center;animation:lg-ccw 72s linear infinite}
-@keyframes lg-cw{to{transform:rotate(360deg)}}
-@keyframes lg-ccw{to{transform:rotate(-360deg)}}
+.lg .mark .cmp{opacity:.92;filter:drop-shadow(0 6px 24px rgba(226,181,107,.22))}
 
 .lg h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:32px;text-align:center;letter-spacing:-.01em;line-height:1.05}
 .lg .sub{text-align:center;font-size:13px;color:var(--ivory-dim);font-weight:300;margin-top:8px;margin-bottom:26px}
@@ -121,29 +92,6 @@ const CSS = `
 @media (prefers-reduced-motion: reduce){.lg *{animation:none!important}}
 `;
 
-function CompassMark() {
-  return (
-    <svg viewBox="0 0 200 200" aria-hidden="true">
-      <g className="ring">
-        <circle cx="100" cy="100" r="94" fill="none" stroke={RING} strokeWidth=".9" />
-        <circle cx="100" cy="100" r="70" fill="none" stroke={RING} strokeWidth=".9" opacity=".85" />
-        {TICKS.map((t) => (
-          <line key={t.key} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={RING} strokeWidth={t.w} />
-        ))}
-      </g>
-      <g className="rose">
-        {BACK_PTS.map((p, i) => (
-          <g key={`b${i}`}><polygon points={p.light} fill={LIGHT2} /><polygon points={p.dark} fill={DARK2} /></g>
-        ))}
-        {FRONT_PTS.map((p, i) => (
-          <g key={`f${i}`}><polygon points={p.light} fill={LIGHT} /><polygon points={p.dark} fill={DARK} /></g>
-        ))}
-        <circle cx="100" cy="100" r="8.5" fill="#caa15a" />
-        <circle cx="100" cy="100" r="2.8" fill="#0a0d14" />
-      </g>
-    </svg>
-  );
-}
 
 export default function Login() {
   const { signIn, signUp, signInWithGoogle } = useAuth();
@@ -201,7 +149,7 @@ export default function Login() {
 
       <div className="card">
         <button className="home" type="button" onClick={goApp}>Potential <small>°</small></button>
-        <div className="mark"><CompassMark /></div>
+        <div className="mark"><Compass size={60} tickDur={120} starDur={72} /></div>
         <h1>{isSignup ? "Create your account" : "Welcome back"}</h1>
         <p className="sub">
           {isSignup
