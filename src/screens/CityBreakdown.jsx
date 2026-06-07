@@ -140,12 +140,18 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
     ? "The first month here, the math finally works in your favor."
     : "It asks a little more of the budget — but it gives the days back to you.";
 
-  // ── live teaser chips (honest descriptors, no fabricated counts) ──
-  const live = [
-    { n: profile?.profession ? `${profile.profession}` : "Local", label: "roles & openings" },
-    { n: "1-bed", label: "apartment listings" },
-    { n: "Curated", label: "restaurants & bars" },
-    { n: "Nearby", label: "trails & outdoors" },
+  // ── live-AI data sections (Plus, $9.99) ──
+  // Titles are honest descriptors of what the live layer returns; the row
+  // content is abstract skeleton (no fabricated listings/counts) until unlocked.
+  const liveSections = [
+    { icon: "◆", title: profile?.profession ? `${profile.profession} roles & openings` : "Roles & openings",
+      sub: "Live job listings matched to your field", rows: 3 },
+    { icon: "▣", title: "1-bed apartment listings",
+      sub: "Real rentals inside your budget, updated now", rows: 3 },
+    { icon: "❖", title: "Curated restaurants & bars",
+      sub: "Where locals actually go", rows: 2 },
+    { icon: "▲", title: "Nearby trails & outdoors",
+      sub: "Green space and weekend escapes", rows: 2 },
   ];
 
   const top1 = profile?.importanceRank?.[0] || "cost";
@@ -304,15 +310,59 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
         </div>
       )}
 
-      {/* ── Foot: live-data teaser ── */}
-      <div className="foot">
-        <span className="lbl lbl-dim">⚡ Live data — powered by AI search</span>
-        <div className="live">
-          {live.map((l, i) => (
-            <div className="lc" key={i}>
-              <span className="ic" />
-              <span><b>{l.n}</b> {l.label}</span>
-            </div>
+      {/* ── Live AI data — expanded sections, gated behind Plus ($9.99) ──
+          Crisp headers show WHAT we offer; the listing rows beneath are blurred
+          skeleton (locked-but-available). The gold sparkle CTA and every card
+          open the pricing modal (onUnlock → Plus-featured PricingModal). ── */}
+      <div className="bd-live">
+        <div className="bd-live-head">
+          <div className="bd-live-intro">
+            <span className="lbl">⚡ Live data — powered by AI search</span>
+            <p className="bd-live-sub">
+              Real openings, housing, and local life for {cityName}, generated live the moment you unlock.
+            </p>
+          </div>
+          {onUnlock && (
+            <button className="bd-live-cta" onClick={onUnlock}>
+              <span className="spk" aria-hidden="true">✦</span>
+              See live AI data
+            </button>
+          )}
+        </div>
+
+        <div className="bd-live-grid">
+          {liveSections.map((s, i) => (
+            <button
+              className="card livesec"
+              key={i}
+              onClick={onUnlock}
+              disabled={!onUnlock}
+              aria-label={`Unlock ${s.title} with Plus`}
+            >
+              <span className="livesec-h">
+                <span className="livesec-ic" aria-hidden="true">{s.icon}</span>
+                <span className="livesec-tt">
+                  <span className="livesec-t">{s.title}</span>
+                  <span className="livesec-s">{s.sub}</span>
+                </span>
+                <span className="livesec-lock" aria-hidden="true">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  Plus
+                </span>
+              </span>
+              <span className="livesec-skel" aria-hidden="true">
+                {Array.from({ length: s.rows }).map((_, r) => (
+                  <span className="skrow" key={r}>
+                    <span className="skbar" style={{ width: `${[86, 70, 78][r % 3]}%` }} />
+                    <span className="skamt" />
+                  </span>
+                ))}
+              </span>
+            </button>
           ))}
         </div>
       </div>
@@ -393,11 +443,57 @@ const CSS = `
 .prose{font-size:15px;line-height:1.62;color:var(--ivory-dim);text-wrap:pretty}
 .pull{font-family:var(--serif);font-style:italic;font-size:23px;line-height:1.3;color:var(--ivory);text-wrap:balance}
 
-.live{display:flex;flex-wrap:wrap;gap:10px}
-.live .lc{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ivory-dim);
-  background:rgba(243,237,225,.03);border:1px solid var(--ivory-ghost);border-radius:12px;padding:11px 15px}
-.live .lc b{color:var(--ivory);font-weight:600}
-.live .lc .ic{width:7px;height:7px;border-radius:50%;background:var(--gold-500);box-shadow:0 0 8px var(--gold-glow);flex:none}
+/* ── Live-AI data: expanded paywalled sections + gold sparkle CTA ── */
+.bd-live-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.bd-live-intro .lbl{display:block;margin-bottom:9px}
+.bd-live-sub{font-size:14px;color:var(--ivory-dim);line-height:1.5;max-width:46ch;margin:0}
+
+.bd-live-cta{display:inline-flex;align-items:center;gap:9px;flex:none;cursor:pointer;
+  font-family:var(--sans);font-weight:700;font-size:14px;letter-spacing:.01em;color:var(--night-900);
+  border:none;border-radius:100px;padding:13px 22px;position:relative;overflow:hidden;
+  background:linear-gradient(100deg,var(--gold-300),var(--gold-500) 55%,var(--gold-600));
+  box-shadow:0 6px 22px rgba(226,181,107,.30),inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.bd-live-cta:hover{transform:translateY(-1px);box-shadow:0 9px 28px rgba(226,181,107,.42),inset 0 1px 0 rgba(255,255,255,.4)}
+.bd-live-cta::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.55) 48%,transparent 66%);
+  background-size:250% 100%;animation:bd-shimmer 3.4s var(--ease) infinite}
+.bd-live-cta .spk{font-size:15px;line-height:1;animation:bd-spark 2.1s ease-in-out infinite;
+  text-shadow:0 0 8px rgba(255,255,255,.6)}
+
+.bd-live-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.livesec{display:flex;flex-direction:column;align-items:stretch;gap:16px;width:100%;text-align:left;
+  padding:20px 22px;cursor:pointer;font-family:var(--sans);color:var(--ivory);
+  background:var(--night-600);border:1px solid var(--ivory-ghost);border-radius:18px;
+  transition:border-color .2s var(--ease),background .2s var(--ease),transform .2s var(--ease)}
+.livesec:hover{border-color:var(--gold-500);background:var(--night-560);transform:translateY(-1px)}
+.livesec:disabled{cursor:default}
+.livesec-h{display:flex;align-items:flex-start;gap:13px}
+.livesec-ic{flex:none;font-size:15px;line-height:1.4;color:var(--gold-500);
+  text-shadow:0 0 10px var(--gold-glow)}
+.livesec-tt{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.livesec-t{font-family:var(--serif);font-size:19px;line-height:1.12;color:var(--ivory)}
+.livesec-s{font-size:12.5px;color:var(--ivory-dim);line-height:1.4}
+.livesec-lock{flex:none;display:inline-flex;align-items:center;gap:5px;align-self:flex-start;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold-300);background:rgba(226,181,107,.10);border:1px solid rgba(226,181,107,.28);
+  border-radius:100px;padding:4px 9px}
+
+.livesec-skel{display:flex;flex-direction:column;gap:11px;filter:blur(2.5px);opacity:.9;
+  -webkit-mask-image:linear-gradient(180deg,#000 38%,transparent);mask-image:linear-gradient(180deg,#000 38%,transparent)}
+.skrow{display:flex;align-items:center;gap:12px}
+.skbar,.skamt{height:9px;border-radius:5px;
+  background:linear-gradient(90deg,rgba(243,237,225,.05),rgba(243,237,225,.13),rgba(243,237,225,.05));
+  background-size:200% 100%;animation:bd-skwave 2.6s linear infinite}
+.skbar{flex:1}
+.skamt{width:42px;flex:none;background:linear-gradient(90deg,rgba(226,181,107,.10),rgba(226,181,107,.22),rgba(226,181,107,.10));background-size:200% 100%}
+
+@keyframes bd-shimmer{0%{background-position:120% 0}100%{background-position:-120% 0}}
+@keyframes bd-spark{0%,100%{opacity:.55;transform:scale(.88)}50%{opacity:1;transform:scale(1.18)}}
+@keyframes bd-skwave{0%{background-position:0 0}100%{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){
+  .bd-live-cta::before,.bd-live-cta .spk,.skbar,.skamt{animation:none}
+}
 
 .glow{position:absolute;left:50%;transform:translateX(-50%);pointer-events:none;
   background:radial-gradient(50% 70% at 50% 100%,rgba(226,181,107,.20),rgba(138,94,46,.07) 45%,transparent 72%)}
@@ -428,8 +524,7 @@ const CSS = `
 .lay-ed .fithead{display:flex;align-items:center;gap:18px;margin-bottom:22px}
 .lay-ed .daycard{padding:26px 26px 28px}
 .lay-ed .pull{margin:18px 0 0;padding-top:18px;border-top:1px solid var(--ivory-ghost)}
-.lay-ed .foot{padding:24px clamp(22px,5.5vw,84px) 44px;border-top:1px solid var(--ivory-ghost);
-  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.lay-ed .bd-live{padding:26px clamp(22px,5.5vw,84px) 48px;border-top:1px solid var(--ivory-ghost);margin-top:14px}
 
 /* ── Next-steps CTAs (Phase 6/7 graft) — editorial-dossier styling ── */
 .lay-ed .bd-next{padding:8px clamp(22px,5.5vw,84px) 4px}
@@ -447,7 +542,10 @@ const CSS = `
   .lay-ed .body{grid-template-columns:1fr;gap:22px;padding:28px 22px 26px}
   .lay-ed .hero{padding:36px 22px 30px}
   .lay-ed .hero .rose{top:18px;right:14px;width:84px;height:84px}
-  .lay-ed .foot{padding:22px 22px 34px}
+  .lay-ed .bd-live{padding:24px 22px 36px}
+  .bd-live-grid{grid-template-columns:1fr}
+  .bd-live-head{align-items:flex-start}
+  .bd-live-cta{width:100%;justify-content:center}
   .bd-top{padding:16px 22px}
 }
 @media(max-width:480px){
