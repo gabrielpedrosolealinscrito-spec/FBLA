@@ -55,9 +55,9 @@ export const TIERS = [
 
 // Conversion ramp (assumptions A-1..A-3). Free → any paid purchase.
 export const CONVERSION_RAMP = [
-  { months: '1–6',   rate: 5, basis: 'SaaS freemium floor (FirstPageSage/Userpilot 2–5%)' },
-  { months: '7–12',  rate: 7, basis: 'SEO content ramp lifts higher-intent traffic' },
-  { months: '13–24', rate: 8, basis: 'Established brand + community; still below 8–12% ceiling' },
+  { months: '1-6',   rate: 5, basis: 'SaaS freemium floor (FirstPageSage/Userpilot 2-5%)' },
+  { months: '7-12',  rate: 7, basis: 'SEO content ramp lifts higher-intent traffic' },
+  { months: '13-24', rate: 8, basis: 'Established brand + community; still below 8-12% ceiling' },
 ];
 
 // Headline metrics for the deck slides and the in-app summary band.

@@ -274,7 +274,7 @@ function Combo({ question, value, onAnswer }) {
       />
       {open && (
         <div className="menu">
-          {filtered.length === 0 && <div className="it">No match — keep typing</div>}
+          {filtered.length === 0 && <div className="it">No match, keep typing</div>}
           {filtered.map((o) => (
             <div
               key={o.value}
@@ -333,7 +333,7 @@ function Ranking({ question, value, onAnswer }) {
   return (
     <div className="body" style={{ marginTop: 0 }}>
       <p className="sub" style={{ marginTop: 0, textAlign: "center" }}>
-        {ranked.length}/{max} ranked{ranked.length >= max ? " — tap a number to re-pick" : ""}
+        {ranked.length}/{max} ranked{ranked.length >= max ? ", tap a number to re-pick" : ""}
       </p>
       {(question.options ?? []).map((o) => {
         const r = ranked.indexOf(o.value);
@@ -357,10 +357,10 @@ function GlobalGate({ question, value, isGlobal, onChoose }) {
     return (
       <div className="body" style={{ marginTop: 0 }}>
         <button type="button" className={`opt ${value === "include" ? "on" : ""}`} onClick={() => onChoose("include")}>
-          <span className="lbl">Yes — include international matches</span><span className="chk"><Check /></span>
+          <span className="lbl">Yes, include international matches</span><span className="chk"><Check /></span>
         </button>
         <button type="button" className={`opt ${value === "skip" ? "on" : ""}`} onClick={() => onChoose("skip")}>
-          <span className="lbl">No — show me US cities only</span><span className="chk"><Check /></span>
+          <span className="lbl">No, show me US cities only</span><span className="chk"><Check /></span>
         </button>
       </div>
     );
@@ -369,11 +369,11 @@ function GlobalGate({ question, value, isGlobal, onChoose }) {
     <div className="gate">
       <div className="lockicon"><LockIcon /></div>
       <p className="gatetext">
-        Going Global unlocks international cities, visa pathways, and relocation roadmaps —
-        it's part of the <strong>Global</strong> plan.
+        Going Global unlocks international cities, visa pathways, and relocation roadmaps.
+        It's part of the <strong>Global</strong> plan.
       </p>
       <button type="button" className="cta" onClick={() => go("#/pricing/global")}>Unlock Going Global<ArrowRight /></button>
-      <button type="button" className="gateskip" onClick={() => onChoose("skip")}>I don't want to go global — US cities only</button>
+      <button type="button" className="gateskip" onClick={() => onChoose("skip")}>I don't want to go global, US cities only</button>
     </div>
   );
 }
@@ -466,7 +466,7 @@ export default function CenteredQuiz({ onComplete, onExit }) {
   const handleSave = () => {
     if (!user) { setSaveMsg(""); go("#/login"); return; }
     saveQuizSession({ answers, step: idx });
-    setSaveMsg("Saved — come back anytime.");
+    setSaveMsg("Saved. Come back anytime.");
     setTimeout(() => setSaveMsg(""), 4000);
   };
 
@@ -499,7 +499,7 @@ export default function CenteredQuiz({ onComplete, onExit }) {
       <div className="cq"><style>{CSS}</style>
         <Modal>
           <div className="mkicker">Before we start</div>
-          <h2>Save your results — make an account</h2>
+          <h2>Save your results: make an account</h2>
           <p>Logging in lets you save your progress, come back later, and keep your matches. You can also continue as a guest.</p>
           <div className="actions">
             <button className="cta" onClick={() => go("#/login")}>Log in or sign up<ArrowRight /></button>
@@ -515,10 +515,10 @@ export default function CenteredQuiz({ onComplete, onExit }) {
       <div className="cq"><style>{CSS}</style>
         <Modal>
           <div className="mkicker">A quick honest note</div>
-          <h2>Answer honestly — it's how the matches get good.</h2>
+          <h2>Answer honestly. It's how the matches get good.</h2>
           <p>The more truthful and complete your answers, the more accurate your city matches and money estimates. Take your time.</p>
           <p style={{ color: "var(--faint)", fontSize: 13 }}>
-            Potential is a moving-assistance and exploration tool — <strong>not financial, legal, or immigration advice.</strong> Verify big decisions with a professional.
+            Potential is a moving-assistance and exploration tool, <strong>not financial, legal, or immigration advice.</strong> Verify big decisions with a professional.
           </p>
           <div className="actions">
             <button className="cta green" onClick={() => setGate("quiz")}>I understand</button>
@@ -539,11 +539,11 @@ export default function CenteredQuiz({ onComplete, onExit }) {
           <div className="card done in">
             <div className="kicker">Profile captured</div>
             <h1 className="prompt">We've got your <em>shape</em>.</h1>
-            <p className="sub">Everything below feeds the matching engine — your cities, your real numbers.</p>
+            <p className="sub">Everything below feeds the matching engine: your cities, your real numbers.</p>
             <div className="summary">
-              <div className="srow"><div className="k">Work</div><div className="v">{p.profession || "—"}{p.hasRemote ? " · remote" : ""}</div></div>
+              <div className="srow"><div className="k">Work</div><div className="v">{p.profession || "-"}{p.hasRemote ? " · remote" : ""}</div></div>
               <div className="srow"><div className="k">Household income</div><div className="v">{fmtMoney(hh)}</div></div>
-              <div className="srow"><div className="k">Openness to abroad</div><div className="v">{p.opennessToAbroad ?? "—"}</div></div>
+              <div className="srow"><div className="k">Openness to abroad</div><div className="v">{p.opennessToAbroad ?? "-"}</div></div>
               <div className="srow"><div className="k">Lifestyle picks</div><div className="v">{(p.lifestyleTags || []).length} ranked</div></div>
             </div>
           </div>
@@ -622,7 +622,7 @@ export default function CenteredQuiz({ onComplete, onExit }) {
         };
         return (
           <div className="body" style={{ marginTop: 0 }}>
-            {max < 99 && <p className="sub" style={{ marginTop: 0, textAlign: "center" }}>Pick up to {max}{sel.length > 0 ? ` — ${sel.length} selected` : ""}</p>}
+            {max < 99 && <p className="sub" style={{ marginTop: 0, textAlign: "center" }}>Pick up to {max}{sel.length > 0 ? `, ${sel.length} selected` : ""}</p>}
             {(q.options ?? []).map((o) => {
               const on = sel.includes(o.value);
               const dis = atMax && !on;
@@ -633,7 +633,7 @@ export default function CenteredQuiz({ onComplete, onExit }) {
               );
             })}
             {q.id === "dealBreakers" && sel.length >= 3 && (
-              <div className="warn">Dealbreakers are hard filters — they remove cities entirely. {sel.length} is a lot.</div>
+              <div className="warn">Dealbreakers are hard filters that remove cities entirely. {sel.length} is a lot.</div>
             )}
           </div>
         );

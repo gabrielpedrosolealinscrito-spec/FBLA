@@ -26,7 +26,7 @@ export default function FinancialsView() {
             Break-even at Month 4. <span style={{ color: T.goldBright }}>API cost under 2% of revenue.</span>
           </h1>
           <p style={{ ...sans, fontSize: 15, color: T.text2, maxWidth: 620, marginTop: 12 }}>
-            A 24-month base case built from stated assumptions — re-derivable in 60 seconds.
+            A 24-month base case built from stated assumptions, re-derivable in 60 seconds.
             AI-native, so startup cost is ~$1,000 and the marginal cost of one user is one API call.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function FinancialsView() {
             <h2 style={{ ...serif, fontSize: 24, color: T.cream, margin: '0 0 14px' }}>Unit economics by tier</h2>
             <TierTable />
             <div style={{ ...sans, fontSize: 11.5, color: T.text3, marginTop: 14, lineHeight: 1.5 }}>
-              Blended revenue per paid user ~${METRICS.blendedRevPerPaidUser[0]}–${METRICS.blendedRevPerPaidUser[1]} ·
+              Blended revenue per paid user ~${METRICS.blendedRevPerPaidUser[0]}-${METRICS.blendedRevPerPaidUser[1]} ·
               tier mix {TIERS.map((t) => `${t.mixPct}`).join('/')} [ASSUMED] ·
               one-time purchases, no consumer subscription.
             </div>
@@ -65,7 +65,7 @@ export default function FinancialsView() {
 
         <p style={{ ...mono, fontSize: 11, color: T.text3, marginTop: 24, lineHeight: 1.6 }}>
           Source: pitch/financials/model.csv + summary.md · API COGS cited from Anthropic pricing
-          [FOUNDER-VERIFY: F3] · conversion anchored to FirstPageSage/Userpilot 2–5% SaaS freemium benchmark.
+          [FOUNDER-VERIFY: F3] · conversion anchored to FirstPageSage/Userpilot 2-5% SaaS freemium benchmark.
         </p>
       </div>
     </div>

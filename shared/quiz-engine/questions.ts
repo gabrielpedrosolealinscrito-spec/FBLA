@@ -164,11 +164,11 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     prompt: 'What is your biggest reason to move?',
     autoAdvance: true,
     options: [
-      { value: 'career', label: 'Career — better job market or opportunities' },
-      { value: 'lifestyle', label: 'Lifestyle — climate, pace, scene' },
-      { value: 'adventure', label: 'Adventure — exploring something new' },
-      { value: 'family', label: 'Family — closer to or building one' },
-      { value: 'cost', label: 'Cost — my money goes further elsewhere' },
+      { value: 'career', label: 'Career - better job market or opportunities' },
+      { value: 'lifestyle', label: 'Lifestyle - climate, pace, scene' },
+      { value: 'adventure', label: 'Adventure - exploring something new' },
+      { value: 'family', label: 'Family - closer to or building one' },
+      { value: 'cost', label: 'Cost - my money goes further elsewhere' },
     ],
   },
   {
@@ -178,9 +178,9 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     prompt: 'What pace of life fits you?',
     autoAdvance: true,
     options: [
-      { value: 'fast', label: 'Fast — always something going on' },
-      { value: 'moderate', label: 'Moderate — busy but breathing room' },
-      { value: 'slow', label: 'Slow — peace, space, unhurried' },
+      { value: 'fast', label: 'Fast - always something going on' },
+      { value: 'moderate', label: 'Moderate - busy but breathing room' },
+      { value: 'slow', label: 'Slow - peace, space, unhurried' },
     ],
   },
   {
@@ -200,7 +200,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     type: 'multi_select',
     kicker: 'ABOUT YOU',
     prompt: 'What does your community look like?',
-    subtext: 'Pick everything that matters — we weight each one.',
+    subtext: 'Pick everything that matters, we weight each one.',
     maxSelect: 4,
     options: [
       { value: 'arts', label: 'Arts & culture' },
@@ -244,8 +244,8 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     required: true,
     autoAdvance: true,
     options: [
-      { value: 'true', label: 'Yes — fully remote' },
-      { value: 'false', label: 'No — I go into an office or field' },
+      { value: 'true', label: 'Yes - fully remote' },
+      { value: 'false', label: 'No - I go into an office or field' },
     ],
   },
   {
@@ -256,8 +256,8 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     subtext: 'Shapes city recommendations around your daily rhythm.',
     autoAdvance: true,
     options: [
-      { value: 'remote', label: 'Fully remote — anywhere' },
-      { value: 'hybrid', label: 'Hybrid — a few days in-office' },
+      { value: 'remote', label: 'Fully remote - anywhere' },
+      { value: 'hybrid', label: 'Hybrid - a few days in-office' },
       { value: 'office', label: 'Office / on-site' },
     ],
   },
@@ -278,7 +278,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     step: 5000,
     minLabel: '$20K',
     maxLabel: '$250K',
-    group: { id: 'finances', label: 'Your finances', subtext: 'Rough numbers are fine — you can refine them later.' },
+    group: { id: 'finances', label: 'Your finances', subtext: 'Rough numbers are fine, you can refine them later.' },
   },
   {
     id: 'savings',
@@ -389,7 +389,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     type: 'ranking',
     kicker: 'LIFESTYLE',
     prompt: 'What do you do for fun?',
-    subtext: 'Tap to rank your top 5 — 1 is what you love most. Skip the rest.',
+    subtext: 'Tap to rank your top 5. 1 is what you love most. Skip the rest.',
     required: true,
     maxSelect: 5,
     options: buildLifestyleOptions(),
@@ -405,14 +405,14 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     // synthesizer.ts uses the array order to derive 4/3/2/1 raw weights.
     // task 12: now a real ordered ranking UI (numbered rank badges) — still
     // emits string[] in rank order, so the synthesizer weight contract is unchanged.
-    subtext: 'Tap in order of importance — your first pick carries the most weight.',
+    subtext: 'Tap in order of importance. Your first pick carries the most weight.',
     required: true,
     maxSelect: 4,
     options: [
-      { value: 'career', label: 'Career — job market and opportunities' },
-      { value: 'cost', label: 'Cost — affordable housing and low expenses' },
-      { value: 'lifestyle', label: 'Lifestyle — vibe, scene, things to do' },
-      { value: 'safety', label: 'Safety — low crime, stable neighborhoods' },
+      { value: 'career', label: 'Career - job market and opportunities' },
+      { value: 'cost', label: 'Cost - affordable housing and low expenses' },
+      { value: 'lifestyle', label: 'Lifestyle - vibe, scene, things to do' },
+      { value: 'safety', label: 'Safety - low crime, stable neighborhoods' },
     ],
   },
   {
@@ -420,7 +420,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     type: 'multi_select',
     kicker: 'PRIORITIES',
     prompt: 'Hard dealbreakers',
-    subtext: 'These remove cities entirely — choose carefully.',
+    subtext: 'These remove cities entirely, so choose carefully.',
     maxSelect: 10,
     options: buildDealBreakerOptions(),
   },
@@ -513,7 +513,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
       { value: '6mo', label: 'Within 6 months' },
       { value: '12mo', label: 'Within a year' },
       { value: '2yr+', label: 'In 2+ years' },
-      { value: 'exploring', label: 'Just exploring — no timeline' },
+      { value: 'exploring', label: 'Just exploring - no timeline' },
     ],
   },
 

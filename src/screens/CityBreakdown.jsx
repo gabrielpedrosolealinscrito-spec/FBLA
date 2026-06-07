@@ -36,10 +36,10 @@ const FIT_LABELS = {
 
 // Derived one-line tagline from real, defensible signals.
 function deriveTagline(c) {
-  if (c.stateTax === 0) return "No state income tax and a deep market — your money goes furthest here.";
-  if (c.monthlySavings >= 1500) return "Strong pay against a manageable cost of living — real room to save every month.";
+  if (c.stateTax === 0) return "No state income tax and a deep market, so your money goes furthest here.";
+  if (c.monthlySavings >= 1500) return "Strong pay against a manageable cost of living, with real room to save every month.";
   if (c.monthlySavings < 0) return "A vibrant fit, though the monthly math runs tight against local costs.";
-  return "A balanced fit for your profile — solid pay, livable costs, and a pace that suits you.";
+  return "A balanced fit for your profile: solid pay, livable costs, and a pace that suits you.";
 }
 
 // Compass-rose deco (matches ResultsMap aesthetic).
@@ -127,18 +127,18 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
   const effRate = c.salary > 0 ? Math.round((annualTax / c.salary) * 100) : 0;
   const taxNote = `Eff. tax ~${effRate}% · State ${c.stateTax === 0 ? "$0" : c.stateTax + "%"}`;
   const salarySub = profile?.hasRemote
-    ? "Remote — income travels with you"
+    ? "Remote, income travels with you"
     : c.stateTax === 0 ? "No state income tax" : `${c.stateTax}% state income tax`;
 
   // ── day-in-life + pull (templated from real facts; Phase-5 live AI replaces) ──
   const climateLead = (c.climate || "").split("·")[0].trim().toLowerCase();
   const positive = c.monthlySavings >= 0;
   const dayLine = positive
-    ? `${profile?.hasRemote ? "You wake unhurried — no commute, just your own rhythm" : "Your commute is short and the day finds its rhythm fast"}. The ${climateLead || "easy"} weather pulls you outside by afternoon, and with about ${money(c.monthlySavings)}/mo left after every expense, ${c.name} on a Friday isn't a splurge — it's just Friday.`
-    : `${c.name} runs a little tighter month to month — rent and costs ask more of the budget — but the ${climateLead || "local"} days and the life around them are the trade you'd be making.`;
+    ? `${profile?.hasRemote ? "You wake unhurried, no commute, just your own rhythm" : "Your commute is short and the day finds its rhythm fast"}. The ${climateLead || "easy"} weather pulls you outside by afternoon, and with about ${money(c.monthlySavings)}/mo left after every expense, ${c.name} on a Friday isn't a splurge, it's just Friday.`
+    : `${c.name} runs a little tighter month to month. Rent and costs ask more of the budget, but the ${climateLead || "local"} days and the life around them are the trade you'd be making.`;
   const pull = positive
     ? "The first month here, the math finally works in your favor."
-    : "It asks a little more of the budget — but it gives the days back to you.";
+    : "It asks a little more of the budget, but it gives the days back to you.";
 
   // ── live-AI data sections (Plus, $9.99) ──
   // Titles are honest descriptors of what the live layer returns; the row
@@ -189,7 +189,7 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
         {/* Money column — full financial breakdown is a paid (Basic) feature.
             Free tier sees it blurred behind a LockGate; unlocking opens pricing. */}
         <div className="money">
-          <LockGate tier={tier} requiredTier="basic" lockedLabel="Unlock the financial breakdown — Basic" onUnlock={onUnlock}>
+          <LockGate tier={tier} requiredTier="basic" lockedLabel="Unlock the financial breakdown: Basic" onUnlock={onUnlock}>
           <div className="headrow">
             <div className="stat th">
               <div className="v">{money(c.monthlyTakeHome)}</div>
@@ -317,7 +317,7 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
       <div className="bd-live">
         <div className="bd-live-head">
           <div className="bd-live-intro">
-            <span className="lbl">⚡ Live data — powered by AI search</span>
+            <span className="lbl">⚡ Live data, powered by AI search</span>
             <p className="bd-live-sub">
               Real openings, housing, and local life for {cityName}, generated live the moment you unlock.
             </p>
