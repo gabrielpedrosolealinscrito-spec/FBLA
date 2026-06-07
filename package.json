@@ -27,6 +27,7 @@
     "@fontsource/instrument-serif": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/manrope": "^5.2.8",
+    "@supabase/supabase-js": "^2.107.0",
     "d3": "^7.9.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

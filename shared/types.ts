@@ -201,15 +201,20 @@ export interface VisaPathway {
 }
 
 // ── Freemium tiers (TIER-01..03) ──
-export type Tier = "free" | "basic" | "plus" | "premium";
+// "global" added by Package 00 (auth foundation) ON TOP of the existing order so
+// a logged-in 'global' user passes every premium gate. This is additive only —
+// the free|basic|plus|premium gating semantics are unchanged. The wishlist's
+// free|premium|global product model (README §1) is surfaced via useTier(); the
+// pricing UI converging onto it is package 01/05 scope, not 00.
+export type Tier = "free" | "basic" | "plus" | "premium" | "global";
 
-const TIER_ORDER: Record<Tier, number> = { free: 0, basic: 1, plus: 2, premium: 3 };
+const TIER_ORDER: Record<Tier, number> = { free: 0, basic: 1, plus: 2, premium: 3, global: 4 };
 export const canAccess = (active: Tier, required: Tier): boolean =>
   TIER_ORDER[active] >= TIER_ORDER[required];
 
-// rank cutoff per tier (D-01/D-12): free=1, basic=3, plus/premium=all
+// rank cutoff per tier (D-01/D-12): free=1, basic=3, plus/premium/global=all
 export const TIER_FEATURES = {
-  rankShowUpTo: { free: 1, basic: 3, plus: Infinity, premium: Infinity },
+  rankShowUpTo: { free: 1, basic: 3, plus: Infinity, premium: Infinity, global: Infinity },
 } as const;
 
 export const TIER_RUNS_MAP: Record<Tier, string | null> = {
@@ -217,4 +222,5 @@ export const TIER_RUNS_MAP: Record<Tier, string | null> = {
   basic: "Basic · 1 of 1 run",
   plus: "Plus · 2 of 3 runs left",
   premium: "Premium · unlimited",
+  global: "Global · unlimited",
 };

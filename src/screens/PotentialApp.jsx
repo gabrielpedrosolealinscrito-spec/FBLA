@@ -8,6 +8,7 @@ import Roadmap from './Roadmap.jsx';
 import Visa from './Visa.jsx';
 import DemoTierSwitcher from '../components/DemoTierSwitcher.jsx';
 import PricingModal from '../components/PricingModal.jsx';
+import { useTier } from '../lib/tier.js';
 
 // ═══════════════════════════════════════════
 // POTENTIAL — Life Simulator v2
@@ -61,7 +62,14 @@ export default function Potential() {
   // ── Phase 6/7/8 wiring state ──
   const [showRoadmap, setShowRoadmap] = useState(false);
   const [showVisa, setShowVisa] = useState(false);
-  const [tier, setTier] = useState("free");
+  // Tier source (Package 00): the logged-in user's profiles.tier drives the gates
+  // via useTier(). A local override keeps the pitch tools live — DemoTierSwitcher
+  // (triple-tap) and the PricingModal can flip tier without touching the account.
+  // tier = override ?? auth profile tier (useTier falls back to 'free' logged-out).
+  const { tier: authTier } = useTier();
+  const [tierOverride, setTierOverride] = useState(null);
+  const tier = tierOverride ?? authTier;
+  const setTier = setTierOverride;
   const [modalOpen, setModalOpen] = useState(false);
   const [presenterMode, setPresenterMode] = useState(false);
 
