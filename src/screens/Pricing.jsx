@@ -79,6 +79,11 @@ const CSS = `
   font-size:clamp(52px,9vw,108px);line-height:.96;position:relative;z-index:3}
 .pp .hero h1 .l1{display:block;color:var(--ivory)}
 .pp .hero h1 .l2{display:block;font-style:italic;color:var(--gold)}
+.pp .hero .tagline{position:relative;z-index:3;margin:18px auto 0;max-width:44ch;
+  font-size:14px;line-height:1.6;color:var(--ivory-dim);font-weight:300}
+.pp .geo{margin-top:6px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ivory-faint);font-weight:500}
+.pp .geo.intl{color:var(--gold-soft)}
 
 .pp .compass{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
   width:320px;height:320px;z-index:2;opacity:.92;pointer-events:none;
@@ -157,7 +162,24 @@ const CSS = `
 }
 `;
 
-export default function Pricing() {
+// ── Going-global variant copy (#/pricing/global) ──
+// DISPLAY-ONLY: surfaces the minimum plan required for international results so
+// package 04's global gate can link straight here. The real §1 'global' tier
+// gate is package 05's job — this page enforces nothing. International results
+// unlock at the Plus tier (its "US & international" ranked list); Basic is
+// US-only. Tier display copy stays in sync with PricingModal.jsx by intent.
+const COPY = {
+  default: { l1: 'Start now,', l2: 'upgrade later.', tagline: null },
+  global: {
+    l1: 'Going global.', l2: 'the world, mapped.',
+    tagline: 'International cities unlock at Plus — the minimum plan for going global.',
+  },
+};
+
+export default function Pricing({ variant = 'default' }) {
+  const isGlobal = variant === 'global';
+  const copy = isGlobal ? COPY.global : COPY.default;
+
   // No checkout yet (Phase 8) — every CTA starts the free run by returning to the app.
   const startRun = () => { window.location.hash = ''; };
 
@@ -171,10 +193,10 @@ export default function Pricing() {
       <nav className="nav">
         <button className="brand" onClick={startRun}>Potential <small>°</small></button>
         <div className="nav-links">
-          <a href="#" onClick={(e) => { e.preventDefault(); startRun(); }}>Tour</a>
+          <a href="#/about">About</a>
+          <a href="#/faq">FAQ</a>
           <a href="#/pricing" className="active">Pricing</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Contact</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); startRun(); }}>Sign in</a>
+          <a href="#/login">Login</a>
         </div>
       </nav>
 
@@ -206,19 +228,25 @@ export default function Pricing() {
             </g>
           </svg>
           <h1>
-            <span className="l1">Start now,</span>
-            <span className="l2">upgrade later.</span>
+            <span className="l1">{copy.l1}</span>
+            <span className="l2">{copy.l2}</span>
           </h1>
+          {copy.tagline && <p className="tagline">{copy.tagline}</p>}
         </section>
 
         <section className="grid">
           {TIERS.map((t) => {
             const runsClass = t.runs.includes('run') && !t.runs.includes('Unlimited') ? 'runs' : 'runs x';
+            // Global variant only: which tiers reach international cities. Plus is
+            // the first to ("US & international"), so it's the minimum global plan.
+            const intl = t.feats.some((f) => /international/i.test(f)) || t.name === 'Premium';
+            const badge = isGlobal ? (t.feature ? 'Minimum for international' : null) : (t.feature ? 'Most popular' : null);
             return (
               <article key={t.name} className={`card${t.feature ? ' feature' : ''}`}>
-                {t.feature && <div className="badge">Most popular</div>}
+                {badge && <div className="badge">{badge}</div>}
                 <div className="tier-name">{t.name}</div>
                 <div className={runsClass}>{t.runs}</div>
+                {isGlobal && <div className={`geo${intl ? ' intl' : ''}`}>{intl ? 'US + International' : 'US cities only'}</div>}
                 <ul className="feats">{t.feats.map((f) => <li key={f}>{f}</li>)}</ul>
                 <div className="price"><span className="cur">$</span><span className="amt">{t.price}</span></div>
                 <div className="per">one-time</div>
