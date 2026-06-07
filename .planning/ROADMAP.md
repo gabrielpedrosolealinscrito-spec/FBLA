@@ -13,12 +13,12 @@ Two interwoven workstreams must both ship to place #1: (A) a live demoable produ
 
 - [x] **Phase 1: Scaffold & Port** - Verify reconciled repo, scaffold Vite + React, port prototype into component architecture (2026-05-30)
 - [ ] **Phase 2: Quiz & Profile Capture** - Multi-step profile quiz capturing all fields including citizenship/immigration status
-- [x] **Phase 3: Matching & US Financial Spine** - Scoring engine, US financial model, ranked results — first fully offline demo (completed 2026-06-02)
-- [x] **Phase 4: International Destinations & Country Models** - 4 intl cities with sourced data and country-correct financials (completed 2026-06-03)
-- [ ] **Phase 5: Proxy, Live AI & Golden-Path Cache** - Server-side proxy, live AI data, bundled offline fallback tested as actual fallback
+- [ ] **Phase 3: Matching & US Financial Spine** - Scoring engine, US financial model, ranked results — first fully offline demo
+- [ ] **Phase 4: International Destinations & Country Models** - 4 intl cities with sourced data and country-correct financials
+- [x] **Phase 5: Proxy, Live AI & Golden-Path Cache** - Server-side proxy, live AI data, bundled offline fallback tested as actual fallback (completed 2026-06-06)
 - [ ] **Phase 6: Relocation Roadmap** - Template-first authored roadmap generator for all 6 sections, PDF export
-- [ ] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations
-- [ ] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers
+- [x] **Phase 7: Visa Concierge** - Premium eligibility screener, pathway comparison, document checklists, citations (completed 2026-06-06)
+- [x] **Phase 8: Freemium Tier Gate** - Free teaser, tier unlocks UI, DemoTierSwitcher cycling all four tiers (completed 2026-06-06)
 - [x] **Phase 9: Pitch — Business Substance** - Sourced market sizing, competitive positioning, business model, financials, marketing (completed 2026-05-31)
 - [x] **Phase 10: Pitch — Deck, Rehearsal & Protocol** - Slide deck, Q&A bank, timed rehearsals, protocol compliance checklist (completed 2026-05-31)
 
@@ -63,22 +63,22 @@ Plans:
   7. When answers reveal conflicting priorities, the quiz surfaces a reconciling follow-up and stores the resolution (a tiebreaker/weight) on the Profile preference output
 
 **Plans**: 4 plans
-Plans:
+
 **Wave 1**
 
-- [x] 02-01-PLAN.md — install framer-motion + pixelarticons (gated), extend Profile contract (optional fields), slider CSS, RED test stubs
+- [ ] 02-01-PLAN.md — Test runner + extended Profile/PreferenceProfile contract + City dealbreaker fields + pure tested derive-preferences/conflict-detection/branching engines
 
-**Wave 2** *(blocked on Wave 1)*
+**Wave 2** *(blocked on Wave 1 completion)*
 
-- [x] 02-02-PLAN.md — linear navigable quiz: questions/resolver-basic/synthesizer (raw 1–4 weights) + QuizShell/inputs + PotentialApp integration seam
+- [ ] 02-02-PLAN.md — Quiz reducer migration + steps 1–5 (Career/Finances/Background/Going Global/Lifestyle) with branching, openness slider, citizenship + auto/declared status, move timeline
 
-**Wave 3** *(blocked on Wave 2)*
+**Wave 3** *(blocked on Wave 2 completion)*
 
-- [x] 02-03-PLAN.md — adaptivity: citizenship/immigration branching (D-09), Going Global group (D-06), clearHiddenAnswers + adaptive progress
+- [ ] 02-03-PLAN.md — Motivations step, hard dealbreakers + capture-time warning, tension reconciliation panel, submit wiring that emits the derived PreferenceProfile
 
-**Wave 4** *(blocked on Wave 3)*
+**Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 02-04-PLAN.md — tension reconciliation (detectTension + tiebreaker → tradeoffTolerance) + escalating dealbreaker warning + human-verify checkpoint
+- [ ] 02-04-PLAN.md — Profile-completeness assertion + tests, and the full-quiz human-verify checkpoint
 
 **UI hint**: yes
 
@@ -96,27 +96,7 @@ Plans:
   4. Each city shows an income-adjusted projection: estimated salary, take-home after taxes, itemized expenses, and monthly savings/deficit
   5. The full flow (quiz → results → city detail with financials) runs on battery with no network connection
 
-**Plans**: 7 plans
-Plans:
-**Wave 1**
-
-- [x] 03-01-PLAN.md — vitest infra + RED engine test scaffolds (blocking package-legitimacy checkpoint)
-- [x] 03-02-PLAN.md — contract extension (City fields + optional Profile.weights) + scoring-weights config + 22-city dataset
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 03-03-PLAN.md — financial.ts (TY2026 federal brackets + state + FICA + cost-indexed expenses), TDD
-- [x] 03-04-PLAN.md — scoring.ts (two-layer config-driven scoring + honest contribution bars), TDD
-- [x] 03-05-PLAN.md — dealbreakers.ts (penalty-not-delete + D-02 re-confirm signal), TDD
-
-**Wave 3** *(blocked on Wave 2 completion)*
-
-- [x] 03-06-PLAN.md — index.ts orchestrator (rankCities, two-pass, never-empty), TDD
-
-**Wave 4** *(blocked on Wave 3 completion)*
-
-- [x] 03-07-PLAN.md — frontend: ResultsView + CityDetail + ReconfirmOverlay + wire rankCities (friend executes UI pass)
-
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 4: International Destinations & Country Models
@@ -132,20 +112,7 @@ Plans:
   3. Every city data point (salary, rent, cost index) has a source URL documented in the codebase; all figures can be cited on demand
   4. A "data as of [date]" timestamp is visible on international financial content
 
-**Plans**: 4 plans
-Plans:
-**Wave 1**
-
-- [x] 04-01-PLAN.md — UK/London end-to-end walking proof: fx.ts dated table, FinancialModel.computeSalary extension (D-01), uk-2026 model + UK local salaries, USD-canonical conversion, London record (V1/V2/V4)
-
-**Wave 2** *(blocked on Wave 1; parallel — disjoint files)*
-
-- [x] 04-02-PLAN.md — openness soft multiplier + scale-defensive normalizer (D-05/D-06), centralized OPENNESS config, corrected filtering comment (V3)
-- [x] 04-03-PLAN.md — intl CityDetail: dual-currency display, "data as of"/"FX as of" stamps (D-03/D-04), reusable InfoTooltip "i" affordance (D-10)
-**Wave 3** *(blocked on Wave 2 — shares index.test.ts with 04-02 + asserts its openness mechanism)*
-
-- [x] 04-04-PLAN.md — pt-irs-2026/de-2026/ca-on-2026 models + sourced local salaries, Lisbon/Berlin/Toronto records, full 4-city V3/V4 (PT standard-regime only, D-09)
-
+**Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Proxy, Live AI & Golden-Path Cache
@@ -163,15 +130,24 @@ Plans:
   5. On API timeout or malformed LLM response, the UI falls back to golden-path data without crashing
   6. The brand fonts (Instrument Serif, Manrope, JetBrains Mono) are self-hosted (bundled woff2 + `@font-face`, or `@fontsource/*`) so the visual identity renders correctly with zero network — confirmed when the hotspot is killed, the fonts do NOT fall back to system defaults
 
-**Plans**:
-- [ ] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub (Austin+Lisbon, rent+buy) + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
-- [ ] 05-02-PLAN.md — Proxy: api/live-core.ts (validate/prompts/sanitize) + api/live.ts web_search handler with cache fallback (FOUND-03, LIVE-01..04)
-- [ ] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp.jsx button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
-- [ ] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (FOUND-03/04, LIVE-01..04)
-- [ ] 05-05-PLAN.md — Self-host brand fonts (@fontsource), remove Google Fonts CDN link — offline typography (SC6 / FOUND-04)
-**UI hint**: yes
+**Plans**: 5 plans
+Plans:
 
-> **Carried from Phase 1 cross-AI review** (`.planning/phases/01-scaffold-port/01-REVIEWS.md`, MEDIUM): Phase 1 loads the three brand fonts via a `fonts.googleapis.com` CDN `<link>` and labeled it "offline resilience" — that is wrong; a CDN link still requires network. Against the venue's hard "Internet Access: Not Provided" constraint, a dropped hotspot silently degrades the entire visual identity (a scored rubric item) to system fonts. Self-hosting the fonts is the fix and belongs in this phase's offline-resilience scope (criterion #6). Also correct the Phase 1 rationale wording so later work does not bank fonts as already handled.
+**Wave 1**
+
+- [x] 05-01-PLAN.md — Foundation: @anthropic-ai/sdk + resolveJsonModule, golden-path stub (Austin+Lisbon, rent+buy) + pinned persona, 3 RED Wave-0 tests (FOUND-04, LIVE-01..04)
+
+**Wave 2** *(parallel; blocked on Wave 1)*
+
+- [x] 05-02-PLAN.md — Proxy: api/live-core.ts (validate/prompts/sanitize) + api/live.ts web_search handler with cache fallback (FOUND-03, LIVE-01..04)
+- [x] 05-03-PLAN.md — Client: src/lib/fetchLive.js + PotentialApp.jsx button/parallel fan-out/skeletons + D-10 source-text cards (FOUND-04, LIVE-01..04)
+- [x] 05-05-PLAN.md — Self-host brand fonts (@fontsource), remove Google Fonts CDN link — offline typography (SC6 / FOUND-04)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 05-04-PLAN.md — Capture script (D-07) + end-of-phase SC1-SC5 verification (FOUND-03/04, LIVE-01..04)
+
+**UI hint**: yes
 
 ### Phase 6: Relocation Roadmap
 
@@ -186,7 +162,29 @@ Plans:
   3. The roadmap renders without any network connection (offline-readable)
   4. User can export or print the roadmap as a PDF from the browser
 
-**Plans**: TBD
+**Plans**: 5 plans (4 + 1 optional)
+Plans:
+
+**Wave 0**
+
+- [x] 06-01-PLAN.md — RED Wave-0 test suite locking buildRoadmap/acceptEnrichment (ROAD-01/02/03 + D-02/D-05/D-07 + VISA-04)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [x] 06-02-PLAN.md — Engine: authoring types + GENERIC_TEMPLATE + targetFundUSD + pure offline buildRoadmap + acceptEnrichment validator (ROAD-01/02/03)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 06-03-PLAN.md — Authored content: ROADMAP_TEMPLATES.US.US (domestic) + US.UK (London, UK visa pathway — never Portugal D8), sourced (ROAD-01/02)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 06-04-PLAN.md — UI: Roadmap screen + inline @media print CSS + window.print() export + adapter + nav wiring + human-verify checkpoint (ROAD-01/03)
+
+**Wave 4** *(optional; blocked on Wave 2 + the Phase 5 capture script)*
+
+- [x] 06-05-PLAN.md — OPTIONAL build-time prose-enrich bake, validator-gated, non-blocking (ROAD-02)
+
 **UI hint**: yes
 
 ### Phase 7: Visa Concierge
@@ -202,7 +200,25 @@ Plans:
   3. Each pathway shows a document checklist and cost/timeline estimate with every figure cited to an official government source (AIMA, IRCC, etc.) and a "data as of [date]" label
   4. All immigration content displays a visible "not legal advice — consult a licensed immigration attorney" disclaimer and an attorney-referral CTA
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 0**
+
+- [x] 07-01-PLAN.md — RED visa.test.ts suite + visa.ts stub locking selectVisaPathways + graded fit + skeleton + non-filtering invariant (VISA-01/02/03)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [x] 07-02-PLAN.md — Authored visa-pathways.ts: Portugal D8 + Canada Express Entry (citation-perfect) + GENERIC_SKELETON + flat registry; figures human-verify checkpoint (VISA-02/03)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 07-03-PLAN.md — Engine GREEN: real selectVisaPathways + computeGradedFit (gradeD8/gradeExpressEntry/isPostSecondaryDegree); all Wave 0 tests pass (VISA-01)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 07-04-PLAN.md — Visa.jsx side-by-side comparison + checklists + sources-as-text + disclaimer/CTA + skeleton + PotentialApp nav wiring; browser human-verify (VISA-02/03/04)
+
 **UI hint**: yes
 
 ### Phase 8: Freemium Tier Gate
@@ -214,11 +230,28 @@ Plans:
 **Success Criteria** (what must be TRUE):
 
   1. A user in the free tier sees a minimal teaser (that a #1 match exists) with deeper results and detail sections visibly locked/blurred to drive curiosity and upgrade prompts (16Personalities-style locked results)
-  2. Switching tiers reveals the correct run-based feature set with no broken states: Basic $0.99 (1 run — the single most optimal city + core financials), Plus $9.99 (3 runs — full ranked list + live-AI layer + roadmap), Premium $29.99 (unlimited runs — adds the visa concierge)
+  2. Switching tiers reveals the correct run-based feature set with no broken states: Basic $0.99 (1 run — the top 3 cities fully: name + why + core financials; cities #4+ stay locked), Plus $9.99 (3 runs — full ranked list + live-AI layer + roadmap), Premium $29.99 (unlimited runs — adds the visa concierge)
   3. Every locked section displays a "what you unlock" upsell message with Plus ($9.99, badged "most popular") positioned as the primary call-to-action
   4. The DemoTierSwitcher control cycles through all four tiers during a live demo, making every tier visible to judges in under 60 seconds
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 0**
+
+- [x] 08-01-PLAN.md — Tier-gate contract (canAccess/TIER_FEATURES/TIER_RUNS_MAP) + RED test scaffold + pitch doc-sync (TIER-01/02/03)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [x] 08-02-PLAN.md — Free-teaser slice: LockGate (blur-real/frosted-skeleton) + tier state + gated city-detail + ResultsMap rank cutoff (TIER-01/02)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 08-03-PLAN.md — Tier-switching slice: hidden DemoTierSwitcher + corner-triple-tap presenter gesture + RunsBadge (TIER-02)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 08-04-PLAN.md — Upsell slice: 4-tier PricingModal (Plus 'most popular', money-back guarantee, testimonials) wired to every locked padlock (TIER-03) (2026-06-06)
 **UI hint**: yes
 
 ### Phase 9: Pitch — Business Substance
@@ -266,50 +299,12 @@ Phases 1–8 are product (sequential by dependency). Phases 9–10 are pitch pac
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold & Port | 3/3 | Complete | 2026-05-30 |
-| 2. Quiz & Profile Capture | 3/4 | In Progress|  |
-| 3. Matching & US Financial Spine | 7/7 | Complete   | 2026-06-02 |
-| 4. International Destinations & Country Models | 4/4 | Complete   | 2026-06-03 |
-| 5. Proxy, Live AI & Golden-Path Cache | 0/TBD | Not started | - |
-| 6. Relocation Roadmap | 0/TBD | Not started | - |
-| 7. Visa Concierge | 0/TBD | Not started | - |
-| 8. Freemium Tier Gate | 0/TBD | Not started | - |
+| 2. Quiz & Profile Capture | 0/4 | Not started | - |
+| 3. Matching & US Financial Spine | 0/TBD | Not started | - |
+| 4. International Destinations & Country Models | 0/TBD | Not started | - |
+| 5. Proxy, Live AI & Golden-Path Cache | 5/5 | Complete   | 2026-06-06 |
+| 6. Relocation Roadmap | 4/5 | In Progress|  |
+| 7. Visa Concierge | 4/4 | Complete   | 2026-06-06 |
+| 8. Freemium Tier Gate | 4/4 | Complete   | 2026-06-06 |
 | 9. Pitch — Business Substance | 3/3 | Complete    | 2026-05-31 |
 | 10. Pitch — Deck, Rehearsal & Protocol | 3/3 | Complete    | 2026-05-31 |
-
-### Phase 11: Deep Profile — expand the quiz with sourced life-area categories (healthcare, climate/disaster risk, family/schools, demographics, outdoors, connectivity) capturing them into an extended Profile
-
-**Goal:** A config-driven quiz-engine extension that infers explainable, two-tier category weights from an upfront personality/values gate and captures sourced life-area preferences into an additively-extended Profile contract — shipped as logic + contract + a written UI spec (no production UI), ready for Phase 12 to score.
-**Mode:** standard
-**Depends on:** Phase 2 (extends the quiz-engine framework: questions.ts, resolver.ts, synthesizer.ts) — execute after Phase 2 lands. Phase 11 builds sibling modules (personality.ts, category-modules.ts) and only the ALL_QUESTIONS registration touches a Phase 2 file (append-only). New Phase 11 test files are excluded from green gates until both Phase 2 impl and Phase 11 impl exist (staggered-green).
-**Requirements**: QUIZ-06, QUIZ-07, QUIZ-08, QUIZ-09, MATCH-05
-**Success Criteria** (what must be TRUE):
-
-  1. The extended Profile (categoryWeights + weightExplanations + module fields) and extended City compile under strict:true with zero existing-fixture changes; the Phase 3 engine suite stays green (additive-contract guard)
-  2. synthesizeCategoryWeights returns a defined finite weight for every scored category (never undefined/NaN) and emits weightExplanations alongside categoryWeights from one call (D-08/D-13)
-  3. Practical categories carry a weight floor; preference categories swing freely above it (D-09 two-tier); weights are raw (Phase 12 normalizes)
-  4. detectPersonalityTension is a signal-or-null follow-up detector that never crashes on empty/unknown answers (D-10)
-  5. Only data-gated categories are built; Tier-3 (political/values, social/dating) appear nowhere (D-14/D-15)
-  6. A written UI spec documents the config-driven render contract in the established gold-cinematic visual language and carries the Phase 12 clamp/BASE_SCORE recalibration BLOCKER + data caveats + the D-02 open reconciliation (D-03)
-
-**Plans:** 4/4 plans complete
-
-Plans:
-**Wave 1**
-- [x] 11-01-PLAN.md — additive types.ts contract (WeightExplanation + Profile/City fields), keys.ts cross-plan constants, file-scoped RED test scaffolds
-
-**Wave 2** *(blocked on Wave 1; 11-02 and 11-03 run in parallel — no file overlap)*
-- [x] 11-02-PLAN.md — personality.ts: tradeoff + trait QuestionDefs, detectPersonalityTension, explainable two-tier synthesizeCategoryWeights, tier constants
-- [x] 11-03-PLAN.md — category-modules.ts: data-gated life-area modules (rich healthcare/family, light climate/demographics/parks/connectivity), guided-modular showIf
-
-**Wave 3** *(blocked on Wave 2)*
-- [x] 11-04-PLAN.md — UI spec deliverable (11-UI-SPEC.md) in the established visual language + append-only ALL_QUESTIONS registration + Phase 12 handoff requirements
-
-### Phase 12: Multi-Dimensional Scoring — extend the scoring engine and city dataset to consume the new life-area categories with sourced data and honest contribution explanations
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 11 (new Profile fields) + Phase 3 (extends scoring.ts, scoring-weights.ts, cities.ts); consumes `.planning/research/deep-category-data.md`
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 12 to break down)

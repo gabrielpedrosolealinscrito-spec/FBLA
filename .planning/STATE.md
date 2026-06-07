@@ -2,40 +2,39 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 5
-current_plan: Not started (context captured, ready to plan)
-status: ready_to_plan
-stopped_at: Phase 5 context gathered
-last_updated: "2026-06-03T23:35:18.374Z"
-last_activity: 2026-06-03
+current_phase: 08 (complete)
+current_plan: 1
+status: verifying
+stopped_at: Phase 07 Plan 04 complete — Visa.jsx screen + dual entry wired + citizenship-key fix + human-verify passed; Phase 7 all 4 plans done
+last_updated: "2026-06-06T18:42:23.213Z"
+last_activity: 2026-06-06
 progress:
-  total_phases: 12
-  completed_phases: 6
-  total_plans: 28
-  completed_plans: 27
-  percent: 50
+  total_phases: 10
+  completed_phases: 9
+  total_plans: 42
+  completed_plans: 41
+  percent: 90
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 5 (proxy-live-ai-golden-path-cache) — CONTEXT GATHERED, ready to plan
-Plan: Not started (05-CONTEXT.md captured 2026-06-03)
-**Current Phase:** 5
-**Last Activity:** 2026-06-03
-**Last Activity Description:** Phase 5 context gathered (discuss-phase). Next: /gsd:plan-phase 5
+Phase: 08 (freemium-tier-gate) — COMPLETE
+Plan: 4 of 4 (all plans done)
+**Status:** Phase complete — ready for verification
+**Current Phase:** 08 (complete)
+**Last Activity:** 2026-06-06
+**Last Activity Description:** Phase 08 Plan 04 complete — upsell slice, SC3 met, full freemium funnel closed
 
-> ⚠ **STATE.md needs a cleanup pass.** This file carries contradictory narrative from the reconcile/v1 merge (mixed Phase 02/04/09 status lines, completed_phases/plan counts unverified). The ground-truth: Phases 1, 9, 10 complete; Phases 2, 3, 4 delivered on the merged backend (reconcile/v1 is green, 123 tests); Phase 5 is next. Reconcile during the deferred trunk-consolidation pass (see 05-CONTEXT.md deferred section).
+> **Pitch track: COMPLETE.** Phases 9 (Business Substance) and 10 (Deck, Rehearsal & Protocol) both done 2026-05-31. All business-substance deliverables, deck outline, Q&A bank, and protocol checklist authored, source-tagged, and goal-verified under `pitch/`. Phase 10's timed rehearsals are specified but gated on Phase 8 (live demo, not yet built).
 
-> **Product track:** Phase 1 complete. Phase 2 (Quiz & Profile Capture) — UI-SPEC approved 2026-05-30 (dark indie-pixel hybrid; supersedes the port-don't-redesign lock per DD-03). Next: `/gsd:plan-phase 2`. See `.planning/phases/02-quiz-profile-capture/`.
-
-> **Pitch track:** Phase 9 (Business Substance) COMPLETE 2026-05-31 and Phase 10 (Deck, Rehearsal & Protocol) COMPLETE 2026-05-31 — sourced, Q&A-defensible deliverables under `pitch/` (market-research, business-model, financials, deck-outline, pitch-script, qa-bank, protocol-checklist). Both verified.
+> **Product track is the critical path.** Phase 1 shipped (walking skeleton, live on Vercel). Phase 2 (Quiz & Profile Capture) reshaped into a full rebuild of the capture layer (adaptive/branching quiz, tension reconciliation, structured preference profile; city scoring deferred to Phase 3) — 4 plans ready to execute. See `.planning/phases/02-quiz-profile-capture/`. Phases 3–8 remain.
 
 ## Progress
 
-**Phases Complete:** 3 — Phase 1 (product) + Phases 9 & 10 (pitch) · Phase 2 UI-SPEC approved (product, ready to plan)
-**Current Plan:** Not started
+**Phases Complete:** 3 — Phase 1 (product track) + Phases 9 & 10 (pitch track, both complete 2026-05-31) · Phase 2 planned, ready to execute (product track)
+**Current Plan:** 1
 
 ## Decisions
 
@@ -46,59 +45,84 @@ Plan: Not started (05-CONTEXT.md captured 2026-06-03)
 - [Phase ?]: AI fetch stub pattern
 - Business model: run-based one-time pricing (Basic $0.99 / Plus $9.99 / Premium $29.99), no consumer subscription, modeled on 16Personalities (Phase 9 discussion)
 - Phase 2 reshaped to a capture-layer rebuild: adaptive/branching quiz + tension reconciliation + derived preference weights; city scoring deferred to Phase 3 (Phase 2 discussion)
-- [Phase ?]: TY2026 single-filer brackets applied to household income — MFJ rates deferred as documented simplification
-- [Phase ?]: FICA flat 7.65% applied; SS wage cap deferred per D-08
-- [Phase ?]: costIndex<=0 NaN guard uses fallback idx=1 (T-3-04 mitigation)
-- [Phase ?]: scoring.ts contribution-sum design
-- [Phase ?]: profile param on getTriggeredDealbreakers is optional — test calls with 2 args
-- [Phase ?]: Heat threshold strict > 95 (exclusive boundary): San Antonio at 95 does not trigger
-- [Phase ?]: rankCities never filters cities (D-01)
-- [Phase ?]: Two-pass D-02 flow: rawRanking built first then penalized; tops compared for reconfirmSignal
-- [Phase 03-07]: selectedCity state holds MatchResult (not City) — consumers access city via selectedCity.city
-- [Phase 03-07]: AI stub sections (jobs/housing/nightlife/etc.) retained in city detail — removing was a visible demo regression; kept offline/stubbed for Phase 5
-- [Phase 03 CR-01]: Personal weights normalized to [0,1] via PERSONAL_WEIGHT_SCALE=4 in rankToWeight; normalization caps reduced to (12,12,10,8) so theoretical max rawScore=90.4, clamp always inert, scoreFactors bars reconcile with badge; lifestyleTags ?? [] crash guard added
-- [Phase ?]: pixelarticons uses pixelarticons/react/ subpath imports — verified legitimate
-- [Phase ?]: Profile extended with 6 optional Phase-2 dimension fields (D-05): motivationToMove, workStyle, communityNeeds, paceOfLife, riskTolerance, tradeoffTolerance — all optional, zero fixture ripple under strict:true
-- [Phase ?]: Phase 2 emits raw 1-4 weights from synthesizeProfile; Phase 3 normalizes to [0,1] via PERSONAL_WEIGHT_SCALE — do not pre-normalize in synthesizer
-- [Phase ?]: Quiz engine (questions/resolver/synthesizer) built in shared/quiz-engine; synthesizeProfile emits raw 1-4 weights; Phase 3 normalizes
-- [Phase ?]: QuizShell replaces inline 5-step prototype quiz; onComplete runs rankCities handoff + setProfile for results sections
-- [Phase ?]: DEAL_BREAKERS imported byte-exact from constants.js in questions.ts — no string drift
-- [Phase ?]: Plan 02-02 implemented all Plan 02-03 adaptive branching deliverables ahead of scope; Plan 02-03 verified all acceptance criteria GREEN with zero code changes
+- [Phase 12]: missing new-category data (7 of 28 cities) → neutral-midpoint factorScore (0.5) labeled dataLevel 'limited-data' — honors D-07 (never punished) + D-01 (honesty boundary visible); resolves the D-01-vs-D-07 fork the research left open
+- [Phase 05-01]: City-key contract: full city.name strings ('Austin, TX'/'Lisbon, Portugal') as golden-path JSON keys — load-bearing, matches runtime proxy/client goldenPath[category][city.name] lookup
+- [Phase ?]: sanitizeInput runs outside try/catch so unknown category returns 400 not fromCache:true (V5 correctness)
+- [Phase ?]: new Anthropic() inside try block — missing ANTHROPIC_API_KEY is LIVE-04 cache event at runtime, not a crash
+- [Phase ?]: Lisbon/London blocker resolved: golden-path keyed London UK; countryFor suffix map UK to GB
+- [Phase ?]: fetchCategoryLive uses 20s AbortController timeout — 7s reliably aborts live web_search (Pitfall 2)
+- [Phase ?]: AIList returns null before first pull — prevents blank/stuck state under button model
+- [Phase ?]: pullLiveData uses parallel forEach fan-out so one slow/failed category never blocks another (D-04/D-05)
+- [Phase ?]: Static @fontsource/* not @fontsource-variable/* for self-hosted fonts — variable packages register '... Variable' names breaking existing bare font-family CSS
+- [Phase ?]: All 10 Wave 0 roadmap tests GREEN in Wave 1 — GENERIC_TEMPLATE serves all US-citizen fixtures since ROADMAP_TEMPLATES.US is empty; no test weakened
+- [Phase ?]: monthsToFund=null for non-positive monthlySavings (D-02) — deficit text in timeline/financial, no fabricated countdown (N months pattern blocked)
+- [Phase ?]: US_DOMESTIC_TEMPLATE appended; 6 sections; domestic no-visa note
+- [Phase ?]: US_TO_UK_TEMPLATE: Skilled Worker + Global Talent; no Portugal D8; UPL line; all 10 tests green
+- [Phase ?]: topNegativeSavings spreads topUK (country=UK) — routes to UK authored template once registered; D-02 branch authored in timeline+financial
+- [Phase ?]: 06-04
+- [Phase 07-03]: D8_MIN_ANNUAL_USD=48576 (3680*1.10*12) — conservative EUR/USD prevents false strong grade on stale FX
+- [Phase 07-03]: selectVisaPathways flagship model — matchedCountry never filters; only flows into GENERIC_SKELETON destinationCountry label (VISA-02)
+- [Phase ?]: 08-01
+- [Phase ?]: 08-01
+- [Phase ?]: 08-01
+- [Phase 08-02]: LockGate uses named React imports — auto-JSX runtime codebase (no React.useState)
+- [Phase 08-02]: FrostedSkeleton hardcodes gold literals — PotentialApp green host scope (#6EE7B7) would corrupt card colors
+- [Phase 08-02]: Rank-gate owned by ResultsMap; section-gate owned by LockGate — Architectural Responsibility Map separation
+- [Phase 08-02]: modalOpen wired but PricingModal deferred to Wave 3 (08-04) — intentional stub
+- [Phase ?]: renderScreen() wrap keeps per-step JSX byte-identical; DemoTierSwitcher renders as root sibling overlay
+- [Phase ?]: RunsBadge sources labels from TIER_RUNS_MAP only — no re-hardcoded strings
+- [Phase ?]: Corner triple-tap gesture (80x80px bottom-right, 3 taps/600ms) chosen over keyboard chord for D-05/D-13 mobile compliance
+- [Phase 08-04]: PricingModal renders null when open=false — no DOM footprint in the closed state
+- [Phase 08-04]: lp-locked reused from Landing.jsx for body scroll-lock — no new CSS class invented; backdrop-filter on card only (GPU-safe)
+- [Phase 08-04]: OQ-1 resolved: 30-day money-back guarantee included verbatim from UI-SPEC; RESEARCH PENDING placeholder ignored
+- [Phase 08-04]: onTier fires only with four TIERS_CONFIG keys — no free-text reaches setTier (T-08-05 mitigate satisfied)
+- [Phase ?]: 07-04: Visa guard before Roadmap guard; onVisa clears roadmap before showing Visa
+- [Phase ?]: 07-04: CITIZENSHIP_KEY map in selectVisaPathways — quiz 'US Citizen' normalized to registry 'US'
+- [Phase ?]: 07-04: Long shot badge uses --text2 not --neg — UPL likelihood signal not rejection
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 01 | 01 | 5min | 2 | 11 |
+| 05 | 01 | 20min | 3 | 8 |
 | Phase 01 P02 | 10min | 3 tasks | 4 files |
 | Phase 09 P01 | 2min | 2 tasks | 1 files |
 | Phase 09 P02 | 18min | 2 tasks | 1 files |
 | Phase 09 P03 | 15min | 2 tasks | 2 files |
-| Phase 03 P01 | 12min | 3 tasks | 8 files |
-| Phase 03 P03 | 8min | 1 tasks | 1 files |
-| Phase 03 P04 | 10min | 1 tasks | 1 files |
-| Phase 03 P05 | 8min | 1 tasks | 1 files |
-| Phase 03 P06 | 8min | 1 tasks | 1 files |
-| 03 | 07 | 10min | 3 | 5 |
-| Phase 02 P01 | 18min | 4 tasks | 9 files |
-| Phase 02 P02 | 25min | 3 tasks | 12 files |
-| Phase 02 P03 | 5min | 2 tasks | 0 files |
-| Phase 11 P01 | 20 | 3 tasks | 4 files |
-| 11 | 04 | 35min | 2 | 2 |
+| Phase 05 P02 | 25min | 2 tasks | 2 files |
+| Phase 05 P03 | 15min | 2 tasks | 2 files |
+| Phase 05 P05 | 12min | 2 tasks | 4 files |
+| Phase 06 P01 | 12min | 1 tasks | 1 files |
+| Phase 06 P02 | 3min | 2 tasks | 2 files |
+| Phase 06 P03 | 5min | 2 tasks | 1 files |
+| Phase 06 P04 | 45min | 4 tasks | 4 files |
+| Phase 07 P01 | 12min | 2 tasks | 2 files |
+| Phase 07 P02 | 20min | 3 tasks | 2 files |
+| 07 | 03 | 8min | 1 | 1 |
+| Phase 08 P01 | 15min | 3 tasks | 7 files |
+| Phase 08 P02 | 5min | 3 tasks | 3 files |
+| Phase 08 P03 | 3min | 3 tasks | 3 files |
+| 08 | 04 | 8min | 3 | 2 |
+| Phase 08 P04 | 8min | 3 tasks | 2 files |
+| Phase 07 P04 | 45min | 3 tasks | 5 files |
 
 ## Session Continuity
 
-**Stopped At:** Phase 5 context gathered
-**Resume File (product track):** .planning/phases/02-quiz-profile-capture/02-CONTEXT.md
-**Resume File (pitch track):** None — Phase 9 complete; next is /gsd-discuss-phase 10
+**Stopped At:** Phase 07 Plan 04 complete — Visa.jsx screen + dual entry wired + citizenship-key fix + human-verify passed; Phase 7 all 4 plans done
+**Resume File (product track):** .planning/phases/05-proxy-live-ai-golden-path-cache/05-02-PLAN.md — execute Phase 05 Plan 02
+**Resume File (Phase 12):** .planning/phases/12-multi-dimensional-scoring-extend-the-scoring-engine-and-city/ — execute on `reconcile/v1` (Phase 11 constants live there, NOT integrate/quiz-engine)
+**Resume File (pitch track):** None — pitch track complete (Phases 9 & 10); Phase 10 rehearsals gated on Phase 8
 **Live URL:** https://fbla-ruddy.vercel.app
 **Walking Skeleton:** proven end-to-end (local npm run dev + public Vercel deploy + /api/health 200)
+
+## Blockers
+
+None — the Lisbon/London blocker (05-01) was resolved in Plan 01: demo-results.json is keyed "London, UK"; countryFor suffix map handles UK→GB. fetchCategoryLive uses city.name verbatim. LIVE-04 satisfied for international city (Plan 03 complete).
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 
 - Phase 2 edited: added success criteria 6-7: adaptive/branching quiz + tension reconciliation (from Phase 2 discussion)
-- Phase 11 added: Deep Profile — expand quiz with sourced life-area categories (healthcare, climate/disaster risk, family/schools, demographics, outdoors, connectivity). Depends on Phase 2 (extends quiz-engine, same files → execute after Phase 2 lands). Plan-time notes: widen the 4-factor weight seam (Profile.weights/importanceRank); redesign priority-capture UX to scale beyond 4 categories.
-- Phase 12 added: Multi-Dimensional Scoring — extend scoring engine + city dataset to consume new categories. Depends on Phase 11 + Phase 3. Consumes async-sourced data doc at .planning/research/deep-category-data.md (background research agent completed 2026-06-02: 7 category tables, 22 cities, ~30 cited sources; ParkScore partial for 15 cities). Tier 3 categories (political/values fit, dating/social scores) intentionally excluded as undefensible.
-- Phase 11 context gathered (2026-06-02): see 11-CONTEXT.md. Defining decision = personality/values quiz INFERS category weights (hybrid tradeoff+trait, explainable, two-tier floor protecting cost/safety/healthcare). Guided-modular flow, adaptive gate reusing Phase 2 tension.ts, mixed module depth, new categories weight-only (not dealbreakers), Tier-3 omitted. Deliverable = logic + contract + UI spec (collaborator builds whole-app UI incl. quiz; shared/quiz-engine is UI-agnostic source of truth). OPEN: reconcile personality weighting vs Phase 2 importanceRank after Phase 2 lands. Ready to /gsd-plan-phase 11.
+- Phase 12 planned off-ROADMAP (defined on main/reconcile/v1, not integrate/quiz-engine): multi-dimensional scoring — 4 plans, 3 waves, executes on reconcile/v1

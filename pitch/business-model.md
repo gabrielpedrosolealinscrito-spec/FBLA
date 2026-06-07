@@ -39,13 +39,13 @@ Potential mirrors this structure exactly, adapted to relocation "runs" as the va
 | Tier | Price | Runs (Credits) | What Unlocks | Role in Funnel |
 |------|-------|---------------|--------------|----------------|
 | **Free** | $0 | 0 (teaser only) | Quiz completion + #1 match city + 1 headline financial figure; all deeper sections shown blurred/locked | Top-of-funnel hook; drives curiosity toward purchase |
-| **Basic** | $0.99 | 1 run | Single most optimal city + complete financial snapshot (expenses, take-home, savings estimate) | Near-frictionless entry — anchors the price ladder; impulse-buy accessible |
+| **Basic** | $0.99 | 1 run | Top 3 cities fully revealed (name + why + core financials for each) | Near-frictionless entry — anchors the price ladder; impulse-buy accessible |
 | **Plus** | **$9.99** | **3 runs** | Full ranked list (US + international) + complete financials for all cities + live-AI layer (real jobs, housing, day-in-the-life) + personalized relocation roadmap | **Primary upsell target — "most popular" badge** |
 | **Premium** | $29.99 | Unlimited runs | Everything in Plus + immigration/visa concierge (eligibility screener → pathway comparison → document checklist → cost/timeline → attorney referral) | High-value international-bound user; the moat |
 
 **"Your runs never expire. Use them when you're ready."** — This framing removes the "use it or lose it" objection entirely. Modeled directly on 16Personalities Reports for Pros: "credits never expire," "no commitment or subscription required." [VERIFIED: https://www.16personalities.com/premium/reports — confirmed May 2026. [FOUNDER-VERIFY: F4]]
 
-**Note:** No money-back guarantee at launch (16Personalities offers one; Potential has elected not to include it — see Project decision D-07).
+**Note:** Potential offers a 30-day money-back guarantee (per OQ-1 / D-10), consistent with the 16Personalities Premium tier model and the demo pricing modal copy.
 
 ### Conversion Mechanics (D-07)
 
@@ -117,7 +117,7 @@ Free quiz completion
 Free results: #1 match city + 1 headline financial figure
 All other results are blurred/locked (16Personalities "Your Profile" pattern)
     ↓ (~10–15% want the full ranked list immediately)
-$0.99 Basic — full financial snapshot for the #1 city
+$0.99 Basic — top 3 cities fully revealed (name + why + core financials)
     ↓ (after paying $0.99, sunk-cost + curiosity: "I already paid — let me see everything")
 $9.99 Plus — full ranked list (US + intl) + live-AI + relocation roadmap  ← PRIMARY UPSELL
     ↓ (international-bound users only: "How do I actually get there legally?")
