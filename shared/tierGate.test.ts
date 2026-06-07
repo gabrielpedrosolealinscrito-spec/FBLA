@@ -48,7 +48,7 @@ describe('canAccess', () => {
     expect(canAccess('plus', 'premium')).toBe(false);
   });
 
-  // Premium tier (rank 3) — can access everything
+  // Premium tier (rank 3) — can access everything below global
   it('premium can access free', () => {
     expect(canAccess('premium', 'free')).toBe(true);
   });
@@ -60,6 +60,20 @@ describe('canAccess', () => {
   });
   it('premium can access premium', () => {
     expect(canAccess('premium', 'premium')).toBe(true);
+  });
+
+  // Global tier (rank 4) — top of the order, added by Package 00.
+  it('global can access premium', () => {
+    expect(canAccess('global', 'premium')).toBe(true);
+  });
+  it('global can access free', () => {
+    expect(canAccess('global', 'free')).toBe(true);
+  });
+  it('global can access global', () => {
+    expect(canAccess('global', 'global')).toBe(true);
+  });
+  it('premium cannot access global', () => {
+    expect(canAccess('premium', 'global')).toBe(false);
   });
 });
 

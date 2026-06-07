@@ -37,29 +37,29 @@ import type { VisaPathway } from '../types.js';
 
 export const PORTUGAL_D8: VisaPathway = {
   destinationCountry: 'Portugal',
-  visaType: 'Portugal D8 — Digital Nomad / Remote Work Visa',
+  visaType: 'Portugal D8: Digital Nomad / Remote Work Visa',
   requirements: [
     'Proof of remote income ≥ €3,680/month (4× Portuguese minimum wage, Jan 2026)',
     'Employment contract or service agreements with non-Portuguese clients',
     'Health insurance with ≥ €30,000 coverage (Schengen-compliant)',
     'Criminal record certificate (apostilled, issued within 90 days)',
     'Proof of accommodation in Portugal (12-month lease, Finanças-registered)',
-    'NIF (Portuguese tax number) — obtainable before arrival via consulate',
+    'NIF (Portuguese tax number), obtainable before arrival via consulate',
     'Portuguese or foreign bank account showing regular income history',
   ],
-  processingTime: '4–9 months total (consulate: 4–8 weeks; AIMA appointment: 90–120 days backlog; card: 2–6 weeks)',
-  feeRangeUSD: '$300–$330 in gov fees (consulate visa €90–110 + AIMA residence permit €170; EUR/USD 1.164 Jun 2026 — verify at authoring)',
+  processingTime: '4-9 months total (consulate: 4-8 weeks; AIMA appointment: 90-120 days backlog; card: 2-6 weeks)',
+  feeRangeUSD: '$300-$330 in gov fees (consulate visa €90-110 + AIMA residence permit €170; EUR/USD 1.164 Jun 2026, verify at authoring)',
   pros: [
-    'No Portuguese employer required — remote income from non-PT clients qualifies',
+    'No Portuguese employer required; remote income from non-PT clients qualifies',
     'Schengen Area travel with residence permit',
     'Path to permanent residency (5 years) and citizenship (5 years)',
     'NHR tax regime may apply (verify current eligibility)',
     'Lower cost of living vs. US or UK despite income threshold',
   ],
   cons: [
-    'AIMA appointment backlogs: 400,000+ cases reported in 2026; total timeline 4–9 months',
+    'AIMA appointment backlogs: 400,000+ cases reported in 2026; total timeline 4-9 months',
     'Income threshold resets annually with Portuguese minimum wage (verify at AIMA at your appointment date)',
-    'Savings of ≥ €11,040 (12× minimum wage) also required — not just monthly income',
+    'Savings of ≥ €11,040 (12× minimum wage) also required, not just monthly income',
     'Accommodation must be pre-secured before the visa application',
     'Portugal-sourced income does NOT count toward the 4× minimum-wage threshold',
   ],
@@ -78,10 +78,10 @@ export const PORTUGAL_D8: VisaPathway = {
     'Fee payment confirmation (consulate visa fee: ~€110)',
   ],
   officialSources: [
-    'AIMA — Agência para a Integração, Migrações e Asilo (aima.gov.pt): residence permit authorization, fees, appointment scheduling',
+    'AIMA, Agência para a Integração, Migrações e Asilo (aima.gov.pt): residence permit authorization, fees, appointment scheduling',
     'Ministério dos Negócios Estrangeiros / vistos.mne.gov.pt: national visa D8 requirements and consular process',
     'Portal das Finanças (portaldasfinancas.gov.pt): NIF registration, rental-lease Finanças registration',
-    'Data as of: 2026-06-05 — verify current minimum wage (4× rule) and AIMA fee schedule before authoring final content',
+    'Data as of: 2026-06-05. Verify current minimum wage (4× rule) and AIMA fee schedule before authoring final content',
   ],
 };
 
@@ -89,34 +89,34 @@ export const PORTUGAL_D8: VisaPathway = {
 
 export const CANADA_EXPRESS_ENTRY: VisaPathway = {
   destinationCountry: 'Canada',
-  visaType: 'Canada Express Entry — Federal Skilled Worker (FSW)',
+  visaType: 'Canada Express Entry: Federal Skilled Worker (FSW)',
   requirements: [
-    'Competitive CRS (Comprehensive Ranking System) score — general draws typically require ~480–550+ as of 2025–2026',
+    'Competitive CRS (Comprehensive Ranking System) score; general draws typically require ~480-550+ as of 2025-2026',
     'At least 1 year skilled work experience in an eligible NOC TEER 0, 1, 2, or 3 occupation',
     'Language: IELTS or CELPIP (English) or TEF/TCF (French) at minimum CLB 7',
     'Education: post-secondary credential assessed by a designated ECA organization',
     'Proof of settlement funds: CAD $15,263 for a single applicant (2026 LICO table)',
-    'No valid Canadian employer sponsorship required — the March 25, 2025 rule change removed the former employer-based CRS bonus',
+    'No valid Canadian employer sponsorship required; the March 25, 2025 rule change removed the former employer-based CRS bonus',
   ],
-  processingTime: '6–8 months post-ITA (Invitation to Apply); 60-day window to submit complete PR application after ITA',
-  feeRangeUSD: '~$1,140 government fees (CAD $1,590 = processing $990 + RPRF $600; CAD/USD 0.719 Jun 2026) — excludes ECA ($200–300 CAD), language tests ($300–350 CAD), biometrics ($85 CAD)',
+  processingTime: '6-8 months post-ITA (Invitation to Apply); 60-day window to submit complete PR application after ITA',
+  feeRangeUSD: '~$1,140 government fees (CAD $1,590 = processing $990 + RPRF $600; CAD/USD 0.719 Jun 2026); excludes ECA ($200-300 CAD), language tests ($300-350 CAD), biometrics ($85 CAD)',
   pros: [
     'No employer sponsorship required for FSW pathway',
-    'Direct permanent residence (not a temporary visa) — immediate right to live and work',
+    'Direct permanent residence (not a temporary visa) with immediate right to live and work',
     'Family members included in one application',
     'Universal public healthcare (provincial) once PR is issued',
     'Pathway to Canadian citizenship (3 years as PR)',
   ],
   cons: [
-    'CRS score requirement is high: general draws typically require 480–550+ since the employer-based CRS bonus was removed in March 2025',
+    'CRS score requirement is high: general draws typically require 480-550+ since the employer-based CRS bonus was removed in March 2025',
     'Remote work for foreign companies does NOT count as Canadian work experience for CRS scoring',
-    'Education Credential Assessment required for non-Canadian degrees (adds $200–300 CAD cost and 3–5 months)',
-    'Language tests (IELTS/CELPIP) must be taken and results valid — additional cost and timeline',
+    'Education Credential Assessment required for non-Canadian degrees (adds $200-300 CAD cost and 3-5 months)',
+    'Language tests (IELTS/CELPIP) must be taken and results valid, adding cost and timeline',
     'Proof of settlement funds (CAD $15,263 single) must be liquid and not borrowed',
   ],
   documentChecklist: [
     'Valid passport or travel document',
-    'Language test results: IELTS / CELPIP (English) or TEF / TCF (French) — within validity period',
+    'Language test results: IELTS / CELPIP (English) or TEF / TCF (French), within validity period',
     'Educational Credential Assessment (ECA) report from a designated organization (e.g. WES)',
     'Proof of work experience: employment reference letters, pay stubs, contracts (NOC-aligned)',
     'Proof of settlement funds: bank letter or statements showing CAD $15,263+ (single applicant)',
@@ -127,10 +127,10 @@ export const CANADA_EXPRESS_ENTRY: VisaPathway = {
     'Recent passport-sized photographs (applicant and dependents)',
   ],
   officialSources: [
-    'IRCC — Immigration, Refugees and Citizenship Canada (canada.ca/express-entry): CRS criteria, eligibility, draw history',
-    'IRCC fee list (ircc.canada.ca/english/information/fees/fees.asp): processing fee CAD $990 + RPRF CAD $600 — effective April 30, 2026',
+    'IRCC, Immigration, Refugees and Citizenship Canada (canada.ca/express-entry): CRS criteria, eligibility, draw history',
+    'IRCC fee list (ircc.canada.ca/english/information/fees/fees.asp): processing fee CAD $990 + RPRF CAD $600, effective April 30, 2026',
     'IRCC proof of funds (canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/proof-funds): CAD $15,263 single applicant (2026 LICO table)',
-    'Data as of: 2026-06-05 — verify current draw cutoffs and settlement fund table at canada.ca before authoring final content',
+    'Data as of: 2026-06-05. Verify current draw cutoffs and settlement fund table at canada.ca before authoring final content',
   ],
 };
 
@@ -138,7 +138,7 @@ export const CANADA_EXPRESS_ENTRY: VisaPathway = {
 
 export const GENERIC_SKELETON: VisaPathway = {
   destinationCountry: '[Country]',
-  visaType: 'Work Visa — [Country]',
+  visaType: 'Work Visa for [Country]',
   requirements: [
     'Verify current requirements at the official immigration authority for [Country]',
   ],
@@ -149,7 +149,7 @@ export const GENERIC_SKELETON: VisaPathway = {
     'Potential path to residency',
   ],
   cons: [
-    'Requirements, fees, and timelines vary — verify at official source',
+    'Requirements, fees, and timelines vary; verify at official source',
   ],
   documentChecklist: [
     'Valid passport (minimum 6 months validity beyond intended stay)',
@@ -161,7 +161,7 @@ export const GENERIC_SKELETON: VisaPathway = {
   ],
   officialSources: [
     'Verify current fees, processing times, and requirements at the official immigration authority for [Country].',
-    'DATA AS OF: 2026-06 — GENERIC SKELETON — VERIFY LOCALLY',
+    'DATA AS OF: 2026-06. GENERIC SKELETON. VERIFY LOCALLY',
   ],
 };
 

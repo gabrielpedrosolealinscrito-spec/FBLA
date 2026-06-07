@@ -31,8 +31,8 @@ const fmt = (n) => "$" + Math.round(Math.abs(n || 0)).toLocaleString("en-US");
 const parseCity = (name) => { const i = name.lastIndexOf(", "); return i > 0 ? [name.slice(0, i), name.slice(i + 2)] : [name, ""]; };
 const noteFor = (c, rank) =>
   c.save >= 0
-    ? `Ranks #${rank} on your list — about ${fmt(c.save)}/mo left to save on a ${fmt(c.takeHome)} take-home.`
-    : `Ranks #${rank} on your list — strong on fit, but rent runs the month about ${fmt(c.save)}/mo short.`;
+    ? `Ranks #${rank} on your list, about ${fmt(c.save)}/mo left to save on a ${fmt(c.takeHome)} take-home.`
+    : `Ranks #${rank} on your list. Strong on fit, but rent runs the month about ${fmt(c.save)}/mo short.`;
 
 const CSS = `
 .rm{

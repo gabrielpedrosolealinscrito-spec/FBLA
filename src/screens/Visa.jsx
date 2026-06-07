@@ -97,7 +97,7 @@ export default function Visa({ profile, matchedCountry, onBack }) {
   const results = selectVisaPathways(profile, matchedCountry ?? "");
 
   // Detect off-script skeleton (single result with generic skeleton visa type)
-  const isSkeleton = results.length === 1 && results[0].pathway.visaType.startsWith("Work Visa —");
+  const isSkeleton = results.length === 1 && results[0].pathway.visaType.startsWith("Work Visa for");
 
   // ── Sub-components ────────────────────────────────────────────────────────
 
@@ -112,7 +112,7 @@ export default function Visa({ profile, matchedCountry, onBack }) {
         borderRadius: 8, fontSize: 13, fontWeight: 600, ...styles,
       }}>
         <span>{icon}</span>
-        <span>{gradeLabel} — {fit.gatingFactor}</span>
+        <span>{gradeLabel}: {fit.gatingFactor}</span>
       </div>
     );
   };
@@ -183,8 +183,8 @@ export default function Visa({ profile, matchedCountry, onBack }) {
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 24px 64px", ...fadeIn }}>
           {/* Heading */}
           <h1 style={{ ...heading, fontSize: 32, margin: "0 0 8px" }}>Visa Pathways</h1>
-          <p style={{ fontSize: 14, color: "var(--text2)", margin: "0 0 4px" }}>Based on your profile. Informational only — not legal advice.</p>
-          <p style={{ fontSize: 13, color: "var(--text3)", margin: "0 0 24px" }}>No extra questions — derived from your citizenship and destination.</p>
+          <p style={{ fontSize: 14, color: "var(--text2)", margin: "0 0 4px" }}>Based on your profile. Informational only, not legal advice.</p>
+          <p style={{ fontSize: 13, color: "var(--text3)", margin: "0 0 24px" }}>No extra questions, just your citizenship and destination.</p>
 
           <DisclaimerBanner />
 
@@ -233,8 +233,8 @@ export default function Visa({ profile, matchedCountry, onBack }) {
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 24px 64px", ...fadeIn }}>
         {/* Heading block */}
         <h1 style={{ ...heading, fontSize: 32, margin: "0 0 8px" }}>Visa Pathways</h1>
-        <p style={{ fontSize: 14, color: "var(--text2)", margin: "0 0 4px" }}>Based on your profile. Informational only — not legal advice.</p>
-        <p style={{ fontSize: 13, color: "var(--text3)", margin: "0 0 24px" }}>No extra questions — derived from your citizenship and destination.</p>
+        <p style={{ fontSize: 14, color: "var(--text2)", margin: "0 0 4px" }}>Based on your profile. Informational only, not legal advice.</p>
+        <p style={{ fontSize: 13, color: "var(--text3)", margin: "0 0 24px" }}>No extra questions, just your citizenship and destination.</p>
 
         {/* Disclaimer banner (VISA-04) — always before pathway content */}
         <DisclaimerBanner />

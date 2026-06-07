@@ -17,7 +17,7 @@ export default function SlideLtv() {
           Financials · unit economics
         </div>
         <h1 style={{ ...serif, fontSize: 44, lineHeight: 1.04, margin: '6px 0 0' }}>
-          Positive unit economics — <span style={{ color: T.goldBright }}>by design.</span>
+          Positive unit economics, <span style={{ color: T.goldBright }}>by design.</span>
         </h1>
       </div>
 
@@ -41,7 +41,7 @@ export default function SlideLtv() {
             ))}
           </div>
           <div style={{ ...mono, fontSize: 11, color: T.text3, marginTop: 14 }}>
-            LTV = price × (1 + repeat factor) · 2–3× relocation in the 22–35 cohort [FOUNDER-VERIFY: F7]
+            LTV = price × (1 + repeat factor) · 2-3× relocation in the 22-35 cohort [FOUNDER-VERIFY: F7]
           </div>
         </div>
 
@@ -57,7 +57,7 @@ export default function SlideLtv() {
             </div>
             <p style={{ fontSize: 13.5, color: T.text2, lineHeight: 1.55, marginTop: 8 }}>
               Relocation is a one-time decision. Charging monthly for it destroys the
-              relationship. We earn repeat revenue from natural life recurrence — not a
+              relationship. We earn repeat revenue from natural life recurrence, not a
               subscription. The moat is data and trust, then the B2B layer.
             </p>
           </div>
@@ -66,7 +66,7 @@ export default function SlideLtv() {
 
       {/* Footer */}
       <div style={{ ...mono, fontSize: 10.5, color: T.text3, marginTop: 18 }}>
-        Blended LTV ~${METRICS.blendedLtv[0]}–${METRICS.blendedLtv[1]} vs blended CAC ~${METRICS.blendedCac[0]}–${METRICS.blendedCac[1]}
+        Blended LTV ~${METRICS.blendedLtv[0]}-${METRICS.blendedLtv[1]} vs blended CAC ~${METRICS.blendedCac[0]}-${METRICS.blendedCac[1]}
         (organic-first) · positive from Month 1 · Source: financials/summary.md · Slide 10
       </div>
     </div>

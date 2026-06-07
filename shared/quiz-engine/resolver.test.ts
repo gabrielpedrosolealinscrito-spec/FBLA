@@ -68,6 +68,46 @@ describe('getVisibleQuestions — showIf (QUIZ-03)', () => {
   });
 });
 
+// ── Package 04: tierGate (Going-Global gate, task 18) ─────────────────────────
+
+describe('getVisibleQuestions — tierGate:global (task 18)', () => {
+  const GATED = [
+    { id: 'profession', required: true },
+    { id: 'goingGlobalIntro', required: true },
+    { id: 'opennessToAbroad', tierGate: 'global', showIf: (a: Record<string, unknown>) => a['goingGlobalIntro'] === 'include' },
+    { id: 'citizenship', tierGate: 'global', showIf: (a: Record<string, unknown>) => a['goingGlobalIntro'] === 'include' },
+  ] as unknown as Parameters<typeof getVisibleQuestions>[1];
+
+  it('hides global-gated questions for a non-global tier even when they opt in', () => {
+    // include chosen, but __isGlobal not set → still hidden (resolver gate).
+    const visible = getVisibleQuestions({ goingGlobalIntro: 'include' }, GATED);
+    const ids = visible.map((q: { id: string }) => q.id);
+    expect(ids).toContain('goingGlobalIntro');
+    expect(ids).not.toContain('opennessToAbroad');
+    expect(ids).not.toContain('citizenship');
+  });
+
+  it('shows global-gated questions only when __isGlobal AND opted in', () => {
+    const visible = getVisibleQuestions(
+      { __isGlobal: true, goingGlobalIntro: 'include' },
+      GATED,
+    );
+    const ids = visible.map((q: { id: string }) => q.id);
+    expect(ids).toContain('opennessToAbroad');
+    expect(ids).toContain('citizenship');
+  });
+
+  it('hides gated questions for a global user who did NOT opt in (chose skip)', () => {
+    const visible = getVisibleQuestions(
+      { __isGlobal: true, goingGlobalIntro: 'skip' },
+      GATED,
+    );
+    const ids = visible.map((q: { id: string }) => q.id);
+    expect(ids).not.toContain('opennessToAbroad');
+    expect(ids).toContain('goingGlobalIntro');
+  });
+});
+
 // ── QUIZ-01: clearHiddenAnswers ───────────────────────────────────────────────
 
 describe('clearHiddenAnswers (QUIZ-01)', () => {

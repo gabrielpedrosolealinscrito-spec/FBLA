@@ -32,7 +32,7 @@ export const sans = { fontFamily: "'Manrope', sans-serif" };
 export const fmtK = (n) => {
   const a = Math.abs(n);
   const s = a >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : a >= 1000 ? `$${Math.round(n / 1000)}K` : `$${Math.round(n)}`;
-  return n < 0 ? s.replace('$', '–$') : s;
+  return n < 0 ? s.replace('$', '-$') : s;
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -122,7 +122,7 @@ export function LtvCacBars() {
     <div style={{ marginBottom: 18 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
         <span style={{ ...sans, fontSize: 13, color: T.cream, fontWeight: 600 }}>{label}</span>
-        <span style={{ ...mono, fontSize: 13, color }}>${lo}–${hi}</span>
+        <span style={{ ...mono, fontSize: 13, color }}>${lo}-${hi}</span>
       </div>
       <div style={{ height: 14, borderRadius: 7, background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
         <div style={{ width: `${(hi / max) * 100}%`, height: '100%', borderRadius: 7, background: `linear-gradient(90deg, ${T.goldDeep}, ${color})` }} />
@@ -132,12 +132,12 @@ export function LtvCacBars() {
   );
   return (
     <div>
-      {bar(ltvLo, ltvHi, T.goldBright, 'Blended LTV', 'one-time price × repeat factor (2–3× relocation)')}
+      {bar(ltvLo, ltvHi, T.goldBright, 'Blended LTV', 'one-time price × repeat factor (2-3× relocation)')}
       {bar(cacLo, cacHi, T.gold, 'Blended CAC', 'organic-first: SEO + Reddit + founder content')}
       <div style={{ marginTop: 16, padding: '12px 14px', borderRadius: 10, background: 'rgba(202,160,90,0.07)', border: `1px solid ${T.border}` }}>
         <span style={{ ...serif, fontSize: 26, color: T.goldBright }}>{ltvCacMidpoint().toFixed(1)}:1</span>
         <span style={{ ...sans, fontSize: 12, color: T.text2, marginLeft: 10 }}>
-          LTV:CAC — lean by design (one-time model, not subscription)
+          LTV:CAC, lean by design (one-time model, not subscription)
         </span>
       </div>
     </div>

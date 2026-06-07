@@ -177,9 +177,9 @@ export const GENERIC_TEMPLATE: RoadmapTemplate = [
         label: 'Monthly budget snapshot',
         detail: (ctx) => {
           if (ctx.monthsToFund === null) {
-            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Current expense estimate leaves a deficit — expenses exceed income at this location. Review each expense category and identify reductions before committing to a move date.`;
+            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Current expense estimate leaves a deficit. Expenses exceed income at this location. Review each expense category and identify reductions before committing to a move date.`;
           }
-          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. Protect this margin — it is your runway to fund the move and build reserves.`;
+          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. Protect this margin. It is your runway to fund the move and build reserves.`;
         },
       },
       {
@@ -188,7 +188,7 @@ export const GENERIC_TEMPLATE: RoadmapTemplate = [
           if (ctx.monthsToFund === null) {
             return `Target relocation fund: $${ctx.targetFundUSD.toLocaleString()} (first + last month deposit, moving costs, 3-month emergency). With the current deficit, focus on closing the gap before earmarking move funds.`;
           }
-          return `Target relocation fund: $${ctx.targetFundUSD.toLocaleString()} — covers first + last month deposit, moving logistics, and a 3-month emergency buffer. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Automate a dedicated transfer so the fund is sequestered.`;
+          return `Target relocation fund: $${ctx.targetFundUSD.toLocaleString()}. This covers first + last month deposit, moving logistics, and a 3-month emergency buffer. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Automate a dedicated transfer so the fund is sequestered.`;
         },
       },
     ],
@@ -200,12 +200,12 @@ export const GENERIC_TEMPLATE: RoadmapTemplate = [
       {
         label: 'Research the local market',
         detail: (ctx) =>
-          `${ctx.profession} roles in ${ctx.cityName}: search LinkedIn, Indeed, and local job boards with city-specific filters. Note the range of posted salaries relative to your projected estimate of $${ctx.estSalary.toLocaleString()}/year — adjust your negotiating floor accordingly.`,
+          `${ctx.profession} roles in ${ctx.cityName}: search LinkedIn, Indeed, and local job boards with city-specific filters. Note the range of posted salaries relative to your projected estimate of $${ctx.estSalary.toLocaleString()}/year, and adjust your negotiating floor accordingly.`,
       },
       {
         label: 'Network before you arrive',
         detail: (ctx) =>
-          `Find ${ctx.profession} meetups, professional associations, and LinkedIn connections in ${ctx.cityName} at least 60 days before your move date. A local referral compresses time-to-offer by weeks. Remote first-round interviews are now standard — start applying before relocating.`,
+          `Find ${ctx.profession} meetups, professional associations, and LinkedIn connections in ${ctx.cityName} at least 60 days before your move date. A local referral compresses time-to-offer by weeks. Remote first-round interviews are now standard, so start applying before relocating.`,
       },
     ],
   },
@@ -236,7 +236,7 @@ export const GENERIC_TEMPLATE: RoadmapTemplate = [
       {
         label: 'Moving logistics',
         detail: (ctx) =>
-          `Get at least 3 quotes for your move to ${ctx.cityName}. Declutter before quoting — movers price by weight and volume. Ship books and non-essentials via USPS Media Mail or freight. For international moves, factor in customs documentation and potential import duties.`,
+          `Get at least 3 quotes for your move to ${ctx.cityName}. Declutter before quoting, since movers price by weight and volume. Ship books and non-essentials via USPS Media Mail or freight. For international moves, factor in customs documentation and potential import duties.`,
       },
       {
         label: 'Admin checklist',
@@ -275,7 +275,7 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
           if (ctx.monthsToFund === null) {
             return `Your projected budget shows a monthly deficit at current expenses in ${ctx.cityName}. Before setting a move date, close the gap: either increase income or reduce ongoing costs so that monthly savings are positive. Use the Financial section below for specific levers.`;
           }
-          return `Based on your projected $${ctx.monthlySavings.toLocaleString()}/month of savings, your ~$${ctx.targetFundUSD.toLocaleString()} domestic move fund is reachable in about ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'} — covering first month + deposit, movers, and a 3-month emergency buffer. Start a dedicated savings transfer now so the fund builds automatically.`;
+          return `Based on your projected $${ctx.monthlySavings.toLocaleString()}/month of savings, your ~$${ctx.targetFundUSD.toLocaleString()} domestic move fund is reachable in about ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}, covering first month + deposit, movers, and a 3-month emergency buffer. Start a dedicated savings transfer now so the fund builds automatically.`;
         },
       },
       {
@@ -299,9 +299,9 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
         label: 'Monthly budget snapshot',
         detail: (ctx) => {
           if (ctx.monthsToFund === null) {
-            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Current expense estimate leaves a deficit — expenses exceed income at this location. Review each expense category and identify reductions before committing to a move date.`;
+            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Current expense estimate leaves a deficit. Expenses exceed income at this location. Review each expense category and identify reductions before committing to a move date.`;
           }
-          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. Protect this margin — it is your runway to fund the move and build reserves.`;
+          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month. Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. Protect this margin. It is your runway to fund the move and build reserves.`;
         },
       },
       {
@@ -310,7 +310,7 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
           if (ctx.monthsToFund === null) {
             return `Target domestic relocation fund: $${ctx.targetFundUSD.toLocaleString()} (first + last month deposit, movers, 3-month emergency buffer). With the current deficit, focus on closing the gap before earmarking move funds.`;
           }
-          return `Target domestic relocation fund: $${ctx.targetFundUSD.toLocaleString()} — covers first + last month deposit, moving logistics, and a 3-month emergency reserve. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Automate a dedicated transfer so the fund grows without manual discipline.`;
+          return `Target domestic relocation fund: $${ctx.targetFundUSD.toLocaleString()}. This covers first + last month deposit, moving logistics, and a 3-month emergency reserve. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Automate a dedicated transfer so the fund grows without manual discipline.`;
         },
       },
     ],
@@ -322,13 +322,13 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
       {
         label: 'Research the local market',
         detail: (ctx) =>
-          `${ctx.profession} roles in ${ctx.cityName}: search LinkedIn, Indeed, and Glassdoor with city-specific filters. The US tech sector (BLS 2023) reports a median salary of ~$130,000/year for software professionals nationwide — your projected figure of $${ctx.estSalary.toLocaleString()}/year reflects the local market. Post salary ranges are shifting: apply to roles that list compensation openly and use those as your negotiating floor.`,
+          `${ctx.profession} roles in ${ctx.cityName}: search LinkedIn, Indeed, and Glassdoor with city-specific filters. The US tech sector (BLS 2023) reports a median salary of ~$130,000/year for software professionals nationwide, and your projected figure of $${ctx.estSalary.toLocaleString()}/year reflects the local market. Post salary ranges are shifting: apply to roles that list compensation openly and use those as your negotiating floor.`,
         sourceUrl: 'https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm',
       },
       {
         label: 'Network before you arrive',
         detail: (ctx) =>
-          `Find ${ctx.profession} meetups, professional associations, and LinkedIn connections in ${ctx.cityName} at least 60 days before your move. A local referral compresses time-to-offer by weeks. Remote first-round interviews are now standard — start applying before relocating. If you have a remote arrangement, confirm your employer's multi-state payroll setup and any state-tax implications for ${ctx.cityName}.`,
+          `Find ${ctx.profession} meetups, professional associations, and LinkedIn connections in ${ctx.cityName} at least 60 days before your move. A local referral compresses time-to-offer by weeks. Remote first-round interviews are now standard, so start applying before relocating. If you have a remote arrangement, confirm your employer's multi-state payroll setup and any state-tax implications for ${ctx.cityName}.`,
       },
     ],
   },
@@ -348,7 +348,7 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
       {
         label: 'Neighborhood research',
         detail: (ctx) =>
-          `Before signing a lease or offer in ${ctx.cityName}, visit the neighborhood at different times of day. Use Walk Score and transit maps to validate commute assumptions against your actual workplace location. Short-term furnished rentals (30-60 days) let you validate the area before a long-term commitment — especially useful when relocating without a prior local visit.`,
+          `Before signing a lease or offer in ${ctx.cityName}, visit the neighborhood at different times of day. Use Walk Score and transit maps to validate commute assumptions against your actual workplace location. Short-term furnished rentals (30-60 days) let you validate the area before a long-term commitment, especially useful when relocating without a prior local visit.`,
       },
     ],
   },
@@ -359,12 +359,12 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
       {
         label: 'Moving logistics',
         detail: (ctx) =>
-          `Get at least 3 quotes for your domestic move to ${ctx.cityName}. Declutter before quoting — movers price by weight and volume. Ship books and non-essentials via USPS Media Mail or a freight carrier. Book moving trucks or full-service movers 4-8 weeks in advance, especially for summer moves (peak season).`,
+          `Get at least 3 quotes for your domestic move to ${ctx.cityName}. Declutter before quoting, since movers price by weight and volume. Ship books and non-essentials via USPS Media Mail or a freight carrier. Book moving trucks or full-service movers 4-8 weeks in advance, especially for summer moves (peak season).`,
       },
       {
-        label: 'Admin checklist — domestic move',
+        label: 'Admin checklist for a domestic move',
         detail: (_ctx) =>
-          `Key admin steps for a US domestic move: (1) File IRS Form 8822 to update your address with the IRS. (2) Submit a USPS change-of-address form (usps.com) — mail forwarding lasts 12 months. (3) Notify your bank, employer HR/payroll, and subscription services. (4) Transfer your driver's license and vehicle registration within the state's required window — typically 30-90 days of establishing residency. (5) Transfer healthcare coverage before your old plan lapses; confirm in-network providers in the new city. (6) Update voter registration in your new state.`,
+          `Key admin steps for a US domestic move: (1) File IRS Form 8822 to update your address with the IRS. (2) Submit a USPS change-of-address form (usps.com); mail forwarding lasts 12 months. (3) Notify your bank, employer HR/payroll, and subscription services. (4) Transfer your driver's license and vehicle registration within the state's required window, typically 30-90 days of establishing residency. (5) Transfer healthcare coverage before your old plan lapses; confirm in-network providers in the new city. (6) Update voter registration in your new state.`,
         sourceUrl: 'https://www.irs.gov/forms-pubs/about-form-8822',
       },
     ],
@@ -374,9 +374,9 @@ const US_DOMESTIC_TEMPLATE: RoadmapTemplate = [
     title: 'Visa & Immigration',
     steps: [
       {
-        label: 'Visa requirement — domestic move',
+        label: 'Visa requirement for a domestic move',
         detail: (_ctx) =>
-          `A US citizen moving within the United States does not require a visa — freedom of movement between states is unrestricted. No immigration filings are needed for a domestic relocation. This is informational only and not legal advice. If your situation involves employer sponsorship, international travel, or dual-citizenship considerations, consult a licensed attorney who handles immigration matters for guidance specific to your situation. Potential Premium includes a full visa concierge for international moves with pathway comparison and document checklists.`,
+          `A US citizen moving within the United States does not require a visa. Freedom of movement between states is unrestricted. No immigration filings are needed for a domestic relocation. This is informational only and not legal advice. If your situation involves employer sponsorship, international travel, or dual-citizenship considerations, consult a licensed attorney who handles immigration matters for guidance specific to your situation. Potential Premium includes a full visa concierge for international moves with pathway comparison and document checklists.`,
       },
     ],
   },
@@ -403,9 +403,9 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
         label: 'Savings runway to fund your international move',
         detail: (ctx) => {
           if (ctx.monthsToFund === null) {
-            return `Your projected budget shows a monthly deficit at current expenses for ${ctx.cityName}. Before setting a move date, close the gap: either increase income or reduce ongoing costs so that monthly savings are positive. An international relocation requires a larger upfront fund — use the Financial section below for specific levers.`;
+            return `Your projected budget shows a monthly deficit at current expenses for ${ctx.cityName}. Before setting a move date, close the gap: either increase income or reduce ongoing costs so that monthly savings are positive. An international relocation requires a larger upfront fund, so use the Financial section below for specific levers.`;
           }
-          return `Based on your projected $${ctx.monthlySavings.toLocaleString()}/month of savings, your ~$${ctx.targetFundUSD.toLocaleString()} international relocation fund for ${ctx.cityName} is reachable in about ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'} — covering visa fees, international shipping, first month + deposit, and a 3-month emergency buffer. International moves carry more uncertainty; build the full fund before committing to a move date.`;
+          return `Based on your projected $${ctx.monthlySavings.toLocaleString()}/month of savings, your ~$${ctx.targetFundUSD.toLocaleString()} international relocation fund for ${ctx.cityName} is reachable in about ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}, covering visa fees, international shipping, first month + deposit, and a 3-month emergency buffer. International moves carry more uncertainty; build the full fund before committing to a move date.`;
         },
       },
       {
@@ -429,9 +429,9 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
         label: 'Monthly budget snapshot',
         detail: (ctx) => {
           if (ctx.monthsToFund === null) {
-            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month (USD equivalent). Current expense estimate leaves a deficit — expenses exceed income at this location. Review each expense category and identify reductions before committing to an international move date.`;
+            return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month (USD equivalent). Current expense estimate leaves a deficit. Expenses exceed income at this location. Review each expense category and identify reductions before committing to an international move date.`;
           }
-          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month (USD equivalent). Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. International relocations require a larger cash reserve — protect this margin and target a minimum 6-month buffer before your move date.`;
+          return `Projected take-home in ${ctx.cityName}: $${ctx.monthlyTakeHome.toLocaleString()}/month (USD equivalent). Estimated expenses leave $${ctx.monthlySavings.toLocaleString()}/month in savings. International relocations require a larger cash reserve, so protect this margin and target a minimum 6-month buffer before your move date.`;
         },
       },
       {
@@ -440,7 +440,7 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
           if (ctx.monthsToFund === null) {
             return `Target international relocation fund: $${ctx.targetFundUSD.toLocaleString()} (visa fees, international shipping, first + last month deposit in ${ctx.cityName}, flights, and 3-month emergency buffer). With the current deficit, focus on closing the gap before earmarking move funds.`;
           }
-          return `Target international relocation fund: $${ctx.targetFundUSD.toLocaleString()} — covers UK visa application fees, international shipping or storage, first + last month deposit in ${ctx.cityName}, transatlantic flights, and a 3-month emergency reserve. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Currency risk is real — consider converting a portion to GBP when your fund is near target.`;
+          return `Target international relocation fund: $${ctx.targetFundUSD.toLocaleString()}. This covers UK visa application fees, international shipping or storage, first + last month deposit in ${ctx.cityName}, transatlantic flights, and a 3-month emergency reserve. At $${ctx.monthlySavings.toLocaleString()}/month saved, you reach this in ${ctx.monthsToFund} month${ctx.monthsToFund === 1 ? '' : 's'}. Currency risk is real, so consider converting a portion to GBP when your fund is near target.`;
         },
       },
     ],
@@ -452,13 +452,13 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
       {
         label: 'Research the London market',
         detail: (ctx) =>
-          `${ctx.profession} roles in ${ctx.cityName}: London is Europe's largest tech hub, home to 500K+ tech workers across finance, fintech, and enterprise software (Tech Nation 2023). Search LinkedIn, CWJobs, and Hired with a UK location filter. Your projected UK salary of $${ctx.estSalary.toLocaleString()}/year (USD equivalent) reflects the local market; note that UK offers are typically quoted in GBP and your take-home depends on UK income tax and National Insurance contributions. Many US tech employers have a London office — an internal transfer may simplify your visa path.`,
+          `${ctx.profession} roles in ${ctx.cityName}: London is Europe's largest tech hub, home to 500K+ tech workers across finance, fintech, and enterprise software (Tech Nation 2023). Search LinkedIn, CWJobs, and Hired with a UK location filter. Your projected UK salary of $${ctx.estSalary.toLocaleString()}/year (USD equivalent) reflects the local market; note that UK offers are typically quoted in GBP and your take-home depends on UK income tax and National Insurance contributions. Many US tech employers have a London office, and an internal transfer may simplify your visa path.`,
         sourceUrl: 'https://technation.io/report2023/',
       },
       {
         label: 'Network before you arrive',
         detail: (ctx) =>
-          `Find ${ctx.profession} meetups, conferences, and LinkedIn connections in ${ctx.cityName} at least 90 days before your move — international job searches take longer. Tech communities like Silicon Roundabout (East London) host regular meetups. Remote first-round interviews are standard; many London companies are comfortable hiring US candidates who are visa-eligible. Secure your job offer before applying for a Skilled Worker visa, as most UK work routes require an employer sponsor with a valid sponsorship licence.`,
+          `Find ${ctx.profession} meetups, conferences, and LinkedIn connections in ${ctx.cityName} at least 90 days before your move, because international job searches take longer. Tech communities like Silicon Roundabout (East London) host regular meetups. Remote first-round interviews are standard; many London companies are comfortable hiring US candidates who are visa-eligible. Secure your job offer before applying for a Skilled Worker visa, as most UK work routes require an employer sponsor with a valid sponsorship licence.`,
       },
     ],
   },
@@ -470,15 +470,15 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
         label: 'Housing cost baseline',
         detail: (ctx) => {
           if (ctx.housing === 'rent') {
-            return `Median rent in ${ctx.cityName}: $${ctx.medianRent.toLocaleString()}/month (USD equivalent). London landlords typically require a 5-week deposit plus one month in advance — budget ~$${Math.round(ctx.medianRent * 2.25).toLocaleString()} upfront (USD equivalent). Search Rightmove, Zoopla, or SpareRoom. Book temporary furnished accommodation (Airbnb or serviced apartment) for your first 30-60 days so you can view properties in person before signing.`;
+            return `Median rent in ${ctx.cityName}: $${ctx.medianRent.toLocaleString()}/month (USD equivalent). London landlords typically require a 5-week deposit plus one month in advance, so budget ~$${Math.round(ctx.medianRent * 2.25).toLocaleString()} upfront (USD equivalent). Search Rightmove, Zoopla, or SpareRoom. Book temporary furnished accommodation (Airbnb or serviced apartment) for your first 30-60 days so you can view properties in person before signing.`;
           }
-          return `Median home price in ${ctx.cityName}: $${ctx.medianHome.toLocaleString()} (USD equivalent). London's market is competitive; a 10-20% deposit is standard. As a US buyer without UK credit history, you may face higher mortgage rates initially — some buyers rent for 12-24 months to build UK credit before purchasing. Factor in Stamp Duty Land Tax (SDLT) and legal fees (~2-4% of purchase price).`;
+          return `Median home price in ${ctx.cityName}: $${ctx.medianHome.toLocaleString()} (USD equivalent). London's market is competitive; a 10-20% deposit is standard. As a US buyer without UK credit history, you may face higher mortgage rates initially, and some buyers rent for 12-24 months to build UK credit before purchasing. Factor in Stamp Duty Land Tax (SDLT) and legal fees (~2-4% of purchase price).`;
         },
       },
       {
         label: 'Neighborhood research',
         detail: (ctx) =>
-          `Before signing a lease in ${ctx.cityName}, research neighborhoods by Tube/Overground zone — Zone 1-2 commands a significant premium but cuts commute time. Explore areas like Shoreditch (tech cluster), Brixton, Peckham, or East London for a balance of cost and access. Use the TfL Journey Planner and Rightmove's commute-time filter. Short-term furnished accommodation in your target area for the first month is the most reliable way to validate a neighborhood before committing to a 12-month tenancy.`,
+          `Before signing a lease in ${ctx.cityName}, research neighborhoods by Tube/Overground zone. Zone 1-2 commands a significant premium but cuts commute time. Explore areas like Shoreditch (tech cluster), Brixton, Peckham, or East London for a balance of cost and access. Use the TfL Journey Planner and Rightmove's commute-time filter. Short-term furnished accommodation in your target area for the first month is the most reliable way to validate a neighborhood before committing to a 12-month tenancy.`,
       },
     ],
   },
@@ -489,12 +489,12 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
       {
         label: 'International moving logistics',
         detail: (ctx) =>
-          `For your move to ${ctx.cityName}: (1) Passport — ensure it is valid for the full duration of your planned UK stay; renew early if needed. (2) International shipping — get quotes from at least 3 international freight companies (sea freight takes 4-6 weeks; air freight is faster but costly). Declutter aggressively — ship only what is worth the cost. (3) Flights — book transatlantic flights (typically US East Coast → Heathrow) 4-8 weeks in advance. (4) Storage — consider keeping a US storage unit for the first 6 months until you confirm your London arrangements.`,
+          `For your move to ${ctx.cityName}: (1) Passport: ensure it is valid for the full duration of your planned UK stay; renew early if needed. (2) International shipping: get quotes from at least 3 international freight companies (sea freight takes 4-6 weeks; air freight is faster but costly). Declutter aggressively and ship only what is worth the cost. (3) Flights: book transatlantic flights (typically US East Coast to Heathrow) 4-8 weeks in advance. (4) Storage: consider keeping a US storage unit for the first 6 months until you confirm your London arrangements.`,
       },
       {
         label: 'UK arrival admin checklist',
         detail: (_ctx) =>
-          `Key admin steps on or after arrival in the UK: (1) BRP (Biometric Residence Permit) — collect from the designated Post Office within 10 days of arrival; your visa letter will specify the location. (2) NHS registration — register with a local GP surgery through the NHS website; as a visa holder your access to NHS care depends on paying the Immigration Health Surcharge (IHS) as part of your visa application. (3) UK bank account — HSBC, Barclays, and Monzo all offer accounts to new UK residents; Monzo/Starling can be opened before arrival via app. (4) National Insurance Number (NI) — apply at your local DWP office or online once you have a UK address; required for employment. (5) USPS mail forwarding — set up international mail forwarding before you leave the US.`,
+          `Key admin steps on or after arrival in the UK: (1) BRP (Biometric Residence Permit): collect from the designated Post Office within 10 days of arrival; your visa letter will specify the location. (2) NHS registration: register with a local GP surgery through the NHS website; as a visa holder your access to NHS care depends on paying the Immigration Health Surcharge (IHS) as part of your visa application. (3) UK bank account: HSBC, Barclays, and Monzo all offer accounts to new UK residents; Monzo/Starling can be opened before arrival via app. (4) National Insurance Number (NI): apply at your local DWP office or online once you have a UK address; required for employment. (5) USPS mail forwarding: set up international mail forwarding before you leave the US.`,
         sourceUrl: 'https://www.gov.uk/biometric-residence-permits',
       },
     ],
@@ -504,9 +504,9 @@ const US_TO_UK_TEMPLATE: RoadmapTemplate = [
     title: 'Visa & Immigration',
     steps: [
       {
-        label: 'UK work visa pathway — Skilled Worker or Global Talent',
+        label: 'UK work visa pathway: Skilled Worker or Global Talent',
         detail: (_ctx) =>
-          `The two primary UK work routes for a US professional: (1) Skilled Worker visa — requires a job offer from a UK employer with a Home Office-approved sponsorship licence. The general salary threshold is approximately £38,700/year (as of April 2024; confirm current figures at gov.uk). Application fees range approximately £719-£1,420 depending on visa duration (2024 rates; confirm current on gov.uk). Processing typically takes 3-8 weeks for an out-of-country application. (2) Global Talent visa — no job offer required; requires an endorsement from a designated body such as Tech Nation (for digital technology) or the British Academy. Suited for recognized leaders or emerging talent in their field. Both routes require a valid passport, biometric enrollment, and may require an English language test. This is informational only and not legal advice. Consult a licensed attorney who handles UK immigration matters for guidance specific to your situation. Potential Premium includes a full visa concierge with UK pathway comparison, eligibility screening, and document checklists.`,
+          `The two primary UK work routes for a US professional: (1) Skilled Worker visa: requires a job offer from a UK employer with a Home Office-approved sponsorship licence. The general salary threshold is approximately £38,700/year (as of April 2024; confirm current figures at gov.uk). Application fees range approximately £719-£1,420 depending on visa duration (2024 rates; confirm current on gov.uk). Processing typically takes 3-8 weeks for an out-of-country application. (2) Global Talent visa: no job offer required; requires an endorsement from a designated body such as Tech Nation (for digital technology) or the British Academy. Suited for recognized leaders or emerging talent in their field. Both routes require a valid passport, biometric enrollment, and may require an English language test. This is informational only and not legal advice. Consult a licensed attorney who handles UK immigration matters for guidance specific to your situation. Potential Premium includes a full visa concierge with UK pathway comparison, eligibility screening, and document checklists.`,
         sourceUrl: 'https://www.gov.uk/skilled-worker-visa',
       },
     ],

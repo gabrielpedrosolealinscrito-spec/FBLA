@@ -11,20 +11,20 @@ const FAQS = [
   {
     q: "What is Potential?",
     a: "Potential is a life simulator. You answer a short quiz about your work, income, and what you " +
-       "want from daily life, and it matches you to real cities — in the US and internationally — where " +
+       "want from daily life, and it matches you to real cities, in the US and internationally, where " +
        "your finances and lifestyle would actually look different. For your best-fit cities it shows the " +
        "full money breakdown and a step-by-step relocation roadmap, including the immigration path.",
   },
   {
     q: "What's the difference between free and premium?",
-    a: "The free run gives you your single best-fit city with a complete financial snapshot — take-home, " +
+    a: "The free run gives you your single best-fit city with a complete financial snapshot: take-home, " +
        "expenses, and savings. Paid tiers unlock the full ranked list (US and international), live AI " +
        "insights on jobs, housing, and a day in the life, your personalized relocation roadmap, and the " +
-       "immigration and visa concierge. Paid runs are one-time and never expire — there's no subscription.",
+       "immigration and visa concierge. Paid runs are one-time and never expire, with no subscription.",
   },
   {
     q: "What does international (\"Going Global\") add?",
-    a: "Going Global opens up international cities and the questions that make those matches meaningful — " +
+    a: "Going Global opens up international cities and the questions that make those matches meaningful: " +
        "visa eligibility, cost-of-living conversion, and the relocation path abroad. You can see the " +
        "minimum plan required for international results on the Going Global pricing page.",
   },
@@ -38,7 +38,7 @@ const FAQS = [
     q: "How accurate are the numbers?",
     a: "We model cost of living, take-home pay, housing, and savings from real data sources and your " +
        "profile. They're well-researched estimates meant to make the comparison between cities honest and " +
-       "useful — not penny-exact guarantees. Treat them as a strong starting point for your own diligence.",
+       "useful, not penny-exact guarantees. Treat them as a strong starting point for your own diligence.",
   },
   {
     q: "Is this financial or immigration advice?",

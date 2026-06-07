@@ -111,20 +111,20 @@ export const PERSONALITY_QUESTIONS: QuestionDef[] = [
     id: TRADEOFF_COST_VS_LIFESTYLE,   // 'tradeoff_cost_vs_lifestyle'
     type: 'single_select',
     kicker: 'WHAT MATTERS',
-    prompt: "You're choosing between two cities. One is affordable but quieter — limited dining, culture, and nightlife. The other has great energy and experiences, but costs 30% more to live. Which way do you lean?",
+    prompt: "You're choosing between two cities. One is affordable but quieter, with limited dining, culture, and nightlife. The other has great energy and experiences, but costs 30% more to live. Which way do you lean?",
     required: true,
     autoAdvance: true,
     options: [
       { value: 'cost_wins',      label: "I'd take the savings" },
       { value: 'lifestyle_wins', label: "I'd pay for the experience" },
-      { value: 'balanced',       label: "Depends — I'd want to see the tradeoff" },
+      { value: 'balanced',       label: "Depends - I'd want to see the tradeoff" },
     ],
   },
   {
     id: TRADEOFF_SAFETY_VS_CAREER,   // 'tradeoff_safety_vs_career'
     type: 'single_select',
     kicker: 'WHAT MATTERS',
-    prompt: 'A high-growth city has strong career momentum — but higher crime and cost. A calmer, safer city has fewer opportunities but lower stress. What pulls you more?',
+    prompt: 'A high-growth city has strong career momentum, but higher crime and cost. A calmer, safer city has fewer opportunities but lower stress. What pulls you more?',
     required: true,
     autoAdvance: true,
     options: [
@@ -141,7 +141,7 @@ export const PERSONALITY_QUESTIONS: QuestionDef[] = [
     required: true,
     autoAdvance: true,
     options: [
-      { value: 'healthcare_critical', label: 'Very important — I have specific health needs' },
+      { value: 'healthcare_critical', label: 'Very important - I have specific health needs' },
       { value: 'healthcare_moderate', label: 'Important, but basic access would work' },
       { value: 'healthcare_low',      label: "Not a priority for me right now" },
     ],
@@ -154,7 +154,7 @@ export const PERSONALITY_QUESTIONS: QuestionDef[] = [
     required: true,
     autoAdvance: true,
     options: [
-      { value: 'family_critical', label: "A top concern — I'd filter heavily on this" },
+      { value: 'family_critical', label: "A top concern - I'd filter heavily on this" },
       { value: 'family_moderate', label: 'One factor among many' },
       { value: 'family_low',      label: "Not in my situation right now" },
     ],
@@ -167,7 +167,7 @@ export const PERSONALITY_QUESTIONS: QuestionDef[] = [
     required: true,
     autoAdvance: true,
     options: [
-      { value: 'connectivity_critical', label: 'A lot — I travel internationally or plan to' },
+      { value: 'connectivity_critical', label: 'A lot - I travel internationally or plan to' },
       { value: 'connectivity_moderate', label: 'Nice to have, but not a dealmaker' },
       { value: 'connectivity_low',      label: "I don't travel much" },
     ],
@@ -205,7 +205,7 @@ export const TRAIT_QUESTIONS: QuestionDef[] = [
     required: false,
     autoAdvance: true,
     options: [
-      { value: 'strongly_agree', label: 'Absolutely — savings first' },
+      { value: 'strongly_agree', label: 'Absolutely - savings first' },
       { value: 'agree',          label: 'Mostly, but experience matters too' },
       { value: 'disagree',       label: 'Life is too short to optimize for savings alone' },
     ],
@@ -218,7 +218,7 @@ export const TRAIT_QUESTIONS: QuestionDef[] = [
     required: false,
     autoAdvance: true,
     options: [
-      { value: 'strongly_agree', label: "Yes — I'm outside a lot" },
+      { value: 'strongly_agree', label: "Yes - I'm outside a lot" },
       { value: 'agree',          label: 'Nice to have' },
       { value: 'disagree',       label: "I'm mostly indoors" },
     ],
@@ -231,7 +231,7 @@ export const TRAIT_QUESTIONS: QuestionDef[] = [
     required: false,
     autoAdvance: true,
     options: [
-      { value: 'strongly_agree', label: "Yes — it matters a lot to me" },
+      { value: 'strongly_agree', label: "Yes - it matters a lot to me" },
       { value: 'agree',          label: "It's a nice quality" },
       { value: 'disagree',       label: "It's not something I focus on" },
     ],
@@ -294,7 +294,7 @@ export function detectPersonalityTension(answers: Answers): PersonalityTensionRe
       autoAdvance: true,
       options: [
         { value: 'financial_security', label: 'Financial stability and being able to save' },
-        { value: 'life_quality',       label: 'Quality of life — experiences, environment' },
+        { value: 'life_quality',       label: 'Quality of life - experiences, environment' },
         { value: 'career_trajectory',  label: 'Career opportunities and professional growth' },
       ],
     };
