@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Potential from './screens/PotentialApp.jsx';
 import FinancialsView from './screens/FinancialsView.jsx';
 import SlideModel from './screens/financials/SlideModel.jsx';
 import SlideLtv from './screens/financials/SlideLtv.jsx';
 import Pricing from './screens/Pricing.jsx';
 import ResultsMap from './screens/ResultsMap.jsx';
-import Login from './screens/Login.jsx';
+import LoginModal from './components/LoginModal.jsx';
 import About from './screens/About.jsx';
 import FAQ from './screens/FAQ.jsx';
 
@@ -30,8 +30,24 @@ const MAP_PREVIEW = {
   ],
 };
 
-// Lightweight hash routing — keeps the main app untouched while exposing
-// the Financials screen at #/financials and the Pricing page at #/pricing.
+// Maps a hash to the screen to render. Login is intentionally NOT here — it's a
+// modal overlay (below), not a full page.
+function renderScreen(hash) {
+  if (hash.startsWith('#/financials/model')) return <SlideModel />;
+  if (hash.startsWith('#/financials/ltv')) return <SlideLtv />;
+  if (hash.startsWith('#/financials')) return <FinancialsView />;
+  if (hash.startsWith('#/about')) return <About />;
+  if (hash.startsWith('#/faq')) return <FAQ />;
+  if (hash.startsWith('#/pricing/global')) return <Pricing variant="global" />;
+  if (hash.startsWith('#/pricing')) return <Pricing />;
+  if (hash.startsWith('#/map')) return <ResultsMap {...MAP_PREVIEW} onSelect={() => {}} onEdit={() => {}} />;
+  return <Potential />;
+}
+
+// Lightweight hash routing. #/login is special: instead of navigating to a login
+// page, it overlays <LoginModal> on top of whatever screen the user was on, and
+// closing (× / backdrop / Esc / success) returns there. Every existing
+// `#/login` link therefore becomes a dismissable popup with no per-screen edits.
 export default function App() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -40,14 +56,21 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onChange);
   }, []);
 
-  if (hash.startsWith('#/financials/model')) return <SlideModel />;
-  if (hash.startsWith('#/financials/ltv')) return <SlideLtv />;
-  if (hash.startsWith('#/financials')) return <FinancialsView />;
-  if (hash.startsWith('#/login')) return <Login />;
-  if (hash.startsWith('#/about')) return <About />;
-  if (hash.startsWith('#/faq')) return <FAQ />;
-  if (hash.startsWith('#/pricing/global')) return <Pricing variant="global" />;
-  if (hash.startsWith('#/pricing')) return <Pricing />;
-  if (hash.startsWith('#/map')) return <ResultsMap {...MAP_PREVIEW} onSelect={() => {}} onEdit={() => {}} />;
-  return <Potential />;
+  const isLogin = hash.startsWith('#/login');
+
+  // Remember the last non-login hash so the modal overlays it and closing returns there.
+  const prevHash = useRef(isLogin ? '' : hash);
+  useEffect(() => { if (!isLogin) prevHash.current = hash; }, [hash, isLogin]);
+
+  const screenHash = isLogin ? prevHash.current : hash;
+  const closeLogin = () => {
+    window.location.hash = prevHash.current && !prevHash.current.startsWith('#/login') ? prevHash.current : '';
+  };
+
+  return (
+    <>
+      {renderScreen(screenHash)}
+      {isLogin && <LoginModal onClose={closeLogin} />}
+    </>
+  );
 }
