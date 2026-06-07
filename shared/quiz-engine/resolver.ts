@@ -19,9 +19,13 @@ import { detectTension } from './tension.js';
  * Returns the ordered subset of questions the user should currently see,
  * based on their current answers.
  *
- * Rules (Plan 02 — showIf only):
+ * Rules:
  *   1. A question with no `showIf` is always visible.
  *   2. A question with `showIf` is visible iff `showIf(answers)` returns true.
+ *   3. (Package 04, task 18) A question with `tierGate:'global'` is hidden unless
+ *      `answers.__isGlobal === true`. CenteredQuiz injects __isGlobal from
+ *      useTier().isGlobal. This keeps the Going-Global gate IN the resolver
+ *      (README §1) — defense in depth on top of the gate question's showIf.
  *
  * Plan 04 seam: after filtering, call detectTension(answers) and splice any
  * returned TensionResult question immediately after its trigger question.
@@ -30,7 +34,10 @@ export function getVisibleQuestions(
   answers: Answers,
   all: QuestionDef[],
 ): QuestionDef[] {
+  const isGlobal = answers['__isGlobal'] === true;
   const visible = all.filter((q) => {
+    // tierGate: global-only questions vanish for non-global tiers (task 18).
+    if (q.tierGate === 'global' && !isGlobal) return false;
     if (!q.showIf) return true;
     try {
       return q.showIf(answers);
