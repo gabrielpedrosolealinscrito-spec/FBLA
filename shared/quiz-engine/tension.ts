@@ -40,15 +40,15 @@ const TENSION_NATURE_VS_CAREER: QuestionDef = {
   id: 'tension_nature_vs_career',
   type: 'single_select',
   kicker: 'PRIORITIES',
-  prompt: 'Nature or career — when they conflict, which wins?',
+  prompt: 'Nature or career, when they conflict, which wins?',
   subtext:
     'Cities that are great for outdoor lifestyles often have fewer high-growth career hubs. ' +
     'Your answer helps us rank cities that balance both.',
   autoAdvance: true,
   options: [
-    { value: 'a', label: 'Nature wins — lifestyle first' },
-    { value: 'b', label: 'Career wins — opportunity first' },
-    { value: 'balanced', label: 'Find the balance — rank cities that offer both' },
+    { value: 'a', label: 'Nature wins - lifestyle first' },
+    { value: 'b', label: 'Career wins - opportunity first' },
+    { value: 'balanced', label: 'Find the balance - rank cities that offer both' },
   ],
 };
 
@@ -65,15 +65,15 @@ const TENSION_COST_VS_AMENITY: QuestionDef = {
   id: 'tension_cost_vs_amenity',
   type: 'single_select',
   kicker: 'PRIORITIES',
-  prompt: 'Walkability usually costs more — how do you break the tie?',
+  prompt: 'Walkability usually costs more, so how do you break the tie?',
   subtext:
     'Walkable, transit-rich cities tend to have higher rents. ' +
     'Your pick shapes how we weight affordability vs. urban access.',
   autoAdvance: true,
   options: [
-    { value: 'a', label: 'Cost wins — I will take a car-dependent city to save money' },
-    { value: 'b', label: 'Walkability wins — I will pay for the convenience' },
-    { value: 'balanced', label: 'Somewhere in between — moderate density, moderate cost' },
+    { value: 'a', label: 'Cost wins - I will take a car-dependent city to save money' },
+    { value: 'b', label: 'Walkability wins - I will pay for the convenience' },
+    { value: 'balanced', label: 'Somewhere in between - moderate density, moderate cost' },
   ],
 };
 

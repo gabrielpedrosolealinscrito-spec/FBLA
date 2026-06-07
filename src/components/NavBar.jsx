@@ -66,7 +66,7 @@ export default function NavBar({ links = DEFAULT_LINKS, transparent = false }) {
           .nbx-link{font-size:11px;letter-spacing:.12em}
         }
       `}</style>
-      <button className="nbx-brand" onClick={goHome} aria-label="Potential — home">
+      <button className="nbx-brand" onClick={goHome} aria-label="Potential, home">
         Potential <small>°</small>
       </button>
       <div className="nbx-links">

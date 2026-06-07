@@ -31,7 +31,7 @@ export default function SlideModel() {
         <div style={{ ...card, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
             <h2 style={{ ...serif, fontSize: 24, margin: 0 }}>Cumulative net income</h2>
-            <span style={{ ...mono, fontSize: 11, color: T.text3 }}>USD · months 1–24</span>
+            <span style={{ ...mono, fontSize: 11, color: T.text3 }}>USD · months 1-24</span>
           </div>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
             <BreakEvenChart />
@@ -62,7 +62,7 @@ export default function SlideModel() {
       {/* Footer */}
       <div style={{ ...mono, fontSize: 10.5, color: T.text3, marginTop: 18 }}>
         Startup cost ~${METRICS.startupCost.toLocaleString()} (AI-native) · API COGS $0.06/run cited from Anthropic pricing
-        [FOUNDER-VERIFY: F3] · conversion 5–8% anchored to FirstPageSage/Userpilot SaaS freemium benchmark · Slide 9
+        [FOUNDER-VERIFY: F3] · conversion 5-8% anchored to FirstPageSage/Userpilot SaaS freemium benchmark · Slide 9
       </div>
     </div>
   );

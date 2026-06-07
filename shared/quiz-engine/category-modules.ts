@@ -28,8 +28,8 @@ import {
 // ── Shared option sets (machine-stable values) ────────────────────────────────
 
 const IMPORTANCE_OPTIONS = [
-  { value: 'high',     label: 'Very important — major factor in my decision' },
-  { value: 'moderate', label: 'Somewhat important — nice to have' },
+  { value: 'high',     label: 'Very important - major factor in my decision' },
+  { value: 'moderate', label: 'Somewhat important - nice to have' },
   { value: 'low',      label: 'Not a priority for me right now' },
 ];
 
@@ -57,9 +57,9 @@ const HEALTHCARE_MODULE: QuestionDef[] = [
     required: false,
     showIf: healthcareShowIf,
     options: [
-      { value: 'yes_specialist', label: 'Yes — specialist access is critical' },
+      { value: 'yes_specialist', label: 'Yes - specialist access is critical' },
       { value: 'yes_basic',      label: 'Yes, but basic care is usually enough' },
-      { value: 'no',             label: 'No — general access is fine' },
+      { value: 'no',             label: 'No - general access is fine' },
     ],
   },
   {
@@ -115,14 +115,14 @@ const FAMILY_MODULE: QuestionDef[] = [
     prompt: 'Do you have (or plan to have) school-age children whose education would factor into your city choice?',
     groupHeader: {
       label: 'FAMILY & SCHOOLS',
-      subtext: 'School and childcare data are state averages, not city-specific — cities in the same state share the same score.',
+      subtext: 'School and childcare data are state averages, not city-specific. Cities in the same state share the same score.',
     },
     required: false,
     showIf: familyShowIf,
     options: [
-      { value: 'yes_now',    label: 'Yes — I have school-age kids now' },
+      { value: 'yes_now',    label: 'Yes - I have school-age kids now' },
       { value: 'yes_future', label: "Not yet, but I'm planning for it" },
-      { value: 'no',         label: "No — not relevant to my situation" },
+      { value: 'no',         label: "No - not relevant to my situation" },
     ],
   },
   {
@@ -133,11 +133,11 @@ const FAMILY_MODULE: QuestionDef[] = [
     required: false,
     showIf: familyShowIf,
     options: [
-      { value: 'infant',    label: 'Infant (0–1)' },
-      { value: 'toddler',   label: 'Toddler (2–4)' },
-      { value: 'elementary', label: 'Elementary (5–10)' },
-      { value: 'middle',    label: 'Middle school (11–13)' },
-      { value: 'high',      label: 'High school (14–18)' },
+      { value: 'infant',    label: 'Infant (0-1)' },
+      { value: 'toddler',   label: 'Toddler (2-4)' },
+      { value: 'elementary', label: 'Elementary (5-10)' },
+      { value: 'middle',    label: 'Middle school (11-13)' },
+      { value: 'high',      label: 'High school (14-18)' },
     ],
   },
   {
@@ -194,7 +194,7 @@ const CLIMATE_RISK_MODULE: QuestionDef[] = [
       { value: 'flood',     label: 'Flooding' },
       { value: 'heat',      label: 'Extreme heat' },
       { value: 'tornado',   label: 'Tornado / severe wind' },
-      { value: 'any',       label: 'Any — just show me overall risk' },
+      { value: 'any',       label: 'Any - just show me overall risk' },
     ],
   },
   {
@@ -234,13 +234,13 @@ const DEMOGRAPHICS_MODULE: QuestionDef[] = [
     prompt: 'Would you like to see the share of residents born outside the US for each city?',
     groupHeader: {
       label: 'DEMOGRAPHICS',
-      subtext: "Factual Census data — we show you the statistic, not a 'fit score'.",
+      subtext: "Factual Census data: we show you the statistic, not a 'fit score'.",
     },
     required: false,
     showIf: demographicsShowIf,
     options: [
-      { value: 'yes', label: 'Yes — show me that statistic' },
-      { value: 'no',  label: 'No — not relevant to me' },
+      { value: 'yes', label: 'Yes - show me that statistic' },
+      { value: 'no',  label: 'No - not relevant to me' },
     ],
   },
   {
@@ -275,12 +275,12 @@ const PARKS_MODULE: QuestionDef[] = [
     prompt: 'How often do you use parks, trails, or outdoor green space?',
     groupHeader: {
       label: 'OUTDOORS',
-      subtext: "Park scores from the Trust for Public Land — falls back to mountain/coast proximity where city data is unavailable.",
+      subtext: "Park scores from the Trust for Public Land, falling back to mountain/coast proximity where city data is unavailable.",
     },
     required: false,
     showIf: parksShowIf,
     options: [
-      { value: 'daily',      label: 'Daily — it is part of my routine' },
+      { value: 'daily',      label: 'Daily - it is part of my routine' },
       { value: 'weekend',    label: 'Most weekends' },
       { value: 'occasional', label: 'Occasionally' },
     ],
@@ -312,7 +312,7 @@ const CONNECTIVITY_MODULE: QuestionDef[] = [
     id: 'connectivity_international_traveler',
     type: 'single_select',
     kicker: 'CONNECTIVITY',
-    prompt: 'Do you travel internationally — or plan to?',
+    prompt: 'Do you travel internationally, or plan to?',
     groupHeader: {
       label: 'CONNECTIVITY',
       subtext: "Airport hub data from FAA annual enplanements.",
@@ -320,8 +320,8 @@ const CONNECTIVITY_MODULE: QuestionDef[] = [
     required: false,
     showIf: connectivityShowIf,
     options: [
-      { value: 'yes_frequent',  label: 'Yes — multiple times per year' },
-      { value: 'yes_sometimes', label: 'Occasionally — once a year or less' },
+      { value: 'yes_frequent',  label: 'Yes - multiple times per year' },
+      { value: 'yes_sometimes', label: 'Occasionally - once a year or less' },
       { value: 'no',            label: 'Rarely or never' },
     ],
   },

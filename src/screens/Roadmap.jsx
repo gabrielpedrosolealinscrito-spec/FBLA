@@ -152,7 +152,7 @@ export default function Roadmap({ row, profile, onBack, onVisa }) {
         <div className="rdm-header">
           <h1 className="rdm-title">Relocation Roadmap: {roadmap.cityName}</h1>
           <p className="rdm-subtitle">
-            Your personalized 6-section plan — compiled offline, print-ready.
+            Your personalized 6-section plan, compiled offline, print-ready.
           </p>
         </div>
 

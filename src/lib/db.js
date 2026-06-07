@@ -28,7 +28,7 @@ if (!isSupabaseConfigured) {
   // One-time warning — not an error. The app still runs without auth.
   console.warn(
     '[db] Supabase env vars missing (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY). ' +
-    'Running in anonymous mode — auth + persistence are disabled.'
+    'Running in anonymous mode; auth + persistence are disabled.'
   );
 }
 
@@ -49,7 +49,7 @@ export const supabase = isSupabaseConfigured
 // A duplicate email is treated as success (you're already on the list).
 export async function joinWaitlist(email) {
   if (!isSupabaseConfigured) {
-    return { error: 'The waitlist is offline right now — please try again later.' };
+    return { error: 'The waitlist is offline right now. Please try again later.' };
   }
   const { error } = await supabase.from('waitlist').insert({ email: email.trim().toLowerCase() });
   if (error) {
