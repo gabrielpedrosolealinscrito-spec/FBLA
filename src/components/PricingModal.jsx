@@ -52,7 +52,7 @@ const TIERS_CONFIG = [
 // ── Testimonials — UI-SPEC Testimonial Copy ──
 const TESTIMONIALS = [
   {
-    quote: "Showed me Toronto was a better fit than Austin — saved me months of research.",
+    quote: "Showed me Toronto was a better fit than Austin, and saved me months of research.",
     author: "Alex M.",
   },
   {
@@ -372,7 +372,7 @@ export default function PricingModal({ open, onClose, onTier, currentTier }) {
                     fontFamily: "'Manrope', sans-serif",
                   }}
                 >
-                  — {t.author}
+                  {t.author}
                 </div>
               </div>
             ))}

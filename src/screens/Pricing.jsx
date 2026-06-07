@@ -12,7 +12,7 @@ const TIERS = [
   { name: 'Basic', runs: '1 run', price: '0.99', cta: 'Choose Basic', solid: false, feature: false,
     feats: ['Your single best-fit city', 'Complete financial snapshot', 'Take-home · expenses · savings'] },
   { name: 'Plus', runs: '3 runs', price: '9.99', cta: 'Choose Plus', solid: true, feature: true,
-    feats: ['Full ranked list — US & international', 'Live-AI: jobs, housing, day-in-the-life', 'Personalized relocation roadmap'] },
+    feats: ['Full ranked list, US & international', 'Live-AI: jobs, housing, day-in-the-life', 'Personalized relocation roadmap'] },
   { name: 'Premium', runs: 'Unlimited runs', price: '29.99', cta: 'Choose Premium', solid: false, feature: false,
     feats: ['Everything in Plus', 'Immigration & visa concierge', 'Pathways, checklists & referrals'] },
 ];
@@ -172,7 +172,7 @@ const COPY = {
   default: { l1: 'Start now,', l2: 'upgrade later.', tagline: null },
   global: {
     l1: 'Going global.', l2: 'the world, mapped.',
-    tagline: 'International cities unlock at Plus — the minimum plan for going global.',
+    tagline: 'International cities unlock at Plus, the minimum plan for going global.',
   },
 };
 
@@ -258,7 +258,7 @@ export default function Pricing({ variant = 'default' }) {
 
         <section className="free">
           <h2>Start with a <em>free</em> run. No card required.</h2>
-          <p>Take the quiz and see your #1 match city today — unlock the rest whenever you're ready.</p>
+          <p>Take the quiz and see your #1 match city today, then unlock the rest whenever you're ready.</p>
           <form className="form" onSubmit={(e) => { e.preventDefault(); startRun(); }}>
             <input type="email" placeholder="you@email.com" aria-label="Email" />
             <button type="submit">Start free</button>

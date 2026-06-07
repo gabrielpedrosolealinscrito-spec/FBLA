@@ -73,17 +73,17 @@ export default function About() {
         <h1>See the other side <em>before you decide.</em></h1>
         <p className="lede">
           Potential is a life simulator. Tell it who you are and what you want, and it shows you the
-          cities where your money, your work, and your days would actually look different — then hands
+          cities where your money, your work, and your days would actually look different, then hands
           you the map to get there.
         </p>
 
         <section className="section">
           <h2>Why we built it</h2>
           <p>
-            Most people choose where to live by accident — a job offer, a partner, a city they happened
+            Most people choose where to live by accident: a job offer, a partner, a city they happened
             to visit. The biggest decision about your life is usually the least researched. The numbers
-            that matter — what you'd take home, what rent really costs, what's left at the end of the
-            month — are scattered across a dozen tabs and rarely add up to a clear picture.
+            that matter, like what you'd take home, what rent really costs, and what's left at the end of the
+            month, are scattered across a dozen tabs and rarely add up to a clear picture.
           </p>
           <p>
             <strong>Potential puts the whole picture in one place.</strong> It models your finances and
@@ -130,7 +130,7 @@ export default function About() {
           <p>
             Whether you're weighing a city two states over or a country across an ocean, the harder the
             decision, the more it pays to see it first. Potential is for the person who wants the other
-            life on the table — measured, not imagined — before they commit to it.
+            life on the table, measured rather than imagined, before they commit to it.
           </p>
         </section>
 
@@ -138,7 +138,7 @@ export default function About() {
           <h4>An honest note</h4>
           <p>
             Potential is a planning tool, not financial, tax, immigration, or legal advice. Our numbers
-            are estimates built to inform your thinking — verify anything that drives a real decision
+            are estimates built to inform your thinking, so verify anything that drives a real decision
             with a qualified professional.
           </p>
         </div>
