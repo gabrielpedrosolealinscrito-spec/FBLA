@@ -78,6 +78,17 @@ export default function Potential() {
     setTimeout(() => setAnim(true), 80);
   }, []);
 
+  // ── Judge / demo unlock-all ──────────────────────────────────────────────
+  // Visit  /?unlock=potential  to unlock every gated section (financial
+  // breakdown, roadmap, visa) for a live demo — sets the tier override to the
+  // top tier. Foolproof for the FBLA judges: just open the URL. (The hidden
+  // bottom-right corner triple-tap → DemoTierSwitcher is the in-app backup.)
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("unlock") === "potential") {
+      setTier("global");
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Review shortcut — skip Landing + Quiz while iterating on the results UI ──
   // Visit  /?dev=breakdown  to jump to a city's full-breakdown page, or
   //        /?dev=results    to jump to the results map.

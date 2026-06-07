@@ -180,8 +180,10 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
 
       {/* ── Body ── */}
       <div className="body">
-        {/* Money column */}
+        {/* Money column — full financial breakdown is a paid (Basic) feature.
+            Free tier sees it blurred behind a LockGate; unlocking opens pricing. */}
         <div className="money">
+          <LockGate tier={tier} requiredTier="basic" lockedLabel="Unlock the financial breakdown — Basic" onUnlock={onUnlock}>
           <div className="headrow">
             <div className="stat th">
               <div className="v">{money(c.monthlyTakeHome)}</div>
@@ -230,6 +232,7 @@ export default function CityBreakdown({ result, results, profile, onBack, tier =
               </div>
             </div>
           </div>
+          </LockGate>
         </div>
 
         {/* Side column */}
