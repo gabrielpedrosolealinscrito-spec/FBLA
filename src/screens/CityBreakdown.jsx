@@ -15,8 +15,14 @@
 //
 // Fonts (Instrument Serif / Manrope / JetBrains Mono) load globally via
 // index.html — no @import here (avoids a duplicate CDN call).
-// Props: { result, results, profile, onBack }
+// Props: { result, results, profile, onBack, tier, onUnlock, onRoadmap, onVisa }
+//   tier/onUnlock/onRoadmap/onVisa are the Phase 6/7/8 graft — the two "next
+//   steps" CTAs (relocation roadmap, visa concierge) are tier-gated via LockGate.
+//   They render only when their callbacks are provided, so the breakdown still
+//   works standalone (e.g. the ?dev=breakdown shortcut without app state).
 // ─────────────────────────────────────────────────────────────────
+
+import LockGate from '../components/LockGate.jsx';
 
 const money = (n) => "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
 
@@ -80,7 +86,7 @@ function ScoreRing({ score, size = 92, sw = 8 }) {
   );
 }
 
-export default function CityBreakdown({ result, results, profile, onBack }) {
+export default function CityBreakdown({ result, results, profile, onBack, tier = "free", onUnlock, onRoadmap, onVisa }) {
   if (!result) return null;
   const c = result;
   const housing = profile?.housing || "rent";
@@ -270,6 +276,31 @@ export default function CityBreakdown({ result, results, profile, onBack }) {
         </div>
       </div>
 
+      {/* ── Next steps: Phase 6/7 entry CTAs (tier-gated via LockGate) ── */}
+      {(onRoadmap || onVisa) && (
+        <div className="bd-next">
+          <span className="lbl lbl-dim">Your next steps</span>
+          <div className="bd-ctas">
+            {onRoadmap && (
+              <LockGate tier={tier} requiredTier="plus" lockedLabel="Unlock Relocation Roadmap" onUnlock={onUnlock}>
+                <button className="bd-cta" onClick={onRoadmap}>
+                  <span className="bd-cta-k">Relocation roadmap →</span>
+                  <span className="bd-cta-d">Your personalized 6-step plan to actually move to {cityName}.</span>
+                </button>
+              </LockGate>
+            )}
+            {onVisa && (
+              <LockGate tier={tier} requiredTier="premium" lockedLabel="Unlock Visa Concierge" onUnlock={onUnlock}>
+                <button className="bd-cta" onClick={onVisa}>
+                  <span className="bd-cta-k">Visa concierge →</span>
+                  <span className="bd-cta-d">Compare the immigration pathways that fit your profile.</span>
+                </button>
+              </LockGate>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Foot: live-data teaser ── */}
       <div className="foot">
         <span className="lbl lbl-dim">⚡ Live data — powered by AI search</span>
@@ -397,7 +428,19 @@ const CSS = `
 .lay-ed .foot{padding:24px clamp(22px,5.5vw,84px) 44px;border-top:1px solid var(--ivory-ghost);
   display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 
+/* ── Next-steps CTAs (Phase 6/7 graft) — editorial-dossier styling ── */
+.lay-ed .bd-next{padding:8px clamp(22px,5.5vw,84px) 4px}
+.lay-ed .bd-next .lbl{display:block;margin-bottom:14px}
+.lay-ed .bd-ctas{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bd-cta{display:flex;flex-direction:column;align-items:flex-start;gap:7px;width:100%;text-align:left;
+  background:var(--night-600);border:1px solid var(--ivory-ghost);border-radius:18px;padding:22px 24px;cursor:pointer;
+  font-family:var(--sans);color:var(--ivory);transition:border-color .2s var(--ease),background .2s var(--ease)}
+.bd-cta:hover{border-color:var(--gold-500);background:var(--night-560)}
+.bd-cta-k{font-family:var(--serif);font-size:23px;line-height:1.05}
+.bd-cta-d{font-size:13.5px;color:var(--ivory-dim);line-height:1.5}
+
 @media(max-width:860px){
+  .lay-ed .bd-ctas{grid-template-columns:1fr}
   .lay-ed .body{grid-template-columns:1fr;gap:22px;padding:28px 22px 26px}
   .lay-ed .hero{padding:36px 22px 30px}
   .lay-ed .hero .rose{top:18px;right:14px;width:84px;height:84px}
