@@ -35,7 +35,11 @@ export type QuestionType =
   | 'multi_select'
   | 'slider'
   | 'free_text'
-  | 'boolean';
+  | 'boolean'
+  // ── Package 04 additions ──
+  | 'date'         // birthday capture (age derived downstream) — task 10
+  | 'ranking'      // ordered ranking; answer is value[] in rank order — tasks 11/12
+  | 'global_gate'; // Going-Global tier gate interstitial — task 18
 
 export interface QuestionOption {
   value: string;
@@ -65,6 +69,13 @@ export interface QuestionDef {
   maxSelect?: number;
   groupHeader?: GroupHeader;
   showIf?: (answers: Record<string, unknown>) => boolean;
+  // ── Package 04 additions ──
+  // Questions sharing a `group.id` render together on ONE card (task 8 — Finances).
+  // First question in a run carries the group label/subtext for the card header.
+  group?: { id: string; label: string; subtext?: string };
+  // tierGate:'global' → resolver hides this question unless answers.__isGlobal === true
+  // (Going-Global gate lives in the resolver — README §1, task 18).
+  tierGate?: 'global';
 }
 
 export type Answers = Record<string, unknown>;
@@ -82,11 +93,25 @@ function buildProfessionOptions(): QuestionOption[] {
   return opts;
 }
 
-/** Map LIFESTYLE_TAGS to QuestionOption[]. */
+/**
+ * Map LIFESTYLE_TAGS to QuestionOption[].
+ * Package 04 / README §6: emoji icons are DROPPED here — the lifestyle question
+ * is now a ranking (numbered badges, no glyphs). The emoji `icon` field on
+ * LIFESTYLE_TAGS (constants.js, not owned by this package) is intentionally not
+ * propagated, so no general-Unicode emoji reaches the quiz UI.
+ */
 function buildLifestyleOptions(): QuestionOption[] {
   return (LIFESTYLE_TAGS as { id: string; label: string; icon: string }[]).map(
-    (t) => ({ value: t.id, label: t.label, icon: t.icon }),
+    (t) => ({ value: t.id, label: t.label }),
   );
+}
+
+/**
+ * Profession options + an explicit "Other / not listed" entry (task 4).
+ * Selecting it reveals the required `professionOther` free-text follow-up.
+ */
+function buildProfessionOptionsWithOther(): QuestionOption[] {
+  return [...buildProfessionOptions(), { value: '__other', label: 'Other / not listed' }];
 }
 
 /** Map DEAL_BREAKERS (string[]) to QuestionOption[]. Byte-exact — no retyping. */
@@ -97,6 +122,98 @@ function buildDealBreakerOptions(): QuestionOption[] {
 // ── Question Registry ─────────────────────────────────────────────────────────
 
 export const ALL_QUESTIONS: QuestionDef[] = [
+  // ── ABOUT YOU (Background) — task 14: moved FIRST (understand the person up front) ──
+  {
+    // task 10: birthday, not age. Hidden when login/sign-up already captured it
+    // (CenteredQuiz seeds answers.birthday + answers.__birthdayKnown from profile).
+    // Age is derived from birthday at synthesis time — see CenteredQuiz.finish().
+    id: 'birthday',
+    type: 'date',
+    kicker: 'ABOUT YOU',
+    prompt: 'When were you born?',
+    subtext: 'Used for age-based financial projections. Never shown publicly.',
+    required: true,
+    showIf: (a) => a['__birthdayKnown'] !== true,
+  },
+  {
+    id: 'education',
+    type: 'single_select',
+    kicker: 'ABOUT YOU',
+    prompt: 'Highest level of education',
+    autoAdvance: true,
+    options: [
+      { value: 'highschool', label: 'High School' },
+      { value: 'associates', label: "Associate's" },
+      { value: 'bachelors', label: "Bachelor's" },
+      { value: 'masters', label: "Master's" },
+      { value: 'doctorate', label: 'Doctorate' },
+      { value: 'trade', label: 'Trade / Vocational' },
+    ],
+  },
+  {
+    id: 'currentCity',
+    type: 'free_text',
+    kicker: 'ABOUT YOU',
+    prompt: 'Where do you live now?',
+    subtext: 'e.g. Springfield, MO',
+  },
+  {
+    id: 'motivationToMove',
+    type: 'single_select',
+    kicker: 'ABOUT YOU',
+    prompt: 'What is your biggest reason to move?',
+    autoAdvance: true,
+    options: [
+      { value: 'career', label: 'Career - better job market or opportunities' },
+      { value: 'lifestyle', label: 'Lifestyle - climate, pace, scene' },
+      { value: 'adventure', label: 'Adventure - exploring something new' },
+      { value: 'family', label: 'Family - closer to or building one' },
+      { value: 'cost', label: 'Cost - my money goes further elsewhere' },
+    ],
+  },
+  {
+    id: 'paceOfLife',
+    type: 'single_select',
+    kicker: 'ABOUT YOU',
+    prompt: 'What pace of life fits you?',
+    autoAdvance: true,
+    options: [
+      { value: 'fast', label: 'Fast - always something going on' },
+      { value: 'moderate', label: 'Moderate - busy but breathing room' },
+      { value: 'slow', label: 'Slow - peace, space, unhurried' },
+    ],
+  },
+  {
+    id: 'riskTolerance',
+    type: 'slider',
+    kicker: 'ABOUT YOU',
+    prompt: 'How comfortable are you with uncertainty?',
+    subtext: 'This calibrates bold vs. safe city recommendations.',
+    min: 0,
+    max: 100,
+    step: 5,
+    minLabel: 'Very cautious',
+    maxLabel: 'High risk-taker',
+  },
+  {
+    id: 'communityNeeds',
+    type: 'multi_select',
+    kicker: 'ABOUT YOU',
+    prompt: 'What does your community look like?',
+    subtext: 'Pick everything that matters. We weight each one.',
+    maxSelect: 4,
+    options: [
+      { value: 'arts', label: 'Arts & culture' },
+      { value: 'outdoors', label: 'Outdoors / nature' },
+      { value: 'family-friendly', label: 'Family-friendly' },
+      { value: 'diversity', label: 'Diverse & international' },
+      { value: 'lgbtq', label: 'LGBTQ+ affirming' },
+      { value: 'faith', label: 'Faith community' },
+      { value: 'startup', label: 'Entrepreneurial / startup' },
+      { value: 'quiet', label: 'Peace and quiet' },
+    ],
+  },
+
   // ── CAREER ────────────────────────────────────────────────────────────────
   {
     id: 'profession',
@@ -106,7 +223,17 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     subtext: 'This determines salary estimates and job matches.',
     required: true,
     autoAdvance: false,
-    options: buildProfessionOptions(),
+    options: buildProfessionOptionsWithOther(),
+  },
+  {
+    // task 4: explicit "Other" → required explain box; blocks Continue until filled.
+    id: 'professionOther',
+    type: 'free_text',
+    kicker: 'CAREER',
+    prompt: 'Tell us what you do',
+    subtext: 'A short description so we can estimate your market.',
+    required: true,
+    showIf: (a) => a['profession'] === '__other',
   },
   {
     id: 'hasRemote',
@@ -117,8 +244,8 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     required: true,
     autoAdvance: true,
     options: [
-      { value: 'true', label: 'Yes — fully remote' },
-      { value: 'false', label: 'No — I go into an office or field' },
+      { value: 'true', label: 'Yes - fully remote' },
+      { value: 'false', label: 'No - I go into an office or field' },
     ],
   },
   {
@@ -129,13 +256,16 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     subtext: 'Shapes city recommendations around your daily rhythm.',
     autoAdvance: true,
     options: [
-      { value: 'remote', label: 'Fully remote — anywhere' },
-      { value: 'hybrid', label: 'Hybrid — a few days in-office' },
+      { value: 'remote', label: 'Fully remote - anywhere' },
+      { value: 'hybrid', label: 'Hybrid - a few days in-office' },
       { value: 'office', label: 'Office / on-site' },
     ],
   },
 
   // ── FINANCES ──────────────────────────────────────────────────────────────
+  // task 8: income + savings + debt render together on ONE "Finances" card
+  // (same group.id). task 7: money questions render as a formatted number input,
+  // not a slider — CenteredQuiz branches on isMoney(id), so type stays 'slider'.
   {
     id: 'income',
     type: 'slider',
@@ -148,6 +278,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     step: 5000,
     minLabel: '$20K',
     maxLabel: '$250K',
+    group: { id: 'finances', label: 'Your finances', subtext: 'Rough numbers are fine. You can refine them later.' },
   },
   {
     id: 'savings',
@@ -159,6 +290,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     step: 2500,
     minLabel: '$0',
     maxLabel: '$200K',
+    group: { id: 'finances', label: 'Your finances' },
   },
   {
     id: 'debt',
@@ -170,6 +302,7 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     step: 2500,
     minLabel: '$0',
     maxLabel: '$200K',
+    group: { id: 'finances', label: 'Your finances' },
   },
   {
     id: 'housing',
@@ -247,106 +380,16 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     ],
   },
 
-  // ── ABOUT YOU (Background) ────────────────────────────────────────────────
-  {
-    id: 'age',
-    type: 'slider',
-    kicker: 'ABOUT YOU',
-    prompt: 'Your age',
-    subtext: 'Affects financial projections and peer-group city comparisons.',
-    required: true,
-    min: 18,
-    max: 70,
-    step: 1,
-    minLabel: '18',
-    maxLabel: '70',
-  },
-  {
-    id: 'education',
-    type: 'single_select',
-    kicker: 'ABOUT YOU',
-    prompt: 'Highest level of education',
-    autoAdvance: true,
-    options: [
-      { value: 'highschool', label: 'High School' },
-      { value: 'associates', label: "Associate's" },
-      { value: 'bachelors', label: "Bachelor's" },
-      { value: 'masters', label: "Master's" },
-      { value: 'doctorate', label: 'Doctorate' },
-      { value: 'trade', label: 'Trade / Vocational' },
-    ],
-  },
-  {
-    id: 'currentCity',
-    type: 'free_text',
-    kicker: 'ABOUT YOU',
-    prompt: 'Where do you live now?',
-    subtext: 'e.g. Springfield, MO',
-  },
-  {
-    id: 'motivationToMove',
-    type: 'single_select',
-    kicker: 'ABOUT YOU',
-    prompt: 'What is your biggest reason to move?',
-    autoAdvance: true,
-    options: [
-      { value: 'career', label: 'Career — better job market or opportunities' },
-      { value: 'lifestyle', label: 'Lifestyle — climate, pace, scene' },
-      { value: 'adventure', label: 'Adventure — exploring something new' },
-      { value: 'family', label: 'Family — closer to or building one' },
-      { value: 'cost', label: 'Cost — my money goes further elsewhere' },
-    ],
-  },
-  {
-    id: 'paceOfLife',
-    type: 'single_select',
-    kicker: 'ABOUT YOU',
-    prompt: 'What pace of life fits you?',
-    autoAdvance: true,
-    options: [
-      { value: 'fast', label: 'Fast — always something going on' },
-      { value: 'moderate', label: 'Moderate — busy but breathing room' },
-      { value: 'slow', label: 'Slow — peace, space, unhurried' },
-    ],
-  },
-  {
-    id: 'riskTolerance',
-    type: 'slider',
-    kicker: 'ABOUT YOU',
-    prompt: 'How comfortable are you with uncertainty?',
-    subtext: 'This calibrates bold vs. safe city recommendations.',
-    min: 0,
-    max: 100,
-    step: 5,
-    minLabel: 'Very cautious',
-    maxLabel: 'High risk-taker',
-  },
-  {
-    id: 'communityNeeds',
-    type: 'multi_select',
-    kicker: 'ABOUT YOU',
-    prompt: 'What does your community look like?',
-    subtext: 'Pick everything that matters — we weight each one.',
-    maxSelect: 4,
-    options: [
-      { value: 'arts', label: 'Arts & culture' },
-      { value: 'outdoors', label: 'Outdoors / nature' },
-      { value: 'family-friendly', label: 'Family-friendly' },
-      { value: 'diversity', label: 'Diverse & international' },
-      { value: 'lgbtq', label: 'LGBTQ+ affirming' },
-      { value: 'faith', label: 'Faith community' },
-      { value: 'startup', label: 'Entrepreneurial / startup' },
-      { value: 'quiet', label: 'Peace and quiet' },
-    ],
-  },
-
   // ── LIFESTYLE ─────────────────────────────────────────────────────────────
   {
+    // task 11: ranking, not multi-select. User ranks up to 5 in order of liking;
+    // anything not ranked = not important. Emits string[] in rank order — the
+    // synthesizer reads lifestyleTags as a tag set, so order is additive, not breaking.
     id: 'lifestyleTags',
-    type: 'multi_select',
+    type: 'ranking',
     kicker: 'LIFESTYLE',
     prompt: 'What do you do for fun?',
-    subtext: 'Pick up to 5 — we weight every city match around what you choose.',
+    subtext: 'Tap to rank your top 5. 1 is what you love most. Skip the rest.',
     required: true,
     maxSelect: 5,
     options: buildLifestyleOptions(),
@@ -355,21 +398,21 @@ export const ALL_QUESTIONS: QuestionDef[] = [
   // ── PRIORITIES ────────────────────────────────────────────────────────────
   {
     id: 'importanceRank',
-    type: 'multi_select',
+    type: 'ranking',
     kicker: 'PRIORITIES',
     prompt: 'Rank what matters most in a city',
     // Selection ORDER = rank: first selected = rank 0 = weight 4.
     // synthesizer.ts uses the array order to derive 4/3/2/1 raw weights.
-    // Rule 1 fix: changed from single_select (emits string) to multi_select
-    // (emits string[]) so synthesizeProfile receives the correct contract.
-    subtext: 'Select all four in order of importance — first pick = highest priority.',
+    // task 12: now a real ordered ranking UI (numbered rank badges) — still
+    // emits string[] in rank order, so the synthesizer weight contract is unchanged.
+    subtext: 'Tap in order of importance. Your first pick carries the most weight.',
     required: true,
     maxSelect: 4,
     options: [
-      { value: 'career', label: 'Career — job market and opportunities' },
-      { value: 'cost', label: 'Cost — affordable housing and low expenses' },
-      { value: 'lifestyle', label: 'Lifestyle — vibe, scene, things to do' },
-      { value: 'safety', label: 'Safety — low crime, stable neighborhoods' },
+      { value: 'career', label: 'Career - job market and opportunities' },
+      { value: 'cost', label: 'Cost - affordable housing and low expenses' },
+      { value: 'lifestyle', label: 'Lifestyle - vibe, scene, things to do' },
+      { value: 'safety', label: 'Safety - low crime, stable neighborhoods' },
     ],
   },
   {
@@ -377,12 +420,26 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     type: 'multi_select',
     kicker: 'PRIORITIES',
     prompt: 'Hard dealbreakers',
-    subtext: 'These remove cities entirely — choose carefully.',
+    subtext: 'These remove cities entirely, so choose carefully.',
     maxSelect: 10,
     options: buildDealBreakerOptions(),
   },
 
-  // ── GOING GLOBAL ──────────────────────────────────────────────────────────
+  // ── GOING GLOBAL (task 18 — premium/global tier only) ──────────────────────
+  // The gate interstitial is ALWAYS visible. CenteredQuiz renders it specially:
+  //  • global tier  → "include" / "US only" choice.
+  //  • non-global   → lock + explainer + CTA → #/pricing/global, and a gray
+  //                   "I don't want to go global" (sets goingGlobalIntro='skip').
+  // The four international questions below carry tierGate:'global' (resolver hides
+  // them unless answers.__isGlobal === true) AND showIf goingGlobalIntro==='include'.
+  {
+    id: 'goingGlobalIntro',
+    type: 'global_gate',
+    kicker: 'GOING GLOBAL',
+    prompt: 'Open to looking beyond the US?',
+    subtext: 'International matches are part of Going Global.',
+    required: true,
+  },
   {
     id: 'opennessToAbroad',
     type: 'slider',
@@ -395,10 +452,8 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     step: 5,
     minLabel: 'US only',
     maxLabel: 'Anywhere in the world',
-    groupHeader: {
-      label: 'GOING GLOBAL',
-      subtext: 'Tell us how far you’d go — literally.',
-    },
+    tierGate: 'global',
+    showIf: (a) => a['goingGlobalIntro'] === 'include',
   },
   {
     id: 'citizenship',
@@ -408,6 +463,8 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     subtext: 'Required for visa pathway recommendations.',
     required: true,
     autoAdvance: true,
+    tierGate: 'global',
+    showIf: (a) => a['goingGlobalIntro'] === 'include',
     options: [
       { value: 'US', label: 'United States' },
       { value: 'Canada', label: 'Canada' },
@@ -430,8 +487,10 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     prompt: 'What is your current US immigration status?',
     subtext: 'This shapes which visa pathways are available to you.',
     autoAdvance: true,
-    // Hidden for US citizens — auto-derived as "citizen" (D-09)
-    showIf: (a) => a["citizenship"] !== "US",
+    tierGate: 'global',
+    // Hidden for US citizens — auto-derived as "citizen" (D-09). Also gated behind
+    // the Going-Global include choice (task 18).
+    showIf: (a) => a['goingGlobalIntro'] === 'include' && a['citizenship'] !== 'US',
     options: [
       { value: 'permanent_resident', label: 'Permanent Resident (Green Card)' },
       { value: 'work_visa', label: 'Work Visa (H-1B, L-1, O-1…)' },
@@ -448,11 +507,13 @@ export const ALL_QUESTIONS: QuestionDef[] = [
     prompt: 'When are you thinking of moving?',
     required: true,
     autoAdvance: true,
+    tierGate: 'global',
+    showIf: (a) => a['goingGlobalIntro'] === 'include',
     options: [
       { value: '6mo', label: 'Within 6 months' },
       { value: '12mo', label: 'Within a year' },
       { value: '2yr+', label: 'In 2+ years' },
-      { value: 'exploring', label: 'Just exploring — no timeline' },
+      { value: 'exploring', label: 'Just exploring - no timeline' },
     ],
   },
 
