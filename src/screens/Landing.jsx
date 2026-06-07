@@ -1,5 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ambient from "../lib/ambientAudio.js";
+import CompassLoader from "../components/CompassLoader.jsx";
+import NavBar from "../components/NavBar.jsx";
+
+// Top-nav destinations (hash routing, README §5). NavBar itself is owned by
+// package 01; we mount it here against the frozen props (README §4).
+const NAV_LINKS = [
+  { label: "About", href: "#/about" },
+  { label: "Pricing", href: "#/pricing" },
+  { label: "FAQ", href: "#/faq" },
+  { label: "Sign in", href: "#/login" },
+];
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING — cinematic night→dawn intro (ported from the prototype).
@@ -30,8 +41,6 @@ const MARKUP = `
   .lp .fog span:nth-child(3){width:70vw;height:40vw;left:18vw;top:62vh;animation-duration:78s}
   @keyframes lpdrift{0%{transform:translateX(-4vw) translateY(0)}50%{transform:translateX(6vw) translateY(-3vh)}100%{transform:translateX(-4vw) translateY(0)}}
   .lp .grain{position:fixed;inset:0;width:100%;height:100%;z-index:30;pointer-events:none;opacity:.05;mix-blend-mode:overlay}
-  .lp .brand{position:fixed;top:30px;left:36px;z-index:25;font-family:'Instrument Serif',serif;font-size:26px;letter-spacing:.5px;color:var(--ivory);opacity:.9}
-  .lp .brand small{font-style:italic;opacity:.6;font-size:15px;margin-left:2px}
   .lp .controls{position:fixed;right:30px;bottom:28px;z-index:25;display:flex;gap:12px}
   .lp .ctl{width:52px;height:52px;border-radius:50%;border:1px solid var(--ivory-faint);background:rgba(10,12,18,.35);backdrop-filter:blur(8px);color:var(--ivory-dim);display:grid;place-items:center;cursor:pointer;transition:.4s var(--ease)}
   .lp .ctl:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
@@ -39,16 +48,8 @@ const MARKUP = `
   .lp .rail{position:fixed;right:38px;top:50%;transform:translateY(-50%);z-index:25;display:flex;flex-direction:column;gap:14px;opacity:0;transition:opacity 1s}
   .lp .rail i{width:6px;height:6px;border-radius:50%;background:var(--ivory-faint);transition:.5s}
   .lp .rail i.on{background:var(--gold);box-shadow:0 0 10px var(--gold)}
-  .lp .loader{position:fixed;inset:0;z-index:60;background:var(--night-1);display:grid;place-items:center;transition:opacity 1.1s var(--ease)}
-  .lp .loader.hide{opacity:0;pointer-events:none}
-  .lp .loader-disc{position:relative;width:160px;height:160px}
-  .lp .pring{position:absolute;top:0;left:0;width:160px;height:160px}
-  .lp .pring-track{fill:none;stroke:rgba(243,237,225,.12);stroke-width:2}
-  .lp .pring-bar{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(226,181,107,.55))}
-  .lp .rosette{position:absolute;top:-3px;left:-3px;width:166px;height:166px;animation:lpspin 9s linear infinite;opacity:.4}
-  .lp .rosette circle,.lp .rosette path{fill:none;stroke:var(--gold);stroke-width:.5}
-  @keyframes lpspin{to{transform:rotate(360deg)}}
-  .lp .loader-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;font-family:'Instrument Serif',serif;font-size:32px;color:var(--gold)}
+  /* Loader is now the shared brand CompassLoader, rendered as a React sibling
+     of .lp (so .lp's innerHTML injection can't wipe it). No loader CSS here. */
   .lp .gate{position:relative;z-index:20;height:100vh;display:grid;place-items:center;text-align:center;scroll-snap-align:start;scroll-snap-stop:always}
   .lp .gate-inner{opacity:0;transform:translateY(18px);transition:1.4s var(--ease);transition-delay:.3s}
   .lp .gate-inner.in{opacity:1;transform:none}
@@ -72,7 +73,10 @@ const MARKUP = `
   .lp .scene.in .line{opacity:1;transform:none}
   .lp .final .eyebrow{font-size:12.5px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:24px;display:block;opacity:0;transition:1.2s var(--ease)}
   .lp .final.in .eyebrow{opacity:1}
-  .lp .cta{margin-top:48px;display:inline-flex;align-items:center;gap:14px;padding:18px 40px;border:1px solid var(--gold);border-radius:100px;color:var(--gold);font-size:14px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;background:rgba(226,181,107,.04);transition:.5s var(--ease);opacity:0;transform:translateY(20px)}
+  /* Solid near-black scrim pill so the gold label stays legible over the
+     bright dawn skyline glow behind this final scene (was a near-transparent
+     fill that washed out against the light). */
+  .lp .cta{margin-top:48px;display:inline-flex;align-items:center;gap:14px;padding:18px 40px;border:1px solid var(--gold);border-radius:100px;color:var(--gold);font-size:14px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;background:rgba(8,10,14,.78);backdrop-filter:blur(8px);box-shadow:0 10px 34px rgba(0,0,0,.34);transition:.5s var(--ease);opacity:0;transform:translateY(20px)}
   .lp .final.in .cta{opacity:1;transform:none;transition-delay:.5s}
   .lp .cta:hover{background:var(--gold);color:#10100c;box-shadow:0 12px 40px rgba(226,181,107,.28);transform:translateY(-2px)}
   .lp .cta svg{width:18px;height:18px;transition:.4s}
@@ -98,7 +102,6 @@ const MARKUP = `
 <canvas id="stage"></canvas>
 <div class="fog" id="lpFog"><span></span><span></span><span></span></div>
 <svg class="grain"><filter id="lpn"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(#lpn)"/></svg>
-<div class="brand">Potential <small>°</small></div>
 <div class="rail" id="lpRail"><i></i><i></i><i></i><i></i><i></i></div>
 <div class="controls">
   <div class="ctl" id="lpSoundBtn" title="Ambient sound">
@@ -114,11 +117,6 @@ const MARKUP = `
   <div class="row">Reduced motion <div class="sw" id="lpSwMotion"></div></div>
   <div class="row" style="border-top:1px solid var(--ivory-faint);margin-top:6px;padding-top:14px;font-size:11px;line-height:1.5;color:var(--ivory-faint)">Prototype experience. Runs fully offline.</div>
 </div>
-<div class="loader" id="lpLoader"><div class="loader-disc">
-  <svg class="rosette" viewBox="0 0 100 100" id="lpRosette"></svg>
-  <svg class="pring" viewBox="0 0 160 160"><circle class="pring-track" cx="80" cy="80" r="70"></circle><circle class="pring-bar" id="lpRing" cx="80" cy="80" r="70" transform="rotate(-90 80 80)"></circle></svg>
-  <div class="loader-pct" id="lpPct">0</div>
-</div></div>
 <section class="gate">
   <div class="gate-inner" id="lpGateInner">
     <div class="kicker">A life simulator</div>
@@ -146,6 +144,18 @@ export default function Landing({ onEnter }) {
   const onEnterRef = useRef(onEnter);
   onEnterRef.current = onEnter;
 
+  // Loader lifecycle (CompassLoader is a React sibling of the .lp tree).
+  const [loaded, setLoaded] = useState(false);
+  const [loaderHiding, setLoaderHiding] = useState(false);
+  const [showNav, setShowNav] = useState(false);
+  // Gate the loader spin on the OS reduced-motion pref for now; swap to
+  // useA11y().reduceMotion once package 03 lands (README §3).
+  const [reduceMotion] = useState(
+    () => typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false
+  );
+
   useEffect(() => {
     const root = ref.current;
     root.innerHTML = MARKUP;
@@ -155,25 +165,14 @@ export default function Landing({ onEnter }) {
 
     const q = (id) => root.querySelector(id);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let motionOff = reduced, running = true, raf = 0, tickId = 0;
+    let motionOff = reduced, running = true, raf = 0;
 
-    // rosette
-    const ros = q("#lpRosette");
-    let petals = "";
-    for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2, x = 50 + Math.cos(a) * 30, y = 50 + Math.sin(a) * 30; petals += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9"/>`; }
-    ros.innerHTML = `<circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="22"/>${petals}`;
-
-    // preloader — count every integer 0→100 with a circular progress ring
-    const loader = q("#lpLoader"), pct = q("#lpPct"), ring = q("#lpRing");
-    const RC = 2 * Math.PI * 70; // ring circumference (r=70)
-    ring.style.strokeDasharray = RC; ring.style.strokeDashoffset = RC;
-    let p = 0;
-    tickId = setInterval(() => {
-      p += 1;
-      pct.textContent = p;
-      ring.style.strokeDashoffset = RC * (1 - p / 100);
-      if (p >= 100) { clearInterval(tickId); setTimeout(() => { loader.classList.add("hide"); q("#lpGateInner").classList.add("in"); }, 350); }
-    }, 22);
+    // Loader lifecycle: the brand CompassLoader (a React sibling, see render)
+    // holds, then fades while the gate is revealed, then unmounts. Reduced
+    // motion shortens the hold and skips the gap so nothing lingers spinning.
+    const LOAD_MS = motionOff ? 600 : 2000, FADE_MS = motionOff ? 200 : 1100;
+    const loaderT1 = setTimeout(() => { setLoaderHiding(true); setShowNav(true); q("#lpGateInner").classList.add("in"); }, LOAD_MS);
+    const loaderT2 = setTimeout(() => setLoaded(true), LOAD_MS + FADE_MS);
 
     // canvas
     const cv = q("#stage"), ctx = cv.getContext("2d");
@@ -267,7 +266,7 @@ export default function Landing({ onEnter }) {
     window.addEventListener("keydown", onKey);
 
     return () => {
-      running = false; cancelAnimationFrame(raf); clearInterval(tickId); io.disconnect();
+      running = false; cancelAnimationFrame(raf); clearTimeout(loaderT1); clearTimeout(loaderT2); io.disconnect();
       window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", resize); window.removeEventListener("keydown", onKey);
       // NB: ambient audio is intentionally NOT torn down here — it's an app-wide
       // singleton that must keep playing across screen changes.
@@ -277,5 +276,11 @@ export default function Landing({ onEnter }) {
     };
   }, []);
 
-  return <div className="lp" ref={ref} />;
+  return (
+    <>
+      <div className="lp" ref={ref} />
+      {showNav && <NavBar links={NAV_LINKS} transparent />}
+      {!loaded && <CompassLoader reduceMotion={reduceMotion} hiding={loaderHiding} />}
+    </>
+  );
 }
