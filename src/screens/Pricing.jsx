@@ -7,6 +7,10 @@
 // CTAs route into the free quiz flow for now — checkout lands in Phase 8.
 // ═══════════════════════════════════════════════════════════════
 
+import { useState, useRef } from 'react';
+import Compass from '../components/Compass.jsx';
+import { joinWaitlist } from '../lib/db.js';
+
 // ── Tiers (business-model D-05 — still subject to change) ──
 const TIERS = [
   { name: 'Basic', runs: '1 run', price: '0.99', cta: 'Choose Basic', solid: false, feature: false,
@@ -17,35 +21,7 @@ const TIERS = [
     feats: ['Everything in Plus', 'Immigration & visa concierge', 'Pathways, checklists & referrals'] },
 ];
 
-// ── Compass geometry (computed once at module scope) ──
-const C = 100;
-const round = (n) => Number(n).toFixed(2);
-const RING = '#8a6a38';
-
-// outer double ring + 72 tick marks (cardinals longer/thicker)
-const TICKS = Array.from({ length: 72 }, (_, i) => {
-  const a = (i / 72) * Math.PI * 2 - Math.PI / 2;
-  const cardinal = i % 18 === 0;
-  const r1 = 72, r2 = cardinal ? 87 : 78;
-  return {
-    x1: round(C + Math.cos(a) * r1), y1: round(C + Math.sin(a) * r1),
-    x2: round(C + Math.cos(a) * r2), y2: round(C + Math.sin(a) * r2),
-    w: cardinal ? 1.5 : 0.7, key: i,
-  };
-});
-
-// one rose point → two triangle faces (light + dark) for the two-tone look
-function point(angleDeg, len, half) {
-  const a = (angleDeg - 90) * Math.PI / 180;
-  const ax = Math.cos(a), ay = Math.sin(a), px = -ay, py = ax;
-  const tip = `${round(C + ax * len)},${round(C + ay * len)}`;
-  const bl = `${round(C + px * half)},${round(C + py * half)}`;
-  const br = `${round(C - px * half)},${round(C - py * half)}`;
-  return { light: `${tip} ${bl} ${C},${C}`, dark: `${tip} ${br} ${C},${C}` };
-}
-const LIGHT = '#efdca9', DARK = '#c89a4f', LIGHT2 = '#e7c987', DARK2 = '#b07f3a';
-const BACK_PTS = [45, 135, 225, 315].map((ang) => point(ang, 40, 7));        // intercardinal (shorter)
-const FRONT_PTS = [[0, 66], [90, 58], [180, 60], [270, 58]].map(([ang, len]) => point(ang, len, 10)); // cardinal, N longest
+// Compass is now the shared <Compass> brand mark (README §6) — no per-screen geometry.
 
 const CSS = `
 .pp{ --night-1:#070a11; --night-2:#0d1119; --panel:#10141d; --gold:#e2b56b; --gold-soft:#d2a45a;
@@ -85,14 +61,11 @@ const CSS = `
   color:var(--ivory-faint);font-weight:500}
 .pp .geo.intl{color:var(--gold-soft)}
 
-.pp .compass{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
-  width:320px;height:320px;z-index:2;opacity:.92;pointer-events:none;
-  filter:drop-shadow(0 8px 44px rgba(226,181,107,.22))}
-.pp .compass .ring,.pp .compass .rose{transform-box:fill-box;transform-origin:center}
-.pp .compass .ring{animation:pp-spin-cw 120s linear infinite}
-.pp .compass .rose{animation:pp-spin-ccw 72s linear infinite}
-@keyframes pp-spin-cw{to{transform:rotate(360deg)}}
-@keyframes pp-spin-ccw{to{transform:rotate(-360deg)}}
+/* Faint backdrop only — text must stay readable over it (z-index below the heading,
+   low opacity). The compass animates itself (shared <Compass>). */
+.pp .compass{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
+  z-index:1;opacity:.22;pointer-events:none;
+  filter:drop-shadow(0 8px 44px rgba(226,181,107,.12))}
 
 .pp .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:18px;align-items:end}
 .pp .card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;
@@ -151,10 +124,20 @@ const CSS = `
 .pp .form button:hover{box-shadow:0 14px 40px -12px rgba(226,181,107,.55);transform:translateY(-1px)}
 .pp .micro{margin-top:22px;font-size:11px;letter-spacing:.04em;color:var(--ivory-faint);font-weight:300}
 
+/* Early-access / waitlist (paid plans not open yet) */
+.pp .early{display:inline-block;margin:0 auto 14px;padding:6px 15px;border-radius:100px;
+  border:1px solid rgba(226,181,107,.30);background:rgba(226,181,107,.06);
+  color:var(--gold-soft);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500}
+.pp .link{background:none;border:none;color:var(--gold);cursor:pointer;font:inherit;padding:0;text-decoration:underline}
+.pp .link:hover{color:var(--gold-soft)}
+.pp .wl-done{margin-top:18px;color:var(--gold);font-family:'Instrument Serif',serif;font-size:19px}
+.pp .wl-err{margin-top:12px;color:#e0916b;font-size:12.5px}
+.pp .form button:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none}
+
 @media (max-width:880px){
   .pp .grid{grid-template-columns:1fr;gap:16px;align-items:stretch}
   .pp .card.feature{order:-1}
-  .pp .compass{width:220px;height:220px}
+  .pp .compass{transform:translate(-50%,-50%) scale(.68)}
   .pp .hero{height:230px}
 }
 @media (prefers-reduced-motion: reduce){
@@ -180,8 +163,30 @@ export default function Pricing({ variant = 'default' }) {
   const isGlobal = variant === 'global';
   const copy = isGlobal ? COPY.global : COPY.default;
 
-  // No checkout yet (Phase 8) — every CTA starts the free run by returning to the app.
+  // No checkout yet (Phase 8) — the free quiz is open; paid plans collect emails.
   const startRun = () => { window.location.hash = ''; };
+
+  // ── Waitlist (paid plans aren't open for purchase yet) ──
+  const waitRef = useRef(null);
+  const [email, setEmail] = useState('');
+  const [wlState, setWlState] = useState('idle'); // idle | saving | done | error
+  const [wlMsg, setWlMsg] = useState('');
+
+  const focusWaitlist = () => {
+    waitRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => waitRef.current?.querySelector('input')?.focus(), 350);
+  };
+
+  const submitWaitlist = async (e) => {
+    e.preventDefault();
+    if (wlState === 'saving') return;
+    const addr = email.trim();
+    if (!addr) return;
+    setWlState('saving'); setWlMsg('');
+    const { error } = await joinWaitlist(addr);
+    if (error) { setWlState('error'); setWlMsg(error); return; }
+    setWlState('done'); setEmail('');
+  };
 
   return (
     <div className="pp">
@@ -202,37 +207,17 @@ export default function Pricing({ variant = 'default' }) {
 
       <main className="wrap">
         <section className="hero">
-          <svg className="compass" viewBox="0 0 200 200" aria-hidden="true">
-            <g className="ring">
-              <circle cx="100" cy="100" r="94" fill="none" stroke={RING} strokeWidth=".9" />
-              <circle cx="100" cy="100" r="70" fill="none" stroke={RING} strokeWidth=".9" opacity=".85" />
-              {TICKS.map((t) => (
-                <line key={t.key} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={RING} strokeWidth={t.w} />
-              ))}
-            </g>
-            <g className="rose">
-              {BACK_PTS.map((p, i) => (
-                <g key={`b${i}`}>
-                  <polygon points={p.light} fill={LIGHT2} />
-                  <polygon points={p.dark} fill={DARK2} />
-                </g>
-              ))}
-              {FRONT_PTS.map((p, i) => (
-                <g key={`f${i}`}>
-                  <polygon points={p.light} fill={LIGHT} />
-                  <polygon points={p.dark} fill={DARK} />
-                </g>
-              ))}
-              <circle cx="100" cy="100" r="8.5" fill="#caa15a" />
-              <circle cx="100" cy="100" r="2.8" fill="#0a0d14" />
-            </g>
-          </svg>
+          <Compass className="compass" size={300} tickDur={120} starDur={72} />
           <h1>
             <span className="l1">{copy.l1}</span>
             <span className="l2">{copy.l2}</span>
           </h1>
           {copy.tagline && <p className="tagline">{copy.tagline}</p>}
         </section>
+
+        <div style={{ textAlign: 'center' }}>
+          <span className="early">Early access · paid plans aren’t open yet</span>
+        </div>
 
         <section className="grid">
           {TIERS.map((t) => {
@@ -250,20 +235,30 @@ export default function Pricing({ variant = 'default' }) {
                 <ul className="feats">{t.feats.map((f) => <li key={f}>{f}</li>)}</ul>
                 <div className="price"><span className="cur">$</span><span className="amt">{t.price}</span></div>
                 <div className="per">one-time</div>
-                <button className={`pick${t.solid ? ' solid' : ''}`} onClick={startRun}>{t.cta}</button>
+                <button className={`pick${t.solid ? ' solid' : ''}`} onClick={focusWaitlist}>Join the waitlist</button>
               </article>
             );
           })}
         </section>
 
-        <section className="free">
-          <h2>Start with a <em>free</em> run. No card required.</h2>
-          <p>Take the quiz and see your #1 match city today — unlock the rest whenever you're ready.</p>
-          <form className="form" onSubmit={(e) => { e.preventDefault(); startRun(); }}>
-            <input type="email" placeholder="you@email.com" aria-label="Email" />
-            <button type="submit">Start free</button>
-          </form>
-          <p className="micro">Your runs never expire · One-time payment, no subscription</p>
+        <section className="free" ref={waitRef}>
+          <h2>Plans aren’t open <em>yet</em>.</h2>
+          <p>We’re in early access. Join the waitlist and we’ll email you the moment paid plans go live.</p>
+          {wlState === 'done' ? (
+            <p className="wl-done">You’re on the list. We’ll be in touch.</p>
+          ) : (
+            <form className="form" onSubmit={submitWaitlist}>
+              <input
+                type="email" required placeholder="you@email.com" aria-label="Email for the waitlist"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+              />
+              <button type="submit" disabled={wlState === 'saving'}>
+                {wlState === 'saving' ? 'Joining…' : 'Join the waitlist'}
+              </button>
+            </form>
+          )}
+          {wlState === 'error' && <p className="wl-err">{wlMsg}</p>}
+          <p className="micro">The quiz is free and open now — <button className="link" onClick={startRun}>take a free run →</button></p>
         </section>
       </main>
     </div>
