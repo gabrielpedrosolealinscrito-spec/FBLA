@@ -346,7 +346,13 @@ export default function PricingModal({ open, onClose, onTier, currentTier }) {
                   gap: 8,
                 }}
               >
-                <div style={{ color: "#e2b56b", fontSize: 14, letterSpacing: 2 }}>★★★★★</div>
+                <div style={{ display: "flex", gap: 3 }} aria-label="5 out of 5 stars">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill="#e2b56b" aria-hidden="true">
+                      <path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 18.6 6.1 21.3l1.2-6.6L2.5 9.5l6.6-.9L12 2.5z" />
+                    </svg>
+                  ))}
+                </div>
                 <p
                   style={{
                     fontSize: 14,

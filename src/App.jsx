@@ -5,6 +5,9 @@ import SlideModel from './screens/financials/SlideModel.jsx';
 import SlideLtv from './screens/financials/SlideLtv.jsx';
 import Pricing from './screens/Pricing.jsx';
 import ResultsMap from './screens/ResultsMap.jsx';
+import Login from './screens/Login.jsx';
+import About from './screens/About.jsx';
+import FAQ from './screens/FAQ.jsx';
 
 // Dev/demo harness for the results map in isolation (#/map) — real lat/lng +
 // engine-shaped financials so pins, the panel, and interactions can be checked
@@ -40,6 +43,10 @@ export default function App() {
   if (hash.startsWith('#/financials/model')) return <SlideModel />;
   if (hash.startsWith('#/financials/ltv')) return <SlideLtv />;
   if (hash.startsWith('#/financials')) return <FinancialsView />;
+  if (hash.startsWith('#/login')) return <Login />;
+  if (hash.startsWith('#/about')) return <About />;
+  if (hash.startsWith('#/faq')) return <FAQ />;
+  if (hash.startsWith('#/pricing/global')) return <Pricing variant="global" />;
   if (hash.startsWith('#/pricing')) return <Pricing />;
   if (hash.startsWith('#/map')) return <ResultsMap {...MAP_PREVIEW} onSelect={() => {}} onEdit={() => {}} />;
   return <Potential />;
