@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import ambient from "../lib/ambientAudio.js";
 
 // ═══════════════════════════════════════════════════════════════
 // LANDING — cinematic night→dawn intro (ported from the prototype).
@@ -154,7 +155,7 @@ export default function Landing({ onEnter }) {
 
     const q = (id) => root.querySelector(id);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let motionOff = reduced, running = true, raf = 0, tickId = 0, actx = null;
+    let motionOff = reduced, running = true, raf = 0, tickId = 0;
 
     // rosette
     const ros = q("#lpRosette");
@@ -246,78 +247,16 @@ export default function Landing({ onEnter }) {
     q("#lpEnterBtn").addEventListener("click", begin);
     q("#lpBeginBtn").addEventListener("click", () => { const b = q("#lpBeginBtn"); b.style.transform = "scale(.96)"; setTimeout(() => { b.style.transform = ""; onEnterRef.current && onEnterRef.current(); }, 150); });
 
-    // ambient audio (generative) — an evolving A-minor pad that drifts through a
-    // slow chord progression, with a sub for body, convolution reverb for space,
-    // a sweeping filter, and sparse shimmer tones. No assets; all synthesized.
-    let master = null, soundOn = true, chordTimer = 0, shimmerTimer = 0;
-    let voices = [], subOsc = null, padFilter = null, reverb = null, chordIx = 0;
-    const NOTE = (m) => 440 * Math.pow(2, (m - 69) / 12); // midi -> Hz
-    // i – VI – III – VII voicings (Am – F – C – G): contemplative, dawn-leaning
-    const CHORDS = [[45, 60, 64, 69], [41, 57, 60, 65], [48, 64, 67, 72], [43, 59, 62, 67]];
-
-    function makeReverb() {
-      const len = Math.floor(actx.sampleRate * 3.4), buf = actx.createBuffer(2, len, actx.sampleRate);
-      for (let ch = 0; ch < 2; ch++) { const d = buf.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
-      const c = actx.createConvolver(); c.buffer = buf; return c;
-    }
-    function setChord(notes) {
-      const t = actx.currentTime;
-      voices.forEach((v, i) => {
-        const f = NOTE(notes[i % notes.length]);
-        v.a.frequency.setTargetAtTime(f, t, 1.8); v.b.frequency.setTargetAtTime(f, t, 1.8);
-        v.vg.gain.setTargetAtTime(v.base * .55, t, 1.0);          // dip
-        v.vg.gain.setTargetAtTime(v.base, t + 2.4, 2.2);          // swell back
-      });
-      if (subOsc) subOsc.frequency.setTargetAtTime(NOTE(notes[0] - 12), t, 2.2);
-    }
-    function shimmer() {
-      if (!actx || actx.state === "closed") return;
-      const chord = CHORDS[chordIx];
-      const m = chord[1 + Math.floor(Math.random() * (chord.length - 1))] + 24; // 2 octaves up
-      const osc = actx.createOscillator(), g = actx.createGain();
-      osc.type = "sine"; osc.frequency.value = NOTE(m); g.gain.value = 0; osc.connect(g);
-      if (actx.createStereoPanner) { const p = actx.createStereoPanner(); p.pan.value = Math.random() * 1.6 - .8; g.connect(p); p.connect(reverb); p.connect(master); }
-      else { g.connect(reverb); g.connect(master); }
-      const t = actx.currentTime;
-      g.gain.linearRampToValueAtTime(.05, t + 1.3);
-      g.gain.exponentialRampToValueAtTime(.0008, t + 6);
-      osc.start(t); osc.stop(t + 6.5);
-      shimmerTimer = setTimeout(shimmer, 5000 + Math.random() * 7000);
-    }
-    function buildAudio() {
-      actx = new (window.AudioContext || window.webkitAudioContext)();
-      master = actx.createGain(); master.gain.value = 0; master.connect(actx.destination);
-      // space
-      reverb = makeReverb(); const wet = actx.createGain(); wet.gain.value = .85; reverb.connect(wet); wet.connect(master);
-      // pad: voices -> filter -> bus -> (dry + reverb send)
-      padFilter = actx.createBiquadFilter(); padFilter.type = "lowpass"; padFilter.frequency.value = 760; padFilter.Q.value = .7;
-      const bus = actx.createGain(); bus.gain.value = .55; padFilter.connect(bus); bus.connect(master); bus.connect(reverb);
-      // slow filter sweep for movement
-      const fl = actx.createOscillator(), fg = actx.createGain(); fl.frequency.value = .035; fg.gain.value = 430; fl.connect(fg); fg.connect(padFilter.frequency); fl.start();
-      // sub drone for body/warmth
-      subOsc = actx.createOscillator(); const sg = actx.createGain(); subOsc.type = "sine"; subOsc.frequency.value = NOTE(CHORDS[0][0] - 12); sg.gain.value = .11; subOsc.connect(sg); sg.connect(master); subOsc.start();
-      // four detuned pad voices
-      voices = CHORDS[0].map((m, i) => {
-        const vg = actx.createGain(); vg.gain.value = 0; vg.connect(padFilter);
-        const a = actx.createOscillator(), b = actx.createOscillator();
-        a.type = "triangle"; b.type = "sine"; a.frequency.value = NOTE(m); b.frequency.value = NOTE(m); a.detune.value = -6; b.detune.value = 7;
-        a.connect(vg); b.connect(vg); a.start(); b.start();
-        const lfo = actx.createOscillator(), lg = actx.createGain(); lfo.frequency.value = .05 + i * .021; lg.gain.value = .03; lfo.connect(lg); lg.connect(vg.gain); lfo.start();
-        const base = [.17, .13, .12, .11][i]; vg.gain.setTargetAtTime(base, actx.currentTime, 2.6);
-        return { a, b, vg, base };
-      });
-      // drift through the progression
-      chordTimer = setInterval(() => { chordIx = (chordIx + 1) % CHORDS.length; setChord(CHORDS[chordIx]); }, 11000);
-      shimmerTimer = setTimeout(shimmer, 3500 + Math.random() * 3500);
-    }
-    function startAudio() { if (!soundOn) return; if (!actx) buildAudio(); if (actx.state === "suspended") actx.resume(); ramp(.32); }
-    function ramp(v) { if (master) master.gain.linearRampToValueAtTime(v, actx.currentTime + 1.6); }
+    // Ambient audio is an app-wide singleton (../lib/ambientAudio.js) so it keeps
+    // playing seamlessly across screen changes — Landing only drives the controls.
+    const startAudio = () => ambient.start();
 
     const soundBtn = q("#lpSoundBtn"), soundIcon = q("#lpSoundIcon"), swSound = q("#lpSwSound"), swMotion = q("#lpSwMotion");
-    swSound.classList.toggle("on", soundOn); swMotion.classList.toggle("on", motionOff);
-    function setSound(on) { soundOn = on; swSound.classList.toggle("on", on); soundIcon.style.opacity = on ? 1 : .4; if (on) { if (started) startAudio(); } else { ramp(0); } }
-    soundBtn.addEventListener("click", () => setSound(!soundOn));
-    swSound.addEventListener("click", () => setSound(!soundOn));
+    const syncSound = (on) => { swSound.classList.toggle("on", on); soundIcon.style.opacity = on ? 1 : .4; };
+    syncSound(ambient.isEnabled()); swMotion.classList.toggle("on", motionOff);
+    function setSound(on) { ambient.setEnabled(on); syncSound(on); }
+    soundBtn.addEventListener("click", () => setSound(!ambient.isEnabled()));
+    swSound.addEventListener("click", () => setSound(!ambient.isEnabled()));
     swMotion.addEventListener("click", () => { motionOff = !motionOff; swMotion.classList.toggle("on", motionOff); });
     const gearBtn = q("#lpGearBtn"), panel = q("#lpPanel");
     gearBtn.addEventListener("click", () => panel.classList.toggle("open"));
@@ -328,9 +267,10 @@ export default function Landing({ onEnter }) {
     window.addEventListener("keydown", onKey);
 
     return () => {
-      running = false; cancelAnimationFrame(raf); clearInterval(tickId); clearInterval(chordTimer); clearTimeout(shimmerTimer); io.disconnect();
+      running = false; cancelAnimationFrame(raf); clearInterval(tickId); io.disconnect();
       window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", resize); window.removeEventListener("keydown", onKey);
-      if (actx) { try { actx.close(); } catch (e) {} }
+      // NB: ambient audio is intentionally NOT torn down here — it's an app-wide
+      // singleton that must keep playing across screen changes.
       document.documentElement.classList.remove("lp-lock");
       document.body.classList.remove("lp-lock-body", "lp-locked");
       if (root) root.innerHTML = "";
